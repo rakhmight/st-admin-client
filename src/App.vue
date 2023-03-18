@@ -7,7 +7,7 @@
 </template>
 
 <script>
-
+console.log(process.env.VUE_APP_CLIENT_TOKEN)
 export default {
   name: 'App',
 
