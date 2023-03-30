@@ -1,5 +1,7 @@
 <template>
   <v-app>
+    <header-component />
+
     <v-main>
       <router-view/>
     </v-main>
@@ -7,6 +9,7 @@
 </template>
 
 <script>
+import HeaderComponent from '@/components/HeaderComponent'
 //console.log(process.env.VUE_APP_CLIENT_TOKEN)
 export default {
   name: 'App',
@@ -14,10 +17,16 @@ export default {
   data: () => ({
     //
   }),
+  components: {
+    HeaderComponent
+  }
 }
 </script>
 
 <style>
+.v-main{
+  padding-top: 0;
+}
 *{
     padding: 0;
     margin: 0;
@@ -35,6 +44,17 @@ html{
     overflow: hidden;
 }
 
+::-webkit-scrollbar {
+    width: 12px; /* ширина для вертикального скролла */
+    background-color: #b9b9b9;
+}
+
+/* ползунок скроллбара */
+::-webkit-scrollbar-thumb {
+    background-color: #0d5ace9a;
+    border-radius: 1em;
+}
+
 /*=========================| VARS |===========================*/
 :root {
   --main-color: #0d5fd8;
@@ -43,4 +63,37 @@ html{
   --bg-color: #D9E3E3;
 }
 /*=============================================================*/
+
+/*=========================| FONTS |===========================*/
+@font-face {
+    font-family: MontserratLight;
+    src: url('@/assets/fonts/montserrat/Montserrat-Light.ttf');
+}
+@font-face {
+    font-family: MontserratThin;
+    src: url('@/assets/fonts/montserrat/Montserrat-Thin.ttf');
+}
+@font-face {
+    font-family: MontserratExtraLight;
+    src: url('@/assets/fonts/montserrat/Montserrat-ExtraLight.ttf');
+}
+@font-face {
+    font-family: MontserratMedium;
+    src: url('@/assets/fonts/montserrat/Montserrat-Medium.ttf');
+}
+@font-face {
+    font-family: MontserratRegular;
+    src: url('@/assets/fonts/montserrat/Montserrat-Regular.ttf');
+}
+/*=============================================================*/
+
+.text-special-color{
+  color: var(--text-special-color)
+}
+.bg-color{
+  background-color: var(--bg-color)
+}
+.bg-special-color{
+  background-color: var(--bg-special-color)
+}
 </style>
