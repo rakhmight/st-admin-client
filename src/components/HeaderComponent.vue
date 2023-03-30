@@ -108,28 +108,52 @@
         </v-btn>
       </template>
       <v-list>
-        <v-btn
-        size="small"
-        color="#c8c7ce" 
-        @click="$router.push('/settings')"
-        width="100%"
-        class="d-flex justify-start"
-        >
-          <v-icon size="18" color="#888" class="mr-1">mdi-cog</v-icon>
-          <span style="color:#000">Settings</span>
-        </v-btn>
+        <v-tooltip text="SmartAcademy system account settings">
+          <template v-slot:activator="{ props }">
+            <v-btn
+            v-bind="props"
+            size="small"
+            @click="$router.push('/settings')"
+            width="100%"
+            class="d-flex justify-start"
+            >
+              <v-icon size="18" color="#888" class="mr-1">mdi-cog</v-icon>
+              <span style="color:#000">Settings</span>
+            </v-btn>
+          </template>
+        </v-tooltip>
         
-      <v-divider></v-divider>
-        <v-btn
-        size="small"
-        color="#c8c7ce"
-        @click="logout"
-        width="100%"
-        class="d-flex justify-start"
-        >
-          <v-icon size="18" color="#d3291d" class="mr-1">mdi-door</v-icon>
-          <span style="color:#d3291d">Quit</span>
-        </v-btn>
+        <v-divider></v-divider>
+        <v-tooltip text="Quit of SmartTesting system">
+          <template v-slot:activator="{ props }">
+            <v-btn
+            v-bind="props"
+            size="small"
+            @click="quit"
+            width="100%"
+            class="d-flex justify-start"
+            >
+              <v-icon size="18" color="#d3291d" class="mr-1">mdi-door</v-icon>
+              <span style="color:#d3291d">Quit ST</span>
+            </v-btn>
+          </template>
+        </v-tooltip>
+          
+        <v-divider></v-divider>
+        <v-tooltip text="Log out of SmartAcademy system">
+          <template v-slot:activator="{ props }">
+            <v-btn
+            v-bind="props"
+            size="small"
+            @click="logout"
+            width="100%"
+            class="d-flex justify-start"
+            >
+              <v-icon size="18" color="#d3291d" class="mr-1">mdi-door</v-icon>
+              <span style="color:#d3291d">Log out of SA</span>
+            </v-btn>
+          </template>
+        </v-tooltip>
       </v-list>
     </v-menu>
     </v-app-bar>
@@ -137,6 +161,9 @@
 </template>
 
 <script>
+import makeReq from '@/services/makeReq'
+import { mapMutations } from 'vuex'
+
 export default {
     data(){
         return{
@@ -146,6 +173,7 @@ export default {
         }
     },
     methods:{
+      ...mapMutations(['changeAuthState']),
       async logout(){
         let store = localStorage.getItem('auth')
 
@@ -158,13 +186,20 @@ export default {
             // } else{
             // }
             // редирект и удаление из LS
+            this.changeAuthState(false)
             localStorage.removeItem('auth')
-            navigateTo('/auth')
+            this.$router.push('/')
           })
         }else{
           // редирект
-          navigateTo('/auth')
+            this.$router.push('/')
         }
+      },
+
+      quit(){
+        localStorage.removeItem('auth')
+        this.changeAuthState(false)
+        this.$router.push('/')
       }
     }
 }

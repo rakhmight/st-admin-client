@@ -108,6 +108,7 @@ export default {
                         this.changeAuthState(true)
 
                         // проверка прав на st-server
+                        // отправка токена пользователя в st-server
 
                         this.status = 'success'
                         setTimeout(()=>{ 
