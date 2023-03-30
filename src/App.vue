@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <header-component />
+    <header-component v-if="!$route.meta.hideHeader" />
 
     <v-main>
       <router-view/>

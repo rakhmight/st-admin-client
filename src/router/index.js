@@ -1,19 +1,21 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import EnterView from '../views/EnterView.vue'
 import AuthView from '../views/AuthView.vue'
-import ErrorView from '../views/ErrorView.vue'
 import PanelView from '../views/PanelView.vue'
 import SettingsView from '../views/SettingsView.vue'
 
 const routes = [
   {
     path: '/',
-    name: 'auth',
-    component: AuthView
+    name: 'enter',
+    component: EnterView,
+    meta: { hideHeader: true },
   },
   {
-    path: '/error',
-    name: 'error',
-    component: ErrorView
+    path: '/auth',
+    name: 'auth',
+    component: AuthView,
+    meta: { hideHeader: true },
   },
   {
     path: '/panel',

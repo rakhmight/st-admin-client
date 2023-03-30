@@ -1,43 +1,135 @@
 <template>
-  <div class="content">
-    <div class="form">
-      <span class="text-h5 title-text">АВТОРИЗАЦИЯ</span>
-      <v-divider class="mb-5 mt-3"></v-divider>
-      <p>Войдите с помощью сервера аутентификации системы Smart Academy. Нажмите на кнопку ниже и не закрывайте откроющееся окно пока не закончите вход.</p>
-      <v-btn @click="redirect" color="var(--main-color)" class="mt-5">
-        <span style="color: #fff">Войти</span>
-      </v-btn>
+    <div class="content">
+        <div class="auth-server" v-if="authByAuthServer">
+            <div class="form">
+                <span class="text-h5 title-text">Данные получены</span>
+                <v-divider class="mb-5 mt-3"></v-divider>
+                <p>Данные для входа были получены. Вы можете <b>закрыть</b> это окно.</p>
 
-      <div class="system">
-        <div class="logo">
-          <v-img src="@/assets/media/logo.svg" width="80" class="mr-2"></v-img>
+                <div class="system">
+                    <v-icon color="var(--main-color)" size="100">mdi-check-circle-outline</v-icon>
+                </div>
+            </div>
         </div>
-        <div class="title text-h5 text-left"><span class="title-text">SMART TESTING</span><br>SERVER ADMIN PANEL</div>
-      </div>
+
+        <div class="self-auth" v-else>
+            <div class="process d-flex flex-column align-center" v-if="status=='process'">
+                <v-progress-circular
+                :size="70"
+                color="var(--main-color)"
+                indeterminate
+                ></v-progress-circular>
+                <p class="mt-3">Вход в систему..</p>
+            </div>
+
+            <div class="success" v-if="status=='success'">
+                <div class="form">
+                    <span class="text-h5 title-text">Успешный вход</span>
+                    <v-divider class="mb-5 mt-3"></v-divider>
+                    <p>Вы вошли c ролью <b>"роль"</b></p>
+                    <p>Сейчас вы перейдёте в панель управления системы.</p>
+
+                    <div class="system">
+                        <v-icon color="var(--main-color)" size="100">mdi-check-circle-outline</v-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div class="error" v-if="status=='error'">
+                <div class="form">
+                    <span class="text-h5 text-red">Возникла ошибка</span>
+                    <v-divider class="mb-5 mt-3"></v-divider>
+                    <p>{{ errorDes }}</p>
+
+                    <div class="system">
+                        <v-icon color="red" size="100">mdi-alert-circle-outline</v-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <!-- <a href="https://localhost:3600/redirect?system=st-server">Войти</a> -->
-  </div>
 </template>
 
 <script>
-import { defineComponent } from 'vue';
+import makeReq from '@/services/makeReq'
+import { mapMutations, mapGetters } from 'vuex'
 
-export default defineComponent({
-  name: 'AuthView',
-  methods:{
-    redirect(){
-      let popup = window.open('https://localhost:3600/redirect?system=st-server', 'redirectTab', "popup, location=false, width=900, height=600")
-
-      let interval = setInterval(()=>{
-        if(popup.closed){
-          console.log('Hello');
-          clearInterval(interval);
+export default {
+    data(){
+        return {
+            authByAuthServer: false,
+            status: 'process',
+            statusDes: '',
+            errorDes: 'Ошибка'
         }
-      },1000)
+    },
+    computed: mapGetters(["getAuthState"]),
+    methods:{
+        ...mapMutations(['changeAuthState']),
+    },
+    mounted (){
+        if(this.getAuthState){
+            this.$router.push('/panel')
+        }
+
+        let urlParams = window
+        .location
+        .search
+        .replace('?','')
+        .split('&')
+        .reduce(
+            function(p,e){
+                let a = e.split('=');
+                p[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+                return p;
+            },
+            {}
+        );
+        if(urlParams.authByAuthServer){
+           localStorage.setItem('auth', JSON.stringify({
+            id: urlParams.id,
+            token: urlParams.token
+           })) 
+           this.authByAuthServer = true
+        }
+
+        if(!this.authByAuthServer){
+            let authStore = localStorage.getItem('auth')
+            if(authStore){
+                authStore = JSON.parse(authStore)
+                makeReq('https://localhost:3600/api/users/check', 'POST', {
+                    data:{
+                        ...authStore
+                    }
+                    
+                })
+                .then(data=>{
+                    if(data.code == 'OK'){
+                        this.changeAuthState(true)
+
+                        // проверка прав на st-server
+
+                        this.status = 'success'
+                        setTimeout(()=>{ 
+                            this.$router.push('/panel')
+                        },3000)
+                    } else {
+                        localStorage.removeItem('auth')
+                        this.status = 'error'
+                        this.errorDes = 'Не аутентифицированный пользователь'
+                        setTimeout(()=>{
+                            this.$router.push('/')
+                        },10000)
+                    }
+                })
+            }else{
+                this.$router.push('/')
+            }
+        }
     }
-  }
-});
+}
 </script>
+
 
 <style scoped>
 .content{

@@ -79,6 +79,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import PanelUsersManagement from '@/components/panel/PanelUsersManagement'
 import PanelTestsManagement from '@/components/panel/PanelTestsManagement'
 import PanelExamsManagement from '@/components/panel/PanelExamsManagement'
@@ -92,6 +93,12 @@ export default {
   data(){
     return {
       tab: 'users'
+    }
+  },
+  computed: mapGetters(["getAuthState"]),
+  mounted() {
+    if(!this.getAuthState){
+        this.$router.push('/')
     }
   },
   components:{
