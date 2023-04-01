@@ -26,7 +26,7 @@
                 <div class="form">
                     <span class="text-h5 title-text">Успешный вход</span>
                     <v-divider class="mb-5 mt-3"></v-divider>
-                    <p>Вы вошли c ролью <b>"роль"</b></p>
+                    <p>Вы вошли c ролью <b>"{{ getRole=='author' ? 'Автор тестов' : (getRole=='inspector') ? 'Проверяющий тесты' : 'Администратор системы' }}"</b></p>
                     <p>Сейчас вы перейдёте в панель управления системы.</p>
 
                     <div class="system">
@@ -63,13 +63,17 @@ export default {
             errorDes: 'Ошибка'
         }
     },
-    computed: mapGetters(["getAuthState"]),
+    computed: mapGetters(["getAuthState", 'getRole']),
     methods:{
-        ...mapMutations(['changeAuthState']),
+        ...mapMutations(['changeAuthState', 'setRole']),
     },
     mounted (){
         if(this.getAuthState){
-            this.$router.push('/panel')
+            if (this.getRole=='admin') {
+                this.$router.push('/panel')
+            } else if (this.getRole=='inspector' || this.getRole=='author') {
+                this.$router.push('/box')
+            }
         }
 
         let urlParams = window
@@ -97,7 +101,7 @@ export default {
             let authStore = localStorage.getItem('auth')
             if(authStore){
                 authStore = JSON.parse(authStore)
-                makeReq('https://localhost:3600/api/users/check', 'POST', {
+                makeReq('http://localhost:3600/api/users/check', 'POST', {
                     data:{
                         ...authStore
                     }
@@ -105,15 +109,36 @@ export default {
                 })
                 .then(data=>{
                     if(data.code == 'OK'){
-                        this.changeAuthState(true)
+                        makeReq('http://127.0.0.1:4500/api/check', 'POST', {
+                            data:{
+                                reqType: 'auth',
+                                id: authStore.id,
+                                token: authStore.token
+                            } 
+                        })
+                        .then(data =>{
+                            if(data == 'author' || data == 'inspector' || data == 'admin'){
+                                this.changeAuthState(true)
+                                this.setRole(data)
+                                
+                                this.status = 'success'
+                                setTimeout(()=>{
+                                    if(data == 'admin'){
+                                        this.$router.push('/panel')
+                                    } else if (data == 'inspector' || data == 'author'){
+                                        this.$router.push('/box')
+                                    }
+                                },3000)
+                            } else{
+                                this.status = 'error'
+                                this.errorDes = 'У вас нет прав для использования данной системы.'
+                                return
+                            }
+                        })
 
                         // проверка прав на st-server
                         // отправка токена пользователя в st-server
 
-                        this.status = 'success'
-                        setTimeout(()=>{ 
-                            this.$router.push('/panel')
-                        },3000)
                     } else {
                         localStorage.removeItem('auth')
                         this.status = 'error'

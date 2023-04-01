@@ -15,7 +15,6 @@
         <div class="title text-h5 text-left"><span class="title-text">SMART TESTING</span><br>SERVER ADMIN PANEL</div>
       </div>
     </div>
-    <!-- <a href="https://localhost:3600/redirect?system=st-server">Войти</a> -->
   </div>
 </template>
 
@@ -25,10 +24,10 @@ import { mapGetters } from 'vuex'
 
 export default defineComponent({
   name: 'AuthView',
-  computed: mapGetters(["getAuthState"]),
+  computed: mapGetters(["getAuthState", 'getRole']),
   methods:{
     redirect(){
-      let popup = window.open('https://localhost:3600/redirect?reqSystem=SmartTesting', 'redirectTab', "popup, location=false, width=900, height=600")
+      let popup = window.open('http://localhost:3600/redirect?reqSystem=SmartTesting', 'redirectTab', "popup, location=false, width=900, height=600")
 
       let interval = setInterval(()=>{
         if(popup.closed){
@@ -43,7 +42,11 @@ export default defineComponent({
   },
   mounted() {
     if(this.getAuthState){
+      if (this.getRole=='admin') {
         this.$router.push('/panel')
+      } else if (this.getRole=='inspector' || this.getRole=='author') {
+        this.$router.push('/box')
+      }
     }
 
     let authStore = localStorage.getItem('auth')

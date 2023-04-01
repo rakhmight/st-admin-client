@@ -14,17 +14,16 @@
         <v-divider></v-divider>
 
         <v-list density="compact" nav>
-          <v-list-item prepend-icon="mdi-account" title="Profile" value="profile"></v-list-item>
-          <v-list-item prepend-icon="mdi-post-outline" title="Blog" value="blog"></v-list-item>
-          <v-list-item prepend-icon="mdi-history" title="History" value="history"></v-list-item>
-          <v-list-item prepend-icon="mdi-cog" title="Admin panel" value="panel" v-if="isAdmin"></v-list-item>
+          <v-list-item prepend-icon="mdi-archive" title="Box" value="box" @click="$router.push('/box')"></v-list-item>
+          <v-list-item prepend-icon="mdi-file-chart" title="Reports" value="reports" @click="$router.push('/reports')"></v-list-item>
+          <v-list-item prepend-icon="mdi-cog" title="Admin panel" value="panel" v-if="getRole=='admin'" @click="$router.push('/panel')"></v-list-item>
         <v-divider></v-divider>
-        <h3 class="mt-3 mb-1">Navigation</h3>
+        <h3 class="mt-3 mb-1 pl-2">Navigation</h3>
 
-          <v-list-item @click="navigateTo('/')">
+          <v-list-item>
             <div class="d-flex flex-row align-center pt-1 pb-1">
-                <div width="45"><v-img src="@/assets/media/logo.svg" height="27" width="27"></v-img></div>
-                <p class="w-100 ml-2">Smart Testing</p>
+                <div width="25"><v-img src="@/assets/media/SA_logo.svg" height="20" width="20"></v-img></div>
+                <p class="w-100 ml-2">SA Auth Server</p>
             </div>
           </v-list-item>
         </v-list>
@@ -150,7 +149,7 @@
             class="d-flex justify-start"
             >
               <v-icon size="18" color="#d3291d" class="mr-1">mdi-door</v-icon>
-              <span style="color:#d3291d">Log out of SA</span>
+              <span style="color:#d3291d">Log out</span>
             </v-btn>
           </template>
         </v-tooltip>
@@ -162,16 +161,16 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapGetters } from 'vuex'
 
 export default {
     data(){
         return{
              drawer: null,
              langs: [{lang: 'русский', short: 'ru'},{lang: "o'zbek", short: 'uz_l'}, {lang: "ўзбек", short: 'uz_k'},{lang: 'english', short: 'eng'}],
-             isAdmin: true
         }
     },
+    computed: mapGetters(['getRole']),
     methods:{
       ...mapMutations(['changeAuthState']),
       async logout(){
@@ -180,7 +179,7 @@ export default {
         if(store){
           store = JSON.parse(store)
 
-          await makeReq('https://localhost:3600/api/users/logout', 'POST', {data:{...store}})
+          await makeReq('http://localhost:3600/api/users/logout', 'POST', {data:{...store}})
           .then(data=>{
             // if(data.code == 'OK'){
             // } else{

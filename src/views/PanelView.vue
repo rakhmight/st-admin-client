@@ -95,10 +95,13 @@ export default {
       tab: 'users'
     }
   },
-  computed: mapGetters(["getAuthState"]),
+  computed: mapGetters(["getAuthState", 'getRole']),
   mounted() {
     if(!this.getAuthState){
         this.$router.push('/')
+    }
+    if(this.getRole!='admin'){
+      this.$router.push('/box')
     }
   },
   components:{
