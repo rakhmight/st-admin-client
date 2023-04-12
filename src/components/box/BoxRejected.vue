@@ -1,5 +1,17 @@
 <template>
     <div class="content">
-        <h1>Rejected tests</h1>
+        <title-component :title="'Rejected tests'" />
     </div>
 </template>
+
+<script>
+import TitleComponent from '@/components/TitleComponent';
+import TestCard from '@/components/TestCard';
+
+export default {
+    components:{
+        TitleComponent,
+        TestCard
+    }
+}
+</script>

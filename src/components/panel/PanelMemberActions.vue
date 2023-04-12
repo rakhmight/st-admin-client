@@ -1,6 +1,6 @@
 <template>
     <div class="wrapper">
-        <title-component :title="'Server state'" />
+        <title-component :title="'Member Actions'" />
     </div>
 </template>
 

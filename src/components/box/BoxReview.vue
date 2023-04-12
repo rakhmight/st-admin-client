@@ -1,5 +1,17 @@
 <template>
     <div class="content">
-        <h1>Under review</h1>
+        <title-component :title="'Under review'" />
     </div>
 </template>
+
+<script>
+import TitleComponent from '@/components/TitleComponent';
+import TestCard from '@/components/TestCard';
+
+export default {
+    components:{
+        TitleComponent,
+        TestCard
+    }
+}
+</script>

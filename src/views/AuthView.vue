@@ -26,7 +26,7 @@
                 <div class="form">
                     <span class="text-h5 title-text">Успешный вход</span>
                     <v-divider class="mb-5 mt-3"></v-divider>
-                    <p>Вы вошли c ролью <b>"{{ getRole=='author' ? 'Автор тестов' : (getRole=='inspector') ? 'Проверяющий тесты' : 'Администратор системы' }}"</b></p>
+                    <p>Вы вошли c ролью <b>"{{ getRole=='author' ? 'Автор тестов' : (getRole=='inspector') ? 'Инспектор' : 'Администратор системы' }}"</b></p>
                     <p>Сейчас вы перейдёте в панель управления системы.</p>
 
                     <div class="system">
@@ -63,9 +63,9 @@ export default {
             errorDes: 'Ошибка'
         }
     },
-    computed: mapGetters(["getAuthState", 'getRole']),
+    computed: mapGetters(["getAuthState", 'getRole', 'getAuthParams', 'getUsersList', 'getDepartments']),
     methods:{
-        ...mapMutations(['changeAuthState', 'setRole']),
+        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList']),
     },
     mounted (){
         if(this.getAuthState){
@@ -101,27 +101,69 @@ export default {
             let authStore = localStorage.getItem('auth')
             if(authStore){
                 authStore = JSON.parse(authStore)
+                this.setAuthParams({...authStore})
                 makeReq('http://localhost:3600/api/users/check', 'POST', {
                     data:{
-                        ...authStore
+                        ...this.getAuthParams
                     }
-                    
                 })
                 .then(data=>{
-                    if(data.code == 'OK'){
+                    if(data.status == 200){
+                        // сохранение в state userData
+                        this.setUserData(data.userData)
                         makeReq('http://127.0.0.1:4500/api/check', 'POST', {
                             data:{
                                 reqType: 'auth',
                                 id: authStore.id,
-                                token: authStore.token
+                                token: {
+                                    key: authStore.token,
+                                    date: data.tokenLife
+                                }
                             } 
                         })
-                        .then(data =>{
+                        .then(async (data) =>{
                             if(data == 'author' || data == 'inspector' || data == 'admin'){
                                 this.changeAuthState(true)
                                 this.setRole(data)
                                 
                                 this.status = 'success'
+
+                                if(data == 'admin'){
+                                    // usersList
+                                    await makeReq('http://localhost:3600/api/users/getusers', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(async (data)=>{
+                                        this.setUsersList(data)
+
+                                        await makeReq('http://127.0.0.1:4500/api/members/get', 'POST', {
+                                            ...this.getAuthParams
+                                        })
+                                        .then(data=>{
+                                            const membersList = data.data
+                                            const systemMembers = []
+                                            
+                                            this.getUsersList.forEach(user => {
+                                                membersList.forEach(member =>{
+                                                    if(user.id == member.id){
+                                                        user.memberRole = member.memberRole
+                                                        systemMembers.push(user)
+                                                    }
+                                                })
+                                            });
+
+                                            this.setMembersList(systemMembers)
+                                        })
+                                    })
+                                    // departments
+                                    await makeReq('http://localhost:3600/api/departments/getdepartments', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        this.setDepartments(data)
+                                    })
+                                }
+
                                 setTimeout(()=>{
                                     if(data == 'admin'){
                                         this.$router.push('/panel')

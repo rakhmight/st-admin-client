@@ -1,5 +1,15 @@
 <template>
     <div class="content">
-        <h1>Statistic</h1>
+        <title-component :title="'Statistic'" />
     </div>
 </template>
+
+<script>
+import TitleComponent from '@/components/TitleComponent';
+
+export default {
+    components:{
+        TitleComponent,
+    }
+}
+</script>

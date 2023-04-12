@@ -1,3 +1,15 @@
 <template>
-    <h1>Logs</h1>
+    <div class="wrapper">
+        <title-component :title="'Logs'" />
+    </div>
 </template>
+
+<script>
+import TitleComponent from '@/components/TitleComponent';
+
+export default {
+    components:{
+        TitleComponent,
+    }
+}
+</script>

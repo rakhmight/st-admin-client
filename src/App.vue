@@ -2,7 +2,7 @@
   <v-app>
     <header-component v-if="!$route.meta.hideHeader" />
 
-    <v-main>
+    <v-main style="background-color: var(--bg-color);">
       <router-view/>
     </v-main>
   </v-app>
@@ -61,6 +61,7 @@ html{
   --bg-special-color: #0c2242;
   --text-special-color: #7baef9;
   --bg-color: #D9E3E3;
+  --red-color: #d53b12;
 }
 /*=============================================================*/
 
@@ -87,6 +88,12 @@ html{
 }
 /*=============================================================*/
 
+.menu-text{
+  font-size: 0.9em
+}
+.text-main-color{
+  color: var(--main-color)
+}
 .text-special-color{
   color: var(--text-special-color)
 }
@@ -95,5 +102,18 @@ html{
 }
 .bg-special-color{
   background-color: var(--bg-special-color)
+}
+
+.v-list-item--density-compact.v-list-item--one-line{
+    min-height: 0;
+}
+.v-list{
+    padding:0;
+}
+.v-list-item{
+    cursor: pointer;
+}
+.v-list-item:hover{
+    background-color: rgba(0, 0, 0, 0.162)
 }
 </style>

@@ -1,5 +1,17 @@
 <template>
     <div class="content">
-        <h1>Approved tests</h1>
+        <title-component :title="'Approved tests'" />
     </div>
 </template>
+
+<script>
+import TitleComponent from '@/components/TitleComponent';
+import TestCard from '@/components/TestCard';
+
+export default {
+    components:{
+        TitleComponent,
+        TestCard
+    }
+}
+</script>

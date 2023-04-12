@@ -5,16 +5,16 @@
         density="compact"
         >
             <!-- General -->
-            <v-tab value="general"><span class="text-subtitle-2">General</span></v-tab>
+            <v-tab value="general" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">General</span></v-tab>
             <!-- For inspector & admin -->
-            <v-tab value="incoming"><span class="text-subtitle-2">Incoming</span></v-tab>
+            <v-tab value="incoming" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Incoming</span></v-tab>
             <!-- For author -->
-            <v-tab value="send"><span class="text-subtitle-2">Send for check</span></v-tab>
+            <v-tab value="send" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Send for check</span></v-tab>
             <!-- General -->
-            <v-tab value="review"><span class="text-subtitle-2">Under review</span></v-tab>
-            <v-tab value="approved"><span class="text-subtitle-2">Approved</span></v-tab>
-            <v-tab value="rejected"><span class="text-subtitle-2">Rejected</span></v-tab>
-            <v-tab value="statistic"><span class="text-subtitle-2">Statistic</span></v-tab>
+            <v-tab value="review" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Under review</span></v-tab>
+            <v-tab value="approved" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Approved</span></v-tab>
+            <v-tab value="rejected" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Rejected</span></v-tab>
+            <v-tab value="statistic" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Statistic</span></v-tab>
         </v-tabs>
 
         <v-window v-model="tab" class="mt-5">
@@ -56,7 +56,7 @@ import BoxStatistic from '@/components/box/BoxStatistic'
 export default {
   data(){
     return {  
-        tab: null,
+        tab: 'general',
     }
   },
   computed: mapGetters(["getAuthState"]),
@@ -76,3 +76,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.v-tab--selected{
+    color: var(--main-color);
+}
+</style>

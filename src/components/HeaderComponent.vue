@@ -4,6 +4,7 @@
         <v-navigation-drawer
         v-model="drawer"
         temporary
+        color="var(--bg-color)"
       >
     
         <div class="d-flex flex-row pt-1 pb-1" style="background: var(--main-color)">
@@ -96,13 +97,14 @@
           small
         >
           <v-img
+            v-if="getAuthState"
             class="shrink mr-3"
             contain
-            src="@/assets/media/account.png"
+            :src="getUserData.bio.avatar"
             transition="scale-transition"
             width="25"
           />
-          <span style="color:#fff">User</span>
+          <span style="color:#fff" v-if="getAuthState">{{ getUserData.bio.firstName }} ({{ getRole=='author' ? 'author' : getRole=='inspector' ? 'inspector' : 'administrator' }})</span>
           <v-icon class="ml-1" size="25">mdi-chevron-down</v-icon>
         </v-btn>
       </template>
@@ -170,7 +172,7 @@ export default {
              langs: [{lang: 'русский', short: 'ru'},{lang: "o'zbek", short: 'uz_l'}, {lang: "ўзбек", short: 'uz_k'},{lang: 'english', short: 'eng'}],
         }
     },
-    computed: mapGetters(['getRole']),
+    computed: mapGetters(['getRole', 'getUserData', 'getAuthState']),
     methods:{
       ...mapMutations(['changeAuthState']),
       async logout(){
