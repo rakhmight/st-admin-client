@@ -1,5 +1,5 @@
 <template>
-    <v-container>
+    <v-container v-if="getAuthState">
         <div class="wrapper">
           <div class="tests-nav-area"></div>
           <div class="tests-nav">

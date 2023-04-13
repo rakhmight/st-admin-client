@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard bg-color">
+  <div class="dashboard bg-color" v-if="getAuthState">
     <div class="navbar-section"></div>
     <div class="navbar bg-special-color">
       <div class="navbar__header d-flex flex-row align-center">

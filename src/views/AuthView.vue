@@ -147,6 +147,7 @@ export default {
                                                 membersList.forEach(member =>{
                                                     if(user.id == member.id){
                                                         user.memberRole = member.memberRole
+                                                        user.hasSign = member.hasSign
                                                         systemMembers.push(user)
                                                     }
                                                 })

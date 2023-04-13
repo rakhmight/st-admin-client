@@ -1,5 +1,5 @@
 <template>
-    <v-container style="margin-top: 54px">
+    <v-container style="margin-top: 54px" v-if="getAuthState">
         <v-tabs
         v-model="tab"
         density="compact"

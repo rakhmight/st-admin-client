@@ -97,6 +97,12 @@
                     <v-list density="compact" min-width="120">
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
+                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-information</v-icon>
+                                <span class="menu-text">Info</span>
+                            </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item>
+                            <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
                                 <span class="menu-text">Edit</span>
                             </v-list-item-title>
@@ -126,12 +132,7 @@
                         </v-btn>
                     </template>
                     <v-list density="compact" min-width="120">
-                        <v-list-item>
-                            <v-list-item-title class="d-flex align-center">
-                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-draw</v-icon>
-                                <span class="menu-text">Get sign</span>
-                            </v-list-item-title>
-                        </v-list-item>
+                        <get-sign :memberID="member.id" />
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-autorenew</v-icon>
@@ -155,6 +156,7 @@
 
 <script>
 import SubtitleComponent from '@/components/SubtitleComponent';
+import GetSign from '@/components/panel/SignsManagement/dialogs/GetSign';
 import { mergeProps } from 'vue'
 import { mapGetters } from 'vuex';
 
@@ -168,14 +170,23 @@ export default {
         }
     },
     mounted(){
-        this.members = this.getMembersList
+        if(this.mode=='users'){
+            this.members = this.getMembersList
+        } else {
+            this.getMembersList.forEach(member => {
+                if(member.hasSign){
+                    this.members.push(member)
+                }
+            });
+        }
     },
     computed: mapGetters(['getMembersList']),
     methods: {
       mergeProps,
     },
     components: {
-        SubtitleComponent
+        SubtitleComponent,
+        GetSign
     }
 }
 </script>

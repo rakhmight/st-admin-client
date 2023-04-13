@@ -1,4 +1,4 @@
-<template>
+<template v-if="getAuthState">
     <h1>Settings</h1>
 </template>
 

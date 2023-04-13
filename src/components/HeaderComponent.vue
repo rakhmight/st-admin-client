@@ -1,5 +1,5 @@
 <template>
-<div>
+<div v-if="getAuthState">
   
         <v-navigation-drawer
         v-model="drawer"

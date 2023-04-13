@@ -236,7 +236,8 @@ export default {
                 data:{
                     _id: this.user,
                     token: null,
-                    permission: this.permissions
+                    permission: this.permissions,
+                    hasSign: this.createSign
                 }
             })
             .then(async (data)=>{
@@ -252,6 +253,7 @@ export default {
                 // добавить в state
                 let newMember = this.getUsersList.find(user => user.id == this.user)
                 newMember.memberRole = this.permissions
+                newMember.hasSign = this.createSign
                 this.updateMembersList(newMember)
 
                 if(data.statusCode == 200){
