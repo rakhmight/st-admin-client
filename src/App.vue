@@ -86,6 +86,10 @@ html{
     font-family: MontserratRegular;
     src: url('@/assets/fonts/montserrat/Montserrat-Regular.ttf');
 }
+@font-face {
+    font-family: Hero-1;
+    src: url('@/assets/fonts/ofont.ru_Hero.ttf');
+}
 /*=============================================================*/
 
 .menu-text{

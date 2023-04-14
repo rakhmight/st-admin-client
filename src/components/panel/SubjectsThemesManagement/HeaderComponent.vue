@@ -48,6 +48,23 @@
                     </v-list>
                 </v-menu>
 
+                <v-tooltip text="Print themes">
+                <template v-slot:activator="{ props }">
+                    <v-btn
+                    v-bind="props"
+                    density="compact"
+                    color="#444"
+                    size="24"
+                    icon
+                    class="mr-3"
+                    v-if="section=='theme' && getCurrentSubject!==undefined && getCurrentSubject.themes.length"
+                    @click="printThemes"
+                    >
+                        <v-icon size="19">mdi-printer</v-icon>
+                    </v-btn>
+                </template>
+                </v-tooltip>
+
                 <v-tooltip :text="!status ? 'Add new' : 'Cancel'" location="left">
                 <template v-slot:activator="{ props }">
                     <v-btn
@@ -73,7 +90,10 @@
 
 <script>
 import { mergeProps } from 'vue'
-import { mapGetters } from 'vuex';
+import { mapGetters } from 'vuex'
+import jsPDF from 'jspdf'
+import autoTable from 'jspdf-autotable'
+import {font} from '@/plugins/MontserratAlternates-normal.js'
 
 export default {
     props:{
@@ -92,6 +112,41 @@ export default {
         },
         
         mergeProps,
+
+        printThemes(){
+            const doc = new jsPDF({
+                unit: "in",
+            })
+
+            const currentSubjects = this.getCurrentSubject
+            const themesToTable = []
+            currentSubjects.themes.forEach(theme => {
+                themesToTable.push([theme.id, theme.name.ru])
+            });
+
+            doc.addFileToVFS('MontserratAlternates-normal.ttf', font);
+            doc.addFont('MontserratAlternates-normal.ttf', 'MontserratAlternates', 'normal');
+
+            doc.setFont('MontserratAlternates')
+
+            autoTable(doc, {
+                head: [['ID', 'Название предмета']],
+                body: [
+                    [currentSubjects.id, currentSubjects.name.ru]
+                ],
+                styles: { font: 'MontserratAlternates'},
+            })
+
+            autoTable(doc, {
+                head: [['ID', 'Название темы']],
+                body: [
+                    ...themesToTable,
+                ],
+                styles: { font: 'MontserratAlternates'},
+            })
+            
+            doc.save(`${currentSubjects.name.ru}.pdf`,'')
+        }
     },
 }
 </script>
