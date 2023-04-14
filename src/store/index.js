@@ -8,7 +8,10 @@ export default createStore({
     usersList: [],
     departments: [],
     authParams:{id: null, token:null},
-    membersList: []
+    membersList: [],
+    subjects: [],
+    themes: [],
+    currentSubject: undefined
   },
   getters: {
     getAuthState(state){
@@ -31,7 +34,17 @@ export default createStore({
     },
     getMembersList(state){
       return state.membersList
-    }
+    },
+
+    getSubjects(state){
+      return state.subjects
+    },
+    getThemes(state){
+      return state.themes
+    },
+    getCurrentSubject(state){
+      return state.currentSubject
+    },
   },
   mutations: {
     changeAuthState(state, value){
@@ -58,6 +71,25 @@ export default createStore({
     },
     updateMembersList(state, value){
       state.membersList.push(value)
+    },
+
+    setSubjects(state, value){
+      state.subjects = value
+    },
+    updateSubjects(state, value){
+      state.subjects.push(value)
+    },
+    updateSubjectThemes(state, obj){
+      state.subjects[obj.index].themes = obj.themes
+    },
+    setThemes(state, value){
+      state.themes = value
+    },
+    setCurrentSubject(state, value){
+      state.currentSubject = value
+    },
+    setCurrentSubjectThemes(state, value){
+      state.currentSubject.themes = value
     }
   },
   actions: {

@@ -200,11 +200,12 @@ export default {
         },
         position(){
             this.user = undefined
-            if(this.position===null){
+            if(this.position===null && this.department){
                 return this.makeUsersListByDepartment()
             }
-
-            this.makeUsersListByDepartmentAndPosition()
+            if(this.position){
+                this.makeUsersListByDepartmentAndPosition()
+            }
         }
     },
     methods:{
@@ -303,6 +304,8 @@ export default {
                     })
                 }
             })
+
+console.log(this.users);
         },
 
         makeUsersListByDepartmentAndPosition(){
@@ -315,6 +318,8 @@ export default {
                     })
                 }
             })
+
+console.log(this.users);
         }
     }
 }

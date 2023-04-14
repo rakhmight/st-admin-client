@@ -65,7 +65,7 @@ export default {
     },
     computed: mapGetters(["getAuthState", 'getRole', 'getAuthParams', 'getUsersList', 'getDepartments']),
     methods:{
-        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList']),
+        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList', 'setSubjects']),
     },
     mounted (){
         if(this.getAuthState){
@@ -162,6 +162,13 @@ export default {
                                     })
                                     .then(data=>{
                                         this.setDepartments(data)
+                                    })
+                                    // subjects
+                                    makeReq('http://localhost:4500/api/subjects/get', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        this.setSubjects(data.data)
                                     })
                                 }
 
