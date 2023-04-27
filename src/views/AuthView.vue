@@ -65,7 +65,7 @@ export default {
     },
     computed: mapGetters(["getAuthState", 'getRole', 'getAuthParams', 'getUsersList', 'getDepartments']),
     methods:{
-        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList', 'setSubjects']),
+        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList', 'setSubjects', 'setTestImages']),
     },
     mounted (){
         if(this.getAuthState){
@@ -127,35 +127,36 @@ export default {
                                 this.setRole(data)
                                 
                                 this.status = 'success'
+                                
+                                // usersList
+                                await makeReq('http://localhost:3600/api/users/getusers', 'POST', {
+                                    ...this.getAuthParams
+                                })
+                                .then(async (data)=>{
+                                    this.setUsersList(data)
 
-                                if(data == 'admin'){
-                                    // usersList
-                                    await makeReq('http://localhost:3600/api/users/getusers', 'POST', {
+                                    await makeReq('http://127.0.0.1:4500/api/members/get', 'POST', {
                                         ...this.getAuthParams
                                     })
-                                    .then(async (data)=>{
-                                        this.setUsersList(data)
+                                    .then(data=>{
+                                        const membersList = data.data
+                                        const systemMembers = []
+                                        
+                                        this.getUsersList.forEach(user => {
+                                            membersList.forEach(member =>{
+                                                if(user.id == member.id){
+                                                    user.memberRole = member.memberRole
+                                                    user.hasSign = member.hasSign
+                                                    systemMembers.push(user)
+                                                }
+                                            })
+                                        });
 
-                                        await makeReq('http://127.0.0.1:4500/api/members/get', 'POST', {
-                                            ...this.getAuthParams
-                                        })
-                                        .then(data=>{
-                                            const membersList = data.data
-                                            const systemMembers = []
-                                            
-                                            this.getUsersList.forEach(user => {
-                                                membersList.forEach(member =>{
-                                                    if(user.id == member.id){
-                                                        user.memberRole = member.memberRole
-                                                        user.hasSign = member.hasSign
-                                                        systemMembers.push(user)
-                                                    }
-                                                })
-                                            });
-
-                                            this.setMembersList(systemMembers)
-                                        })
+                                        this.setMembersList(systemMembers)
                                     })
+                                })
+
+                                if(data == 'admin'){
                                     // departments
                                     await makeReq('http://localhost:3600/api/departments/getdepartments', 'POST', {
                                         ...this.getAuthParams
@@ -169,6 +170,62 @@ export default {
                                     })
                                     .then(data=>{
                                         this.setSubjects(data.data)
+                                    })
+
+                                    // testImages
+                                    await makeReq('http://127.0.0.1:4500/api/test/get', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setTestImages(data.data)
+                                        }
+                                    })
+                                }
+
+                                if(data == 'author'){
+                                    // testImages
+                                    await makeReq('http://127.0.0.1:4500/api/test/getauthortests', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setTestImages(data.data)
+                                        }
+                                    })
+
+                                    
+                                    // subjects
+                                    await makeReq('http://localhost:4500/api/subjects/getauthorthemes', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setSubjects(data.data)
+                                        }
+                                    })
+                                }
+
+                                if(data == 'inspector'){
+                                    // testImages
+                                    await makeReq('http://127.0.0.1:4500/api/test/getinspectortests', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setTestImages(data.data)
+                                        }
+                                    })
+
+                                    
+                                    // subjects
+                                    await makeReq('http://localhost:4500/api/subjects/getauthorthemes', 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setSubjects(data.data)
+                                        }
                                     })
                                 }
 

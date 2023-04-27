@@ -11,7 +11,9 @@ export default createStore({
     membersList: [],
     subjects: [],
     themes: [],
-    currentSubject: undefined
+    currentSubject: undefined,
+    testImages: [],
+    inspectTest: undefined
   },
   getters: {
     getAuthState(state){
@@ -45,6 +47,12 @@ export default createStore({
     getCurrentSubject(state){
       return state.currentSubject
     },
+    getTestImages(state){
+      return state.testImages
+    },
+    getInspectTest(state){
+      return state.inspectTest
+    }
   },
   mutations: {
     changeAuthState(state, value){
@@ -90,6 +98,25 @@ export default createStore({
     },
     setCurrentSubjectThemes(state, value){
       state.currentSubject.themes = value
+    },
+    updateTestImages(state, value){
+      state.testImages.push(value)
+    },
+    setTestImages(state, value){
+      state.testImages = value
+    },
+    replaceTestImages(state, value){
+      const target = state.testImages.find(testImage=>testImage._id==value._id)
+
+      if(target){
+        const index = state.testImages.indexOf(target)
+        state.testImages.splice(index, 1)
+
+        state.testImages.push(value)
+      }
+    },
+    setInspectTest(state, value){
+      state.inspectTest = value
     }
   },
   actions: {

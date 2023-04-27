@@ -85,27 +85,50 @@
         </div>
 
         <div class="cards">
-            <test-card />
-            <test-card />
-            <test-card />
-            <test-card />
+            <test-card
+            v-for="(test, i) in tests"
+            :key="i"
+            :test="test"
+            />
         </div>
+        
+        <data-empty :text="getRole == 'author' ? `You haven't uploaded tests yet` : 'Tests not found'" v-if="!tests.length" />
     </div>
 </template>
 
 <script>
 import TitleComponent from '@/components/TitleComponent';
-import TestCard from '@/components/TestCard';
+import TestCard from '@/components/TestCard/TestCard';
+import DataEmpty from '@/components/DataEmpty';
 import { mergeProps } from 'vue'
+import { mapGetters } from 'vuex';
 
 export default {
+    data(){
+        return {
+            tests: []
+        }
+    },
+    computed: mapGetters(['getTestImages', 'getRole']),
     methods: {
       mergeProps,
     },
     components:{
         TitleComponent,
-        TestCard
-    }
+        TestCard,
+        DataEmpty
+    },
+    mounted(){
+        this.getTestImages.forEach(testImage=>{
+            if(this.getRole=='author' || this.getRole=='inspector'){
+                this.tests.push(testImage)
+            } else if(this.getRole=='admin'){
+                if(testImage.status.value=='under-review' && testImage.status.step==2 || testImage.status.value=='approved' || testImage.status.value=='rejected' && testImage.status.rejected=='admin'){
+                    this.tests.push(testImage)
+                }
+            }
+        })
+    },
 }
 </script>
 
@@ -123,7 +146,8 @@ export default {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 250px));
     gap: 30px;
-    justify-content: space-around
+    justify-content: space-around;
+    padding-bottom: 30px;
 }
 
 .v-btn--size-default{

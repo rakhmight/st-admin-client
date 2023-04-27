@@ -5,6 +5,7 @@ import PanelView from '../views/PanelView.vue'
 import SettingsView from '../views/SettingsView.vue'
 import BoxView from '../views/BoxView.vue'
 import ReportsView from '../views/ReportsView.vue'
+import InspectView from '../views/InspectView'
 
 const routes = [
   {
@@ -38,6 +39,11 @@ const routes = [
     path: '/reports',
     name: 'reports',
     component: ReportsView
+  },
+  {
+    path: '/inspect',
+    name: 'inspec',
+    component: InspectView
   },
   {
     path: "/:catchAll(.*)",

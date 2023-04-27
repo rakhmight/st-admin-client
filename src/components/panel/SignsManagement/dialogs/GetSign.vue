@@ -89,7 +89,7 @@
                 v-if="success"
                 >
                     <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                    <span style="color:#fff">Sign uploaded successfully</span>
+                    <span style="color:#fff">Sign downloaded successfully</span>
                 </v-alert>
             </div>
           </div>

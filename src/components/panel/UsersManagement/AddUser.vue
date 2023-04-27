@@ -232,13 +232,15 @@ export default {
             }
             
             this.loader=true
+            const user = this.getUsersList.find(user=>user.id==this.user)
             await makeReq('http://127.0.0.1:4500/api/members/add', 'POST', {
                 ...this.getAuthParams,
                 data:{
                     _id: this.user,
                     token: null,
                     permission: this.permissions,
-                    hasSign: this.createSign
+                    hasSign: this.createSign,
+                    department: user.roleProperties.department
                 }
             })
             .then(async (data)=>{
@@ -297,29 +299,28 @@ export default {
         makeUsersListByDepartment(){
             this.users = []
             this.getUsersList.forEach(user=>{
-                if(user.roleProperties.department == this.department){
+                let check = this.getMembersList.find(member=> member.id==user.id)
+
+                if(user.roleProperties.department == this.department && !check){
                     this.users.push({
                     title: `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`,
                     value: user.id
                     })
                 }
             })
-
-console.log(this.users);
         },
 
         makeUsersListByDepartmentAndPosition(){
             this.users = []
             this.getUsersList.forEach(user=>{
-                if(user.roleProperties.department == this.department && user.roleProperties.position == this.position){
+                let check = this.getMembersList.find(member=> member.id==user.id)
+                if(user.roleProperties.department == this.department && user.roleProperties.position == this.position && !check){
                     this.users.push({
                         title: `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`,
                         value: user.id
                     })
                 }
             })
-
-console.log(this.users);
         }
     }
 }
