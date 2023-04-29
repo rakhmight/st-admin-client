@@ -89,6 +89,7 @@
             v-for="(test, i) in tests"
             :key="i"
             :test="test"
+            :reRenderTests="reRenderTests"
             />
         </div>
         
@@ -112,13 +113,10 @@ export default {
     computed: mapGetters(['getTestImages', 'getRole']),
     methods: {
       mergeProps,
-    },
-    components:{
-        TitleComponent,
-        TestCard,
-        DataEmpty
-    },
-    mounted(){
+      
+      reRenderTests(){
+        this.tests = []
+            
         this.getTestImages.forEach(testImage=>{
             if(this.getRole=='author' || this.getRole=='inspector'){
                 this.tests.push(testImage)
@@ -128,6 +126,15 @@ export default {
                 }
             }
         })
+        }
+    },
+    components:{
+        TitleComponent,
+        TestCard,
+        DataEmpty
+    },
+    mounted(){
+        this.reRenderTests()
     },
 }
 </script>

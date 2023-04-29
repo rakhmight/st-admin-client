@@ -205,6 +205,11 @@ export default {
 
 
 <style scoped>
+::-webkit-scrollbar {
+    width: 6px; /* ширина для вертикального скролла */
+    background-color: #b9b9b9;
+}
+
 .dialog{
     width: 50vw;
     position: relative;
@@ -212,6 +217,9 @@ export default {
 .dialog__content{
     padding: 20px;
     background-color: #fff;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .chart-box{

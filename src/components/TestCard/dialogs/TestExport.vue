@@ -52,7 +52,7 @@
                     @click="exportTest()"
                     :disabled="blockBtn"
                 >
-                <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Get sign</span>
+                <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Export test</span>
                 <v-progress-circular
                     :width="1"
                     size="15"

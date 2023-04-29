@@ -1,8 +1,8 @@
 <template>
     <div class="d-flex flex-row justify-space-between align-center mb-2">
         <subtitle-component :subtitle="'All tests'" v-if="window=='all'" />
-        <subtitle-component :subtitle="'Limited tests'" v-if="window=='limited'" />
-        <subtitle-component :subtitle="'Free tests'" v-if="window=='free'" />
+        <subtitle-component :subtitle="'Private tests'" v-if="window=='private'" />
+        <subtitle-component :subtitle="'Public tests'" v-if="window=='public'" />
         <subtitle-component :subtitle="'Examination tests'" v-if="window=='examination'" />
         <subtitle-component :subtitle="'Blocked tests'" v-if="window=='blocked'" />
         <!-- Sort -->

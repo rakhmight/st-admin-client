@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <tests-header :window="'limited'"/>
+        <tests-header :window="'private'"/>
         <main-tests-table/>
     </div>
 </template>

@@ -56,8 +56,8 @@
                         </v-list-item>
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
-                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-upload</v-icon>
-                                <span class="menu-text">Export</span>
+                                <v-icon size="18" class="mr-1" color="#eb6517">mdi-keyboard-return</v-icon>
+                                <span class="menu-text" style="color: #eb6517">Return</span>
                             </v-list-item-title>
                         </v-list-item>
                         <v-list-item>

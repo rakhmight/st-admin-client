@@ -14,7 +14,7 @@
                     show-size
                     counter
                     clearable
-                    label="File input"
+                    label="Choise file"
                     density="compact"
                     variant="outlined"
                     v-model="testFile"
@@ -115,7 +115,7 @@ export default {
                 this.loadFile= false
                 const test = JSON.parse(reader.result)
                 // куча проверок
-                if(test.id && typeof test.id=='number' && test.author && typeof test.author=='string' && test.params && typeof test.params=='object' && test.questions && typeof test.questions=='string' && test.history && typeof test.history=='object'){
+                if(test.id && typeof test.id=='number' && test.author && typeof test.author=='string' && test.params && typeof test.params=='object' && test.questions && typeof test.questions=='string' && test.history && typeof test.history=='object' && !test.testImage){
                     this.blockSendBtn = false
                     this.testToSend = test
                     return

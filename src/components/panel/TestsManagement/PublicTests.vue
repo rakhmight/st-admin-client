@@ -1,6 +1,6 @@
 <template>
     <div class="content">
-        <tests-header :window="'free'"/>
+        <tests-header :window="'public'"/>
         <main-tests-table />
     </div>
 </template>

@@ -7,6 +7,7 @@
             v-for="(test, i) in tests"
             :key="i"
             :test="test"
+            :reRenderTests="reRenderTests"
             />
         </div>
 
@@ -33,17 +34,24 @@ export default {
         DataEmpty
     },
     mounted(){
-        this.getTestImages.forEach(testImage=>{
-            if(this.getRole=='author' || this.getRole=='inspector'){
-                if(testImage.status.value=='rejected'){
-                    this.tests.push(testImage)
+        this.reRenderTests()
+    },
+    methods:{
+        reRenderTests(){
+            this.tests = []
+            
+            this.getTestImages.forEach(testImage=>{
+                if(this.getRole=='author' || this.getRole=='inspector'){
+                    if(testImage.status.value=='rejected'){
+                        this.tests.push(testImage)
+                    }
+                } else if(this.getRole=='admin'){
+                    if(testImage.status.value=='rejected' && testImage.status.rejected=='admin'){
+                        this.tests.push(testImage)
+                    }
                 }
-            } else if(this.getRole=='admin'){
-                if(testImage.status.value=='rejected' && testImage.status.rejected=='admin'){
-                    this.tests.push(testImage)
-                }
-            }
-        })
+            })
+        }
     }
 }
 </script>

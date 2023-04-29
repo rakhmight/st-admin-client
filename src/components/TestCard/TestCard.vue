@@ -85,9 +85,9 @@
 
               <test-info :test="test" />
               <test-history :test="test" />
-              <test-update :test="test" v-if="test.status.value=='rejected' && getRole=='author'" />
+              <test-update :test="test" v-if="test.status.value=='rejected' && getRole=='author'" :reRenderTests="reRenderTests ? reRenderTests : undefined" />
               <test-export :test="test" v-if="test.status.value=='rejected' && getRole=='author'"/>
-              <test-delete :test="test" v-if="getRole=='admin' || test.author==getAuthParams.id"/>
+              <test-delete :test="test" v-if="getRole=='admin' || test.author==getAuthParams.id && test.status.value!='approved'"/>
 
             </v-list>
         </v-menu>
@@ -121,7 +121,8 @@ import TestDelete from '@/components/TestCard/dialogs/TestDelete.vue';
 
 export default {
   props:{
-    test: Object
+    test: Object,
+    reRenderTests: Function
   },
   computed: mapGetters(['getSubjects', 'getRole', 'getAuthParams']),
   methods:{
