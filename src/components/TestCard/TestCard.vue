@@ -9,6 +9,7 @@
           src="@/assets/media/test_check.png"
           contain
           max-width="40"
+          width="40"
           ></v-img>
           <!-- Incoming -->
           <v-img
@@ -16,6 +17,7 @@
           src="@/assets/media/test_incoming.png"
           contain
           max-width="40"
+          width="40"
           ></v-img>
           <!-- Approved -->
           <v-img
@@ -23,6 +25,7 @@
           src="@/assets/media/test_approved.png"
           contain
           max-width="40"
+          width="40"
           ></v-img>
           <!-- Rejected -->
           <v-img
@@ -30,6 +33,7 @@
           src="@/assets/media/test_rejected.png"
           contain
           max-width="40"
+          width="40"
           ></v-img>
 
         </div>
@@ -37,7 +41,7 @@
           <table>
             <tr>
               <td>Subject:</td>
-              <td style="color:#0167FF;"><div style="overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">{{ getSubjectName(test.info.params.subject) }}</div></td>
+              <td style="color:#0167FF;"><div style="max-width: 90px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">{{ getSubjectName(test.info.params.subject) }}</div></td>
             </tr>
             <tr>
               <td>Questions:</td>

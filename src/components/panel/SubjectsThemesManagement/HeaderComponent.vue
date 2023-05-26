@@ -132,7 +132,7 @@ export default {
             autoTable(doc, {
                 head: [['ID', 'Название предмета']],
                 body: [
-                    [currentSubjects.id, currentSubjects.name.ru]
+                    [currentSubjects._id, currentSubjects.name.ru]
                 ],
                 styles: { font: 'MontserratAlternates'},
             })

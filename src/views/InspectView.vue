@@ -35,7 +35,7 @@ export default {
             blockAllBtns: false
         }
     },
-    computed: mapGetters(["getAuthState", "getRole", 'getInspectTest', 'getAuthParams']),
+    computed: mapGetters(["getAuthState", "getRole", 'getInspectTest', 'getAuthParams', 'getAdminServerIP']),
     mounted() {
         if(!this.getAuthState){
             this.$router.push('/')
@@ -47,7 +47,7 @@ export default {
             this.$router.push('/box')
         }
 
-        makeReq('http://localhost:4500/api/test/gettest', 'POST', {
+        makeReq(`${this.getAdminServerIP}/api/test/gettest`, 'POST', {
             ...this.getAuthParams,
             data:{
                 id: this.getInspectTest

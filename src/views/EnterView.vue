@@ -24,10 +24,10 @@ import { mapGetters } from 'vuex'
 
 export default defineComponent({
   name: 'AuthView',
-  computed: mapGetters(["getAuthState", 'getRole']),
+  computed: mapGetters(["getAuthState", 'getRole', 'getAuthServerIP']),
   methods:{
     redirect(){
-      let popup = window.open('http://localhost:3600/redirect?reqSystem=SmartTesting', 'redirectTab', "popup, location=false, width=900, height=600")
+      let popup = window.open(`${this.getAuthServerIP}/redirect?reqSystem=SmartTesting`, 'redirectTab', "popup, location=false, width=900, height=600")
 
       let interval = setInterval(()=>{
         if(popup.closed){

@@ -23,9 +23,16 @@
             v-for="(subject, i) in getSubjects"
             :key="i"
             @click="choiseSubject(i)"
-            :style="getCurrentSubject && getCurrentSubject.id === subject.id ? 'color:var(--main-color)' : ''"
+            :style="getCurrentSubject && getCurrentSubject._id === subject._id ? 'color:var(--main-color)' : ''"
             >
-                <td style="font-size: 0.8em;">{{ subject.id }}</td>
+                <td style="font-size: 0.8em;max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">             
+                    <v-tooltip location="bottom" color="#00000073">
+                    <template v-slot:activator="{ props }">
+                        <span v-bind="props" style="cursor: pointer;">{{ subject._id }}</span>
+                    </template>
+                    <span>{{ subject._id }}</span>
+                    </v-tooltip>
+                </td>
                 <td>{{ subject.name.ru }}</td>
                 <td>
                     <v-menu

@@ -100,7 +100,7 @@ export default {
     components:{
         TitleComponent
     },
-    computed: mapGetters(['getAuthParams', 'getTestImages']),
+    computed: mapGetters(['getAuthParams', 'getTestImages', 'getAdminServerIP']),
     methods:{
         ...mapMutations(['updateTestImages']),
         handleTestUpload(){
@@ -140,7 +140,7 @@ export default {
         async sendForCheck(){
             this.loader = true
             this.blockSendBtn = true
-            await makeReq('http://127.0.0.1:4500/api/test/upload', 'POST',{
+            await makeReq(`${this.getAdminServerIP}/api/test/upload`, 'POST',{
                 ...this.getAuthParams,
                 data: this.testToSend
             })

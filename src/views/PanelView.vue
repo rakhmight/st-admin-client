@@ -33,6 +33,10 @@
                 <v-icon size="22" class="mr-3">mdi-alpha-t-box-outline</v-icon>
                 <span>Subjects & themes</span>
               </div>
+              <div class="nav-group__item d-flex flex-row align-center" :class="tab=='devices' ? 'text-light-blue-special' : ''" @click="tab='devices'">
+                <v-icon size="20" class="mr-3">mdi-monitor</v-icon>
+                <span>Devices</span>
+              </div>
             </div>
           </div>
 
@@ -80,6 +84,7 @@
         <panel-exams-management v-if="tab=='exams'"/>
         <panel-signs-management v-if="tab=='signs'"/>
         <panel-subjects-themes-management v-if="tab=='subjects-themes'" />
+        <panel-devices-management v-if="tab=='devices'" />
         <panel-reports v-if="tab=='reports'"/>
         <panel-server-state v-if="tab=='server-state'"/>
         <panel-server-calls v-if="tab=='server-calls'"/>
@@ -95,12 +100,15 @@ import PanelUsersManagement from '@/components/panel/UsersManagement/PanelUsersM
 import PanelTestsManagement from '@/components/panel/TestsManagement/PanelTestsManagement'
 import PanelExamsManagement from '@/components/panel/ExamsManagement/PanelExamsManagement'
 import PanelSignsManagement from '@/components/panel/SignsManagement/PanelSignsManagement'
+import PanelDevicesManagement from '@/components/panel/DevicesManagement/PanelDevicesManagement'
 import PanelSubjectsThemesManagement from '@/components/panel/SubjectsThemesManagement/PanelSubjectsThemesManagement'
 import PanelReports from '@/components/panel/ReportsGeneral/PanelReports'
 import PanelServerState from '@/components/panel/PanelServerState'
 import PanelServerCalls from '@/components/panel/PanelServerCalls'
 import PanelMemberActions from '@/components/panel/PanelMemberActions'
 import PanelLogs from '@/components/panel/PanelLogs'
+import { socket } from "@/socket";
+
 
 export default {
   data(){
@@ -115,6 +123,14 @@ export default {
     }
     if(this.getRole!='admin'){
       this.$router.push('/box')
+    } else {
+      socket.connect()
+
+      socket.on('newClient', (data)=>{
+        console.log(data);
+        
+        socket.emit(`claim` , data[0].deviceID)
+      })
     }
   },
   components:{
@@ -122,6 +138,7 @@ export default {
     PanelTestsManagement,
     PanelExamsManagement,
     PanelSignsManagement,
+    PanelDevicesManagement,
     PanelSubjectsThemesManagement,
     PanelReports,
     PanelServerState,

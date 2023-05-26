@@ -125,7 +125,7 @@ export default {
             blockBtn: false
         }
     },
-    computed: mapGetters(['getAuthParams', 'getMembersList']),
+    computed: mapGetters(['getAuthParams', 'getMembersList', 'getAdminServerIP']),
     watch:{
         adminPassword(){
             this.adminPasswordError = false
@@ -175,7 +175,7 @@ export default {
             this.blockBtn = true
             this.loader = true
 
-            await makeReq('http://localhost:4500/api/signs/get', 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/signs/get`, 'POST', {
                 ...this.getAuthParams,
                 data:{
                     admin:{

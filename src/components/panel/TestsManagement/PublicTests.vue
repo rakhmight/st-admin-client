@@ -1,18 +1,36 @@
 <template>
     <div class="content">
-        <tests-header :window="'public'"/>
-        <main-tests-table />
+        <tests-header :window="'public'" v-if="tests.length"/>
+        <main-tests-table :tests="tests" v-if="tests.length"/>
+        
+        <data-empty :text="'Public tests not found'" v-if="!tests.length" />
     </div>
 </template>
 
 <script>
 import MainTestsTable from '@/components/panel/MainTestsTable';
 import TestsHeader from '@/components/panel/TestsManagement/TestsHeader';
+import { mapGetters } from 'vuex';
+import DataEmpty from '@/components/DataEmpty';
 
 export default {
+    data(){
+        return{
+            tests: []
+        }
+    },
+    computed: mapGetters(['getTestImages']),
+    mounted(){
+        this.tests = this.getTestImages.filter(test=>{
+            if(test.status.value == 'approved' && test.type=='public'){
+                return test
+            }
+        })
+    },
     components:{
         MainTestsTable,
-        TestsHeader
+        TestsHeader,
+        DataEmpty
     }
 }
 </script>

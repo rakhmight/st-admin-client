@@ -43,7 +43,7 @@
                             </v-list-item-title>
                         </v-list-item>
                     </v-list>
-                </v-menu>
+            </v-menu>
         </div>
 
         <v-table density="compact">

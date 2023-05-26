@@ -164,6 +164,7 @@
 <script>
 import makeReq from '@/services/makeReq'
 import { mapMutations, mapGetters } from 'vuex'
+import { socket } from "@/socket";
 
 export default {
     data(){
@@ -172,7 +173,7 @@ export default {
              langs: [{lang: 'русский', short: 'ru'},{lang: "o'zbek", short: 'uz_l'}, {lang: "ўзбек", short: 'uz_k'},{lang: 'english', short: 'eng'}],
         }
     },
-    computed: mapGetters(['getRole', 'getUserData', 'getAuthState']),
+    computed: mapGetters(['getRole', 'getUserData', 'getAuthState', 'getAuthServerIP']),
     methods:{
       ...mapMutations(['changeAuthState']),
       async logout(){
@@ -181,7 +182,7 @@ export default {
         if(store){
           store = JSON.parse(store)
 
-          await makeReq('http://localhost:3600/api/users/logout', 'POST', {data:{...store}})
+          await makeReq(`${this.getAuthServerIP}/api/users/logout`, 'POST', {data:{...store}})
           .then(data=>{
             // if(data.code == 'OK'){
             // } else{
@@ -195,12 +196,15 @@ export default {
           // редирект
             this.$router.push('/')
         }
+
+        socket.disconnect()
       },
 
       quit(){
         localStorage.removeItem('auth')
         this.changeAuthState(false)
         this.$router.push('/')
+        socket.disconnect()
       }
     }
 }
@@ -223,7 +227,6 @@ header{
 .v-list{
     padding: 0;
 }
-
 .v-navigation-drawer.v-navigation-drawer--left{
     border: none
 }

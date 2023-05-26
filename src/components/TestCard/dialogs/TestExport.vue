@@ -29,8 +29,6 @@
                </div>
            </v-toolbar>
            <div class="dialog__content">
-
-            <!--  -->
             
             <v-text-field
                 variant="outlined"
@@ -104,7 +102,7 @@ export default {
             success: false
         }
     },
-    computed: mapGetters(['getAuthParams']),
+    computed: mapGetters(['getAuthParams', 'getAdminServerIP']),
     methods: {
         async exportTest(){
             if(!this.password){
@@ -116,7 +114,7 @@ export default {
             this.loader = true
             this.blockBtn = true
 
-            await makeReq('http://127.0.0.1:4500/api/test/export', 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/test/export`, 'POST', {
                 ...this.getAuthParams,
                 data:{
                     password: this.password,

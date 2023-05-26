@@ -135,7 +135,7 @@ export default {
             blockBtn: false
         }
     },
-    computed: mapGetters(['getAuthParams', 'getUsersList', 'getDepartments', 'getMembersList']),
+    computed: mapGetters(['getAuthParams', 'getUsersList', 'getDepartments', 'getMembersList', 'getAdminServerIP']),
     mounted(){
         this.makeAllUsersList()
 
@@ -233,7 +233,7 @@ export default {
             
             this.loader=true
             const user = this.getUsersList.find(user=>user.id==this.user)
-            await makeReq('http://127.0.0.1:4500/api/members/add', 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/members/add`, 'POST', {
                 ...this.getAuthParams,
                 data:{
                     _id: this.user,
@@ -245,7 +245,7 @@ export default {
             })
             .then(async (data)=>{
                 if(this.createSign){
-                    await makeReq('http://127.0.0.1:4500/api/signs/create', 'POST',{
+                    await makeReq(`${this.getAdminServerIP}/api/signs/create`, 'POST',{
                         ...this.getAuthParams,
                         data:{
                             _id: this.user,

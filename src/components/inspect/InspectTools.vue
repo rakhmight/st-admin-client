@@ -66,7 +66,7 @@ export default {
         loader: Boolean,
         blockAllBtnsFunc: Function
     },
-    computed: mapGetters(['getAuthParams', 'getInspectTest', 'getRole']),
+    computed: mapGetters(['getAuthParams', 'getInspectTest', 'getRole', 'getAdminServerIP']),
     data(){
         return {
             generalRemark: undefined,
@@ -85,7 +85,7 @@ export default {
                 this.blockAllBtns = true
                 this.blockAllBtnsFunc()
                 // если inspector - поменять step
-                await makeReq('http://localhost:4500/api/test/append', 'POST', {
+                await makeReq(`${this.getAdminServerIP}/api/test/append`, 'POST', {
                     ...this.getAuthParams,
                     data: {
                         id: this.getInspectTest,
@@ -119,7 +119,7 @@ export default {
                 // если admin:
                 // - сменить status
                 // - приклеить remarks
-                await makeReq('http://localhost:4500/api/test/reject', 'POST', {
+                await makeReq(`${this.getAdminServerIP}/api/test/reject`, 'POST', {
                     ...this.getAuthParams,
                     data: {
                         id: this.getInspectTest,

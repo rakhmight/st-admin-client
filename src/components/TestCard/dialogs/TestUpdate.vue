@@ -120,7 +120,7 @@ export default {
             }
         }
     },
-    computed: mapGetters(['getAuthParams']),
+    computed: mapGetters(['getAuthParams', 'getAdminServerIP']),
     methods:{
         ...mapMutations(['replaceTestImages']),
         
@@ -170,7 +170,7 @@ export default {
             this.blockSendBtn = true
             this.loader = true
             // отправка на сервер
-            await makeReq('http://127.0.0.1:4500/api/test/update', 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/test/update`, 'POST', {
                 ...this.getAuthParams,
                 data:{
                     test: this.testToSend,

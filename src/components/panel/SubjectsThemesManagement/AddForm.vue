@@ -256,7 +256,7 @@ export default {
             }
         }
     },
-    computed: mapGetters(['getCurrentSubject', 'getAuthParams', 'getSubjects', 'getDepartments']),
+    computed: mapGetters(['getCurrentSubject', 'getAuthParams', 'getSubjects', 'getDepartments', 'getAdminServerIP']),
     methods:{
         ...mapMutations(['updateSubjects','setThemes','updateCurrentSubjectThemes', 'setCurrentSubjectThemes', 'updateSubjectThemes']),
         addMethod(type){
@@ -281,7 +281,7 @@ export default {
                 }
             } else {
                 data = {
-                    id: this.getCurrentSubject.id,
+                    id: this.getCurrentSubject._id,
                     theme: {},
                 }
             }
@@ -348,9 +348,9 @@ export default {
 
             let reqRoute = ''
             if(type=='subject'){
-                reqRoute = 'http://localhost:4500/api/subjects/create'
+                reqRoute = `${this.getAdminServerIP}/api/subjects/create`
             } else {
-                reqRoute = 'http://localhost:4500/api/themes/update'
+                reqRoute = `${this.getAdminServerIP}/api/themes/update`
             }
 
             makeReq(reqRoute, 'POST', {
@@ -372,7 +372,7 @@ export default {
                         this.setCurrentSubjectThemes(data.data)
                         let target
                         this.getSubjects.forEach((subject, i) => {
-                            if(subject.id==this.getCurrentSubject.id){
+                            if(subject._id==this.getCurrentSubject._id){
                                 target = i
                             }
                         });

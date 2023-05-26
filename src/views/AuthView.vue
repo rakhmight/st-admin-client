@@ -63,9 +63,9 @@ export default {
             errorDes: 'Ошибка'
         }
     },
-    computed: mapGetters(["getAuthState", 'getRole', 'getAuthParams', 'getUsersList', 'getDepartments']),
+    computed: mapGetters(["getAuthState", 'getRole', 'getAuthParams', 'getUsersList', 'getDepartments', 'getAdminServerIP', 'getAuthServerIP']),
     methods:{
-        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList', 'setSubjects', 'setTestImages']),
+        ...mapMutations(['changeAuthState', 'setRole', 'setUserData', 'setUsersList', 'setAuthParams', 'setDepartments', 'setMembersList', 'setSubjects', 'setTestImages', 'setDevices']),
     },
     mounted (){
         if(this.getAuthState){
@@ -102,7 +102,7 @@ export default {
             if(authStore){
                 authStore = JSON.parse(authStore)
                 this.setAuthParams({...authStore})
-                makeReq('http://localhost:3600/api/users/check', 'POST', {
+                makeReq(`${this.getAuthServerIP}/api/users/check`, 'POST', {
                     data:{
                         ...this.getAuthParams
                     }
@@ -111,7 +111,7 @@ export default {
                     if(data.status == 200){
                         // сохранение в state userData
                         this.setUserData(data.userData)
-                        makeReq('http://127.0.0.1:4500/api/check', 'POST', {
+                        makeReq(`${this.getAdminServerIP}/api/check`, 'POST', {
                             data:{
                                 reqType: 'auth',
                                 id: authStore.id,
@@ -129,13 +129,13 @@ export default {
                                 this.status = 'success'
                                 
                                 // usersList
-                                await makeReq('http://localhost:3600/api/users/getusers', 'POST', {
+                                await makeReq(`${this.getAuthServerIP}/api/users/getusers`, 'POST', {
                                     ...this.getAuthParams
                                 })
                                 .then(async (data)=>{
                                     this.setUsersList(data)
 
-                                    await makeReq('http://127.0.0.1:4500/api/members/get', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/members/get`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -158,14 +158,14 @@ export default {
 
                                 if(data == 'admin'){
                                     // departments
-                                    await makeReq('http://localhost:3600/api/departments/getdepartments', 'POST', {
+                                    await makeReq(`${this.getAuthServerIP}/api/departments/getdepartments`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
                                         this.setDepartments(data)
                                     })
                                     // subjects
-                                    makeReq('http://localhost:4500/api/subjects/get', 'POST', {
+                                    makeReq(`${this.getAdminServerIP}/api/subjects/get`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -173,7 +173,7 @@ export default {
                                     })
 
                                     // testImages
-                                    await makeReq('http://127.0.0.1:4500/api/test/get', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/test/get`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -181,11 +181,21 @@ export default {
                                             this.setTestImages(data.data)
                                         }
                                     })
+
+                                    // devices
+                                    await makeReq(`${this.getAdminServerIP}/api/devices/get`, 'POST', {
+                                        ...this.getAuthParams
+                                    })
+                                    .then(data=>{
+                                        if(data.statusCode==200){
+                                            this.setDevices(data.data)
+                                        }
+                                    })
                                 }
 
                                 if(data == 'author'){
                                     // testImages
-                                    await makeReq('http://127.0.0.1:4500/api/test/getauthortests', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/test/getauthortests`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -196,7 +206,7 @@ export default {
 
                                     
                                     // subjects
-                                    await makeReq('http://localhost:4500/api/subjects/getauthorthemes', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/subjects/getauthorthemes`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -208,7 +218,7 @@ export default {
 
                                 if(data == 'inspector'){
                                     // testImages
-                                    await makeReq('http://127.0.0.1:4500/api/test/getinspectortests', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/test/getinspectortests`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{
@@ -219,7 +229,7 @@ export default {
 
                                     
                                     // subjects
-                                    await makeReq('http://localhost:4500/api/subjects/getauthorthemes', 'POST', {
+                                    await makeReq(`${this.getAdminServerIP}/api/subjects/getauthorthemes`, 'POST', {
                                         ...this.getAuthParams
                                     })
                                     .then(data=>{

@@ -3,7 +3,7 @@
         <v-table density="compact">
             <thead>
             <tr>
-                <th class="text-left">
+                <th class="text-left" style="width: 70px">
                 ID
                 </th>
                 <th class="text-left">
@@ -13,7 +13,7 @@
                 Questions count
                 </th>
                 <th class="text-left">
-                Status
+                Type
                 </th>
                 <th class="text-left">
                 Actions
@@ -21,11 +21,21 @@
             </tr>
             </thead>
             <tbody>
-            <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
+            <tr
+            v-for="(test, i) in tests"
+            :key="i"
+            >
+                <td style="max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">
+                    <v-tooltip location="bottom" color="#00000073">
+                    <template v-slot:activator="{ props }">
+                        <span v-bind="props" style="cursor: pointer;">{{ test._id }}</span>
+                    </template>
+                    <span>{{ test._id }}</span>
+                    </v-tooltip>
+                </td>
+                <td>{{ getSubjectName(test.info.params.subject) }}</td>
+                <td>{{ test.info.testInfo.totalQuestions }}</td>
+                <td>{{ test.type }}</td>
                 <td>
                     <v-menu
                     transition="slide-y-transition"
@@ -42,18 +52,11 @@
                         </v-btn>
                     </template>
                     <v-list density="compact" min-width="120">
-                        <v-list-item>
-                            <v-list-item-title class="d-flex align-center">
-                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-information</v-icon>
-                                <span class="menu-text">Info</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title class="d-flex align-center">
-                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                                <span class="menu-text">Change status</span>
-                            </v-list-item-title>
-                        </v-list-item>
+
+                        <test-info :test="test" />
+                        <test-history :test="test" />
+                        <change-test-type :test="test" />
+
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="#eb6517">mdi-keyboard-return</v-icon>
@@ -77,11 +80,30 @@
 
 <script>
 import { mergeProps } from 'vue'
+import TestInfo from '@/components/TestCard/dialogs/TestInfo.vue';
+import TestHistory from '@/components/TestCard/dialogs/TestHistory.vue';
+import ChangeTestType from '@/components/panel/TestsManagement/dialogs/ChangeTestType';
+import { getSubject } from '@/plugins/getInfo';
+import { mapGetters } from 'vuex';
 
 export default {
-    methods: {
-      mergeProps,
+    props:{
+        tests: Array
     },
+    computed: mapGetters(['getSubjects']),
+    methods: {
+        mergeProps,
+
+        getSubjectName(id){
+            return getSubject(id, this.getSubjects)
+        },
+
+    },
+    components:{
+        TestInfo,
+        TestHistory,
+        ChangeTestType
+    }
 }
 </script>
 

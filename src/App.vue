@@ -10,10 +10,10 @@
 
 <script>
 import HeaderComponent from '@/components/HeaderComponent'
+
 //console.log(process.env.VUE_APP_CLIENT_TOKEN)
 export default {
   name: 'App',
-
   data: () => ({
     //
   }),
@@ -41,7 +41,7 @@ body{
 }
 
 html{
-    overflow: hidden;
+    overflow-y: auto;
 }
 
 ::-webkit-scrollbar {
