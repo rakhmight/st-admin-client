@@ -87,18 +87,19 @@ export default {
             this.questionsCountTemp = this.questionsCount
             this.difficultyRanking = []
             this.switchQuestions = !this.switchQuestions
-            this.paramsManagement(this.exam.subject, 'difficulty-ranking', this.difficultyRanking)
+            this.paramsManagement(this.exam.subject, 'difficulty-ranking', undefined)
         },
 
         difficultyRanking(){
-            if(this.difficultyDistributionRadio===true && this.questionsCountTemp==0){
-                console.log(this.questionsCountTemp);
+            if(this.difficultyDistributionRadio===true && this.questionsCountTemp==0 && this.questionsCount!=0){
                 this.paramsManagement(this.exam.subject, 'difficulty-ranking', this.themesRanking)
             } else if (this.difficultyDistributionRadio===true && this.questionsCountTemp!=0) {
                 this.paramsManagement(this.exam.subject, 'difficulty-ranking', undefined)
             }else if(this.difficultyDistributionRadio===false){
                 this.paramsManagement(this.exam.subject, 'difficulty-ranking', null)
             }
+
+            console.log(this.difficultyRanking);
         },
 
         switchTests(){
@@ -108,7 +109,7 @@ export default {
 
         difficultyExist(){
             if(!this.difficultyExist){
-                this.paramsManagement(this.exam.subject, 'difficulty-ranking', undefined)
+                this.paramsManagement(this.exam.subject, 'remove-difficulty-ranking')
             }
         }
     },
@@ -167,6 +168,7 @@ export default {
             } else {
                 this.difficultyExist=false
             }
+            console.log(this.difficultyExist);
         }
     },
     mounted(){

@@ -45,6 +45,8 @@ export default {
         },
         switchTests(){
             this.countLanguages()
+            this.paramsManagement(this.exam.subject, 'exam-languages', undefined)
+            this.choisedLanguages = []
         }
     },
     computed: mapGetters(['getSubjects', 'getTestImages']),

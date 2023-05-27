@@ -49,7 +49,8 @@ import { mapGetters } from 'vuex';
 export default {
     props:{
         test: Object,
-        choisingTest: Function
+        choisingTest: Function,
+        switchTest: Boolean
     },
     data(){
         return {
@@ -69,6 +70,10 @@ export default {
             } else {
                 this.choisingTest('remove', this.test)
             }
+        },
+
+        switchTest(){
+            this.choised = false
         }
     }
 }

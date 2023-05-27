@@ -78,7 +78,7 @@
                     </v-window-item>
 
                     <v-window-item :value="2">
-                        <tests-step :choisingTest="choisingTest" />
+                        <tests-step :choisingTest="choisingTest" :changeChoisedSubject="changeChoisedSubject" :switchChoisedSubject="switchChoisedSubject" />
                     </v-window-item>
 
                     <v-window-item :value="3">
@@ -175,11 +175,35 @@ export default {
             // Params step
             params:{
                 complex: {}
-            }
+            },
+
+            switchChoisedSubject: false
         }
     },
-    computed: mapGetters(['getUsersList', 'getTestImages', 'get']),
+    computed: mapGetters(['getUsersList', 'getTestImages', 'getAdminServerIP', 'getAuthParams']),
     methods:{
+        changeChoisedSubject(subjects){
+            this.complex.forEach(exam=>{
+                let counter = 0
+                subjects.forEach(subject=>{
+                    if(exam.subject==subject){
+                        counter++
+                    }
+                })
+                if(counter==0){
+                    const index = this.complex.indexOf(exam)
+                    this.complex.splice(index, 1)
+                }
+            })
+            this.switchChoisedSubject = !this.switchChoisedSubject
+
+            console.log(this.complex);
+            if(!this.complex.length){
+                this.steps.second = false
+                this.steps.fourth = false
+            }
+        },
+
         switchStartFormat(format){
             this.startFormat = format
         },
@@ -449,6 +473,8 @@ export default {
                     this.complex[index].params.themesRanking = param
                 } else if(type=='difficulty-ranking'){
                     this.complex[index].params.difficultyRanking = param
+                } else if(type=='remove-difficulty-ranking'){
+                    delete this.complex[index].params.difficultyRanking
                 } else if(type == 'show-results'){
                     this.complex[index].params.showResults = param
                 } else if(type == 'result-display-time'){
@@ -492,8 +518,11 @@ export default {
                 date: this.examDateParams
             }
 
-            makeReq('', 'POST', {
+            console.log(data);
 
+            makeReq(`${this.getAdminServerIP}/api/exam/established`, 'POST', {
+                ...this.getAuthParams,
+                data
             })
         }
     },

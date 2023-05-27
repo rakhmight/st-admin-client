@@ -49,6 +49,7 @@
                     :key="i"
                     :test="test"
                     :choisingTest="choisingTest"
+                    :switchTest="switchTest"
                     />
                 </tbody>
             </v-table>
@@ -79,18 +80,32 @@ import { getSubject } from '@/plugins/getInfo'
 
 export default {
     props:{
-        choisingTest: Function
+        choisingTest: Function,
+        changeChoisedSubject: Function,
+        switchChoisedSubject: Boolean
     },
     data(){
         return{
             subjects: [],
             choisedSubjects: [],
-            tests: []
+            tests: [],
+            switchTest: false
         }
     },
     methods:{
         getSubjectName(id){
             return getSubject(id, this.getSubjects)
+        },
+
+        countTests(){
+            this.tests = []
+            this.choisedSubjects.forEach(subject=>{
+                this.getTestImages.forEach(image=>{
+                    if(image.status.value=='approved' && image.type=='exam' && image.info.params.subject == subject){
+                        this.tests.push(image)
+                    }  
+                })
+            })
         }
     },
     computed: mapGetters(['getSubjects', 'getTestImages']),
@@ -103,16 +118,15 @@ export default {
         })
     },
     watch:{
+        switchChoisedSubject(){
+            this.countTests()
+        },
+
         choisedSubjects(){
-            this.tests = []
-            this.choisedSubjects.forEach(subject=>{
-                this.getTestImages.forEach(image=>{
-                    if(image.status.value=='approved' && image.type=='exam' && image.info.params.subject == subject){
-                        this.tests.push(image)
-                    }  
-                })
-            })
-        }
+            this.countTests()
+            this.changeChoisedSubject(this.choisedSubjects)
+            this.switchTest = !this.switchTest
+        },
     },
     components:{
         TestInfo,
