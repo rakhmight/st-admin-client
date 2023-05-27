@@ -96,6 +96,7 @@
                 density="compact"
                 :color="!steps.first || !steps.second || !steps.third || !steps.fourth ? '#eee' : 'var(--main-color)'"
                 :disabled="!steps.first || !steps.second || !steps.third || !steps.fourth"
+                @click="approveExam"
                 >
                 
                 <span :style="!steps.first || !steps.second || !steps.third || !steps.fourth ? 'color: #777' : 'color:#fff'" v-if="!loader">schedule an exam</span>
@@ -119,6 +120,7 @@ import TestsStep from '@/components/panel/ExamsManagement/steps/TestsStep'
 import UsersStep from '@/components/panel/ExamsManagement/steps/UsersStep'
 import ParamsStep from '@/components/panel/ExamsManagement/steps/ParamsStep'
 import { mapGetters } from 'vuex';
+import makeReq from '@/services/makeReq';
 
 export default {
     data(){
@@ -176,7 +178,7 @@ export default {
             }
         }
     },
-    computed: mapGetters(['getUsersList', 'getTestImages']),
+    computed: mapGetters(['getUsersList', 'getTestImages', 'get']),
     methods:{
         switchStartFormat(format){
             this.startFormat = format
@@ -473,9 +475,26 @@ export default {
                 }
             }
 
-            console.log(this.complex);
-            console.log(this.params);
+            console.log({
+                complex: this.complex,
+                users: this.users,
+                examDateParams: this.examDateParams,
+                params: this.params
+            });
             this.finallyStepChecker()
+        },
+
+        approveExam(){
+            const data = {
+                complex: this.complex,
+                params: this.params,
+                users: this.users,
+                date: this.examDateParams
+            }
+
+            makeReq('', 'POST', {
+
+            })
         }
     },
     watch:{
