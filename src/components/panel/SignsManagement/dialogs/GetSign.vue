@@ -46,8 +46,8 @@
                     v-model="memberPassword"
                     :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
                     :type="show1 ? 'text' : 'password'"
-                    label="Choised member's password"
                     @click:append="show1 = !show1"
+                    label="Choised member's password"
                     :error="memberPasswordError"
                 ></v-text-field>
 
@@ -125,7 +125,7 @@ export default {
             blockBtn: false
         }
     },
-    computed: mapGetters(['getAuthParams', 'getMembersList', 'getAdminServerIP']),
+    computed: mapGetters(['getAuthParams', 'getUsersList', 'getAdminServerIP']),
     watch:{
         adminPassword(){
             this.adminPasswordError = false
@@ -175,8 +175,22 @@ export default {
             this.blockBtn = true
             this.loader = true
 
+            console.log({
+                
+                admin:{
+                        id: this.getAuthParams.id,
+                        password: this.adminPassword
+                    },
+                    member:{
+                        id: this.memberID,
+                        password: this.memberPassword
+                    }
+            })
+
             await makeReq(`${this.getAdminServerIP}/api/signs/get`, 'POST', {
-                ...this.getAuthParams,
+                auth:{
+                    ...this.getAuthParams
+                },
                 data:{
                     admin:{
                         id: this.getAuthParams.id,
@@ -194,8 +208,8 @@ export default {
                 if(data.statusCode==200){
                     this.success = true
 
-                    const sign = {...data.data}
-                    const member = this.getMembersList.find(member=>member.id==this.memberID)
+                    const sign = {...data.data.sign}
+                    const member = this.getUsersList.find(member=>member.id==this.memberID)
                     sign.fullName = `${member.bio.lastName} ${member.bio.firstName} ${member.bio.patronymic}`
 
                     downloadObjectAsJson(sign, `${this.memberID}-sign`)

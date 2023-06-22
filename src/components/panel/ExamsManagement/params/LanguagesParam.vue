@@ -57,6 +57,8 @@ export default {
 
         countLanguages(){
             this.examLanguages = []
+            let fr = 0
+            let de = 0
             let ru = 0
             let eng = 0
             let uz_l = 0
@@ -66,6 +68,11 @@ export default {
             this.exam.tests.forEach(test=>{
                 const target = this.getTestImages.find(image=> image.fileName==test)
 
+                if(target.info.params.languagesSettings.languages.indexOf('fr')!=-1){
+                    fr++
+                }if(target.info.params.languagesSettings.languages.indexOf('de')!=-1){
+                    de++
+                }
                 if(target.info.params.languagesSettings.languages.indexOf('ru')!=-1){
                     ru++
                 }
@@ -83,6 +90,18 @@ export default {
                 }
             })
 
+            if(fr==this.exam.tests.length){
+                this.examLanguages.push({
+                    title: 'France',
+                    value: 'fr'
+                })
+            }
+            if(de==this.exam.tests.length){
+                this.examLanguages.push({
+                    title: 'Deutsch',
+                    value: 'de'
+                })
+            }
             if(ru==this.exam.tests.length){
                 this.examLanguages.push({
                     title: 'Русский',

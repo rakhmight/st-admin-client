@@ -113,7 +113,7 @@ export default {
         this.subjects = this.getSubjects.map(subject=>{
             return {
                 title: subject.name.ru,
-                value: subject._id
+                value: subject.id
             }
         })
     },

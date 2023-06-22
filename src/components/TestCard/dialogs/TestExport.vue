@@ -114,11 +114,13 @@ export default {
             this.loader = true
             this.blockBtn = true
 
-            await makeReq(`${this.getAdminServerIP}/api/test/export`, 'POST', {
-                ...this.getAuthParams,
+            await makeReq(`${this.getAdminServerIP}/api/tests/export`, 'POST', {
+                auth: {
+                    ...this.getAuthParams,
+                },
                 data:{
                     password: this.password,
-                    test: this.test._id
+                    test: this.test.id
                 }
             })
             .then((data)=>{

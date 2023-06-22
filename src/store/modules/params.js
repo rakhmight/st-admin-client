@@ -1,7 +1,7 @@
 export default {
     state: {
-        adminServerIP: 'http://localhost:4500',
-        authServerIP: 'http://localhost:3600'
+        adminServerIP: 'http://172.16.12.126:4500',
+        authServerIP: 'http://172.16.12.126:4600'
     },
     getters: {
         getAdminServerIP(state){

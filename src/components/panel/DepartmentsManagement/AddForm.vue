@@ -9,19 +9,8 @@
             multiple
             v-model="choisedLangs"
             >
-            </v-select>
-            <v-select
-            density="compact"
-            placeholder="Chair"
-            prepend-inner-icon="mdi-chair-rolling"
-            variant="outlined"
-            :items="chairs"
-            v-model="chair"
-            :error="chairError.status"
-            :error-messages="chairError.msg"
-            v-if="section=='subject'"
-            >
-            </v-select>
+        </v-select>
+
         <div>
             <div
             style="display:grid;grid-template-columns: 90% auto ; gap: 10px;"
@@ -29,7 +18,7 @@
             v-if="accessRu"
             >
                 <v-text-field
-                :label="section=='subject' ? 'Название предмета' : 'Название темы'"
+                :label="section=='department' ? 'Department name' : 'Position name'"
                 variant="outlined"
                 density="compact"
                 v-model="variants.ru"
@@ -44,7 +33,7 @@
             v-if="accessEng"
             >
                 <v-text-field
-                :label="section=='subject' ? 'Subject name' : 'Theme name'"
+                :label="section=='department' ? 'Название отдела/кафедры' : 'Название должности'"
                 variant="outlined"
                 density="compact"
                 v-model="variants.eng"
@@ -59,7 +48,7 @@
             v-if="accessUzK"
             >
                 <v-text-field
-                :label="section=='subject' ? 'Фан номи' : 'Мавзу номи'"
+                :label="section=='department' ? 'Бўлим/кафедра номи' : 'Лавозим номи'"
                 variant="outlined"
                 density="compact"
                 v-model="variants.uz_k"
@@ -74,7 +63,7 @@
             v-if="accessUzL"
             >
                 <v-text-field
-                :label="section=='subject' ? `Fan nomi` : 'Mavzu nomi'"
+                :label="section=='department' ? `Bo'lim/kafedra nomi` : 'Mavzu nomi'"
                 variant="outlined"
                 density="compact"
                 v-model="variants.uz_l"
@@ -85,16 +74,23 @@
             </div>
         </div>
 
+        <div v-if="section=='department'">
+            <v-radio-group v-model="depType" density="compact" :error="depTypeError.status" :error-messages="depTypeError.msg">
+                <v-radio label="General department" value="general"></v-radio>
+                <v-radio label="Chair" value="chair"></v-radio>
+            </v-radio-group>
+        </div>
+
         <div class="d-flex flex-row justify-center align-center">
             <v-btn
             density="compact"
             :color="blockAddBtn ? '#eee' : 'var(--main-color)'"
             class="mr-1"
-            v-if="section=='subject'"
-            @click="addMethod('subject')"
+            v-if="section=='department'"
+            @click="addMethod('department')"
             :disabled="blockAddBtn"
             >
-                <span style="font-size: 0.9em;" :style="blockAddBtn ? 'color: #444' : 'color:#fff' " v-if="!loader">Add subject</span>
+                <span style="font-size: 0.9em;" :style="blockAddBtn ? 'color: #444' : 'color:#fff' " v-if="!loader">Add department</span>
                 <v-progress-circular
                 :width="1"
                 size="15"
@@ -108,11 +104,11 @@
             density="compact"
             :color="blockAddBtn ? '#eee' : 'var(--main-color)'"
             class="mr-1"
-            v-if="section=='theme'"
-            @click="addMethod('theme')"
+            v-if="section=='position'"
+            @click="addMethod('position')"
             :disabled="blockAddBtn"
             >
-                <span style="font-size: 0.9em;" :style="blockAddBtn ? 'color: #444' : 'color:#fff' " v-if="!loader">Add theme</span>
+                <span style="font-size: 0.9em;" :style="blockAddBtn ? 'color: #444' : 'color:#fff' " v-if="!loader">Add position</span>
                 <v-progress-circular
                 :width="1"
                 size="15"
@@ -130,8 +126,8 @@
         v-if="reqSuccess"
         >
             <v-icon size="20" color="#fff" class="mr-1">mdi-check</v-icon>
-            <span style="color:#fff; font-size: 0.9em;" v-if="section=='subject'">New subject added</span>
-            <span style="color:#fff; font-size: 0.9em;" v-else>New theme added</span>
+            <span style="color:#fff; font-size: 0.9em;" v-if="section=='department'">New department added</span>
+            <span style="color:#fff; font-size: 0.9em;" v-else>New position added</span>
         </v-alert>
 
         <v-divider class="pb-3 mt-2"></v-divider>
@@ -162,34 +158,23 @@ export default {
                 {title: 'English', value: 'eng',},
             ],
             choisedLangs:[],
-            chair: undefined,
-            chairs: [],
+            depType: undefined,
 
             accessRu:false,
             accessEng:false,
             accessUzL:false,
             accessUzK:false,
 
-            ruError:{status:false, msg:''},
-            engError:{status:false, msg:''},
-            uzKError: {status:false, msg:''},
-            uzLError: {status:false, msg:''},
-            chairError: {status:false, msg:''},
+            ruError:{status:false, msg:undefined},
+            engError:{status:false, msg:undefined},
+            uzKError: {status:false, msg:undefined},
+            uzLError: {status:false, msg:undefined},
+            depTypeError: {status: false, msg: undefined},
 
             blockAddBtn: true,
             loader: false,
             reqSuccess: false
         }
-    },
-    mounted(){
-        this.getDepartments.forEach(department=>{
-            if(department.type == 'chair'){
-                this.chairs.push({
-                    title: department.name.ru,
-                    value: department.id
-                })
-            }
-        })
     },
     watch:{
         choisedLangs(){
@@ -225,44 +210,46 @@ export default {
             }
         },
 
+        depType(){
+            if(this.depType && this.section == 'department'){
+                this.depTypeError.status = false
+                this.depTypeError.msg = undefined
+            }
+        },
+
         'variants.ru'(){
             if(this.variants.ru){
                 this.ruError.status = false
-                this.ruError.msg = ''
+                this.ruError.msg = undefined
             }
         },
         'variants.eng'(){
             if(this.variants.eng){
                 this.engError.status = false
-                this.engError.msg = ''
+                this.engError.msg = undefined
             }
         },
         'variants.uz_k'(){
             if(this.variants.uz_k){
                 this.uzKError.status = false
-                this.uzKError.msg = ''
+                this.uzKError.msg = undefined
             }
         },
         'variants.uz_l'(){
             if(this.variants.uz_l){
                 this.uzLError.status = false
-                this.uzLError.msg = ''
-            }
-        },
-        chair(){
-            if(this.chair){
-                this.chairError.status = false
-                this.chairError.msg = ''
+                this.uzLError.msg = undefined
             }
         }
     },
-    computed: mapGetters(['getCurrentSubject', 'getAuthParams', 'getSubjects', 'getDepartments', 'getAdminServerIP']),
+    computed: mapGetters(['getAuthParams', 'getDepartments', 'getAdminServerIP', 'getCurrentDepartment']),
     methods:{
-        ...mapMutations(['updateSubjects','setThemes','updateCurrentSubjectThemes', 'setCurrentSubjectThemes', 'updateSubjectThemes']),
+        ...mapMutations(['updateDepartments','setPositions','setCurrentPositions', 'setCurrentDepartments', 'updatePositions']),
         addMethod(type){
+            console.log(type);
             // предварительная подготовка данных
             let data
-            let newTheme = {
+            let newPosition = {
                 name:{
                     ru: null,
                     eng: null,
@@ -271,84 +258,83 @@ export default {
                 }
             }
 
-            if(type=='subject'){
+            if(type=='department'){
                 data = {
                     name:{},
-                    themes:[],
-                    chair: undefined
+                    type: undefined
                 }
             } else {
                 data = {
-                    id: this.getCurrentSubject.id,
-                    theme: {},
-                }
-            }
-
-            // валидаторы
-            if(type == 'subject'){
-                if(!this.chair){
-                    this.chairError.msg='Выберите кафедру, к которой принадлежит предмет'
-                    return this.chairError.status = true
-                } else {
-                    data.chair = this.chair
+                    id: this.getCurrentDepartment.id,
+                    position: {},
                 }
             }
 
             if(this.choisedLangs.includes('ru') && !this.variants.ru){
-                this.ruError.msg = 'Заполните это поле'
+                this.ruError.msg = 'Fill in this field'
                 return this.ruError.status = true
             }else{
-                if(type=='subject'){
+                if(type=='department'){
                     data.name.ru = this.variants.ru
                 } else{
-                    newTheme.name.ru = this.variants.ru
+                    newPosition.name.ru = this.variants.ru
                 }
             }
 
             if(this.choisedLangs.includes('eng') && !this.variants.eng){
-                this.engError.msg = 'Заполните это поле'
+                this.engError.msg = 'Fill in this field'
                 return this.engError.status = true
             }else{
-                if(type=='subject'){
+                if(type=='department'){
                     data.name.eng = this.variants.eng
                 } else{
-                    newTheme.name.eng = this.variants.eng
+                    newPosition.name.eng = this.variants.eng
                 }
             }
 
             if(this.choisedLangs.includes('uz_k') && !this.variants.uz_k){
-                this.uzKError.msg = 'Заполните это поле'
+                this.uzKError.msg = 'Fill in this field'
                 return this.uzKError.status = true
             }else{
-                if(type=='subject'){
+                if(type=='department'){
                     data.name.uz_k = this.variants.uz_k
                 } else{
-                    newTheme.name.uz_k = this.variants.uz_k
+                    newPosition.name.uz_k = this.variants.uz_k
                 }
             }
 
             if(this.choisedLangs.includes('uz_l') && !this.variants.uz_l){
-                this.uzLError.msg = 'Заполните это поле'
+                this.uzLError.msg = 'Fill in this field'
                 return this.uzLError.status = true
             }else{
-                if(type=='subject'){
+                if(type=='department'){
                     data.name.uz_l = this.variants.uz_l
                 } else{
-                    newTheme.name.uz_l = this.variants.uz_l
+                    newPosition.name.uz_l = this.variants.uz_l
                 }
             }
-            if(type=='theme'){
-                data.theme = newTheme
+
+            if(type=='department'){
+                if(!this.depType){
+                    this.depTypeError.status = true
+                    return this.depTypeError.msg = 'Choise department type'
+                } else {
+                    data.type = this.depType
+                }
+            }
+
+            if(type=='position'){
+                data.position.name = newPosition.name
             }
 
             this.loader = true
             this.blockAddBtn = true
 
             let reqRoute = ''
-            if(type=='subject'){
-                reqRoute = `${this.getAdminServerIP}/api/subjects/create`
+            if(type=='department'){
+                reqRoute = `${this.getAdminServerIP}/api/departments/add`
             } else {
-                reqRoute = `${this.getAdminServerIP}/api/themes/update`
+                reqRoute = `${this.getAdminServerIP}/api/positions/add`
             }
 
             makeReq(reqRoute, 'POST', {
@@ -363,27 +349,26 @@ export default {
                 if(data.statusCode = 200){
                     this.loader = false
                     this.reqSuccess = true
-                    if(type=='subject'){
-                        // заносим в state
-                        this.updateSubjects(data.data.subject)
+                    if(type=='department'){
+                        this.updateDepartments(data.data.department)
                     } else {
-                        this.setThemes(data.data.themes)
+                        this.setPositions(data.data.positions)
 
-                        this.setCurrentSubjectThemes(data.data.themes)
+                        this.setCurrentPositions(data.data.positions)
                         let target
-                        this.getSubjects.forEach((subject, i) => {
-                            if(subject.id==this.getCurrentSubject.id){
+                        this.getDepartments.forEach((dep, i) => {
+                            if(dep.id==this.getCurrentDepartment.id){
                                 target = i
                             }
                         });
-                        this.updateSubjectThemes({index:target, themes: data.data.themes})
+                        this.updatePositions({index:target, positions: data.data.positions})
                     }
 
                     setTimeout(()=>{
-                        if(type=='subject'){
-                            this.switchFunction('subject')
+                        if(type=='department'){
+                            this.switchFunction('department')
                         } else {
-                            this.switchFunction('theme')
+                            this.switchFunction('position')
                         }
                         this.blockAddBtn = false
                         this.reqSuccess = false

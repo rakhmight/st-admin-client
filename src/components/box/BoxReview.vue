@@ -34,11 +34,11 @@ export default {
     },
     mounted(){
         this.getTestImages.forEach(testImage=>{
-            if(this.getRole=='author'){
+            if(this.getRole==1){
                 if(testImage.status.value=='under-review'){
                     this.tests.push(testImage)
                 }
-            } else if(this.getRole=='inspector'){
+            } else if(this.getRole==2){
                 if(testImage.status.value=='under-review' && testImage.status.step==2){
                     this.tests.push(testImage)
                 }

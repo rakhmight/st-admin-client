@@ -121,7 +121,7 @@ export default {
                     return
                 } else {
                     this.testFileError.status = true
-                    this.testFileError.msg = 'Некорректный формат теста'
+                    this.testFileError.msg = 'Incorrect test format'
                     return
                 }
 			}.bind(this), false)
@@ -131,7 +131,7 @@ export default {
 					reader.readAsText(this.testFile[0])
 				} else{
                     this.testFileError.status = true
-                    this.testFileError.msg = 'Некорректный формат теста'
+                    this.testFileError.msg = 'Incorrect test format'
                     return
                 }
             }
@@ -140,8 +140,10 @@ export default {
         async sendForCheck(){
             this.loader = true
             this.blockSendBtn = true
-            await makeReq(`${this.getAdminServerIP}/api/test/upload`, 'POST',{
-                ...this.getAuthParams,
+            await makeReq(`${this.getAdminServerIP}/api/tests/upload`, 'POST',{
+                auth:{
+                    ...this.getAuthParams
+                },
                 data: this.testToSend
             })
             .then(data=>{

@@ -49,6 +49,44 @@
                                 </v-tooltip>
                             </div>
 
+                            <div class="d-flex flex-row" style="width: 100%" v-if="testParams.languagesSettings.languages.indexOf('fr')!=-1">
+                                <div class="questionCtx" v-if="question.questionCtx.fr">{{ question.questionCtx.fr }}</div>
+                                <div class="questionCtxEmpty" v-else>!!!!</div>
+                                <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-img
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    src="@/assets/media/france.png"
+                                    width="30"
+                                    height="30"
+                                    class="mt-2 ml-2"
+                                    v-if="testParams.languagesSettings.languages.length>1"
+                                    ></v-img>
+                                </template>
+                                <span>Boîte à questions en <b><u>français</u></b></span>
+                                </v-tooltip>
+                            </div>
+
+                            <div class="d-flex flex-row" style="width: 100%" v-if="testParams.languagesSettings.languages.indexOf('de')!=-1">
+                                <div class="questionCtx" v-if="question.questionCtx.de">{{ question.questionCtx.de }}</div>
+                                <div class="questionCtxEmpty" v-else>!!!!</div>
+                                <v-tooltip bottom>
+                                <template v-slot:activator="{ on, attrs }">
+                                    <v-img
+                                    v-bind="attrs"
+                                    v-on="on"
+                                    src="@/assets/media/germany.png"
+                                    width="30"
+                                    height="30"
+                                    class="mt-2 ml-2"
+                                    v-if="testParams.languagesSettings.languages.length>1"
+                                    ></v-img>
+                                </template>
+                                <span>Fragefeld auf <b><u>Deutsch</u></b></span>
+                                </v-tooltip>
+                            </div>
+
                             <div class="d-flex flex-row" style="width: 100%" v-if="testParams.languagesSettings.languages.indexOf('ru')!=-1">
                                 <div class="questionCtx" v-if="question.questionCtx.ru">{{ question.questionCtx.ru }}</div>
                                 <div class="questionCtxEmpty" v-else>!!!!</div>
@@ -225,6 +263,48 @@
                                         ></v-img>
                                     </template>
                                         <span>Answer field in <b><u>foreign</u></b> language</span>
+                                    </v-tooltip>
+                                </div>
+
+                                <div style="position: relative;" v-if="testParams.languagesSettings.languages.indexOf('fr')!=-1">
+                                    <div class="answerCtx" v-if="answer.answerCtx.fr && !answer.isCurrect">{{ answer.answerCtx.fr }}</div>
+                                    <div class="answerCtx" v-if="answer.answerCtx.fr && answer.isCurrect" style="border: 2px solid #51c551">{{ answer.answerCtx.fr }}</div>
+                                    <div class="answerCtxEmpty" v-if="!answer.answerCtx.fr">!!!!!</div>
+                                    <v-tooltip right>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-img
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        v-if="testParams.languagesSettings.languages.length>1"
+                                        src="@/assets/media/france.png"
+                                        width="22"
+                                        height="22"
+                                        class="mt-2"
+                                        style="position:absolute; top:-18px;right:-10px"
+                                        ></v-img>
+                                    </template>
+                                        <span>Champ de réponse en <b><u>français</u></b></span>
+                                    </v-tooltip>
+                                </div>
+
+                                <div style="position: relative;" v-if="testParams.languagesSettings.languages.indexOf('de')!=-1">
+                                    <div class="answerCtx" v-if="answer.answerCtx.de && !answer.isCurrect">{{ answer.answerCtx.de }}</div>
+                                    <div class="answerCtx" v-if="answer.answerCtx.de && answer.isCurrect" style="border: 2px solid #51c551">{{ answer.answerCtx.de }}</div>
+                                    <div class="answerCtxEmpty" v-if="!answer.answerCtx.de">!!!!!</div>
+                                    <v-tooltip right>
+                                    <template v-slot:activator="{ on, attrs }">
+                                        <v-img
+                                        v-bind="attrs"
+                                        v-on="on"
+                                        v-if="testParams.languagesSettings.languages.length>1"
+                                        src="@/assets/media/germany.png"
+                                        width="22"
+                                        height="22"
+                                        class="mt-2"
+                                        style="position:absolute; top:-18px;right:-10px"
+                                        ></v-img>
+                                    </template>
+                                        <span>Antwortfeld auf <b><u>Deutsch</u></b></span>
                                     </v-tooltip>
                                 </div>
 

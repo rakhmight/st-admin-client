@@ -118,9 +118,9 @@ export default {
         this.tests = []
             
         this.getTestImages.forEach(testImage=>{
-            if(this.getRole=='author' || this.getRole=='inspector'){
+            if(this.getRole==1 || this.getRole==2){
                 this.tests.push(testImage)
-            } else if(this.getRole=='admin'){
+            } else if(this.getRole==3){
                 if(testImage.status.value=='under-review' && testImage.status.step==2 || testImage.status.value=='approved' || testImage.status.value=='rejected' && testImage.status.rejected=='admin'){
                     this.tests.push(testImage)
                 }

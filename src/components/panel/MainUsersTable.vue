@@ -71,13 +71,16 @@
                 <td>{{ i+1 }}</td>
                 <td>
                     <div class="pt-2 pb-2 d-flex flex-row align-center">
-                        <v-avatar :image="member.bio.avatar"></v-avatar>
+                        <div style="width: 40px; height: 40px;">
+                            <v-img :src="`${this.getAuthServerIP}/public/avatars/${member.id}.png`"></v-img>
+                        </div>
                         <span class="ml-2">{{ member.bio.lastName }} {{ member.bio.firstName }} {{ member.bio.patronymic }}</span>
                     </div>
                 </td>
-                <td v-if="member.memberRole==1"><span style="color: var(--main-color)">Author of tests</span></td>
-                <td v-if="member.memberRole==2"><span style="color: var(--main-color)">Inspector</span></td>
-                <td v-if="member.memberRole==3"><span style="color: var(--bg-special-color)">Administrator of system</span></td>
+                <td v-if="member.permission==0"><span style="color: var(--main-color)">User</span></td>
+                <td v-if="member.permission==1"><span style="color: var(--main-color)">Author of tests</span></td>
+                <td v-if="member.permission==2"><span style="color: var(--main-color)">Inspector</span></td>
+                <td v-if="member.permission==3"><span style="color: var(--bg-special-color)">Administrator of system</span></td>
                 <td>
                     <v-menu
                     transition="slide-y-transition"
@@ -151,6 +154,8 @@
             </tr>
             </tbody>
         </v-table>
+        
+        <data-empty :text="'Users not found'" v-if="!members.length" />
     </div>
 </template>
 
@@ -159,6 +164,7 @@ import SubtitleComponent from '@/components/SubtitleComponent';
 import GetSign from '@/components/panel/SignsManagement/dialogs/GetSign';
 import { mergeProps } from 'vue'
 import { mapGetters } from 'vuex';
+import DataEmpty from '@/components/DataEmpty.vue'
 
 export default {
     props:{
@@ -169,24 +175,29 @@ export default {
             members:[]
         }
     },
+    
+    computed: {
+        ...mapGetters(['getUsersList', 'getAuthServerIP'])
+    },
     mounted(){
+        console.log(this.getUsersList);
         if(this.mode=='users'){
-            this.members = this.getMembersList
+            this.members = this.getUsersList
         } else {
-            this.getMembersList.forEach(member => {
+            this.getUsersList.forEach(member => {
                 if(member.hasSign){
                     this.members.push(member)
                 }
             });
         }
     },
-    computed: mapGetters(['getMembersList']),
     methods: {
-      mergeProps,
+        mergeProps,
     },
     components: {
         SubtitleComponent,
-        GetSign
+        GetSign,
+        DataEmpty
     }
 }
 </script>

@@ -1,5 +1,5 @@
 export function getSubject(id, subjects, lang=undefined){
-    let target = subjects.find(subject=>subject._id==id)
+    let target = subjects.find(subject=>subject.id==id)
     if(target){
         return target.name.ru
     } else {
@@ -30,6 +30,10 @@ export function getLanguages(langs){
     langs.forEach(lang=>{
         if(lang=='custom'){
             languages.push('Foreign')
+        } else if(lang=='fr'){
+            languages.push('France')
+        } else if(lang=='de'){
+            languages.push('Deutsch')
         } else if(lang=='ru'){
             languages.push('Русский')
         } else if(lang=='eng'){
@@ -44,7 +48,7 @@ export function getLanguages(langs){
 }
 
 export function getThemes(sub, thems, subjects){
-    let target = subjects.find(subject=>subject._id==sub)
+    let target = subjects.find(subject=>subject.id==sub)
     if(target){
         let themes = []
         thems.forEach(item=>{
@@ -63,7 +67,7 @@ export function getThemes(sub, thems, subjects){
 }
 
 export function getTheme(sub, theme, subjects){
-    const subject = subjects.find(subject=>subject._id==sub)
+    const subject = subjects.find(subject=>subject.id==sub)
 
     const themeName = subject.themes.find(item => item.id==theme)
     if(themeName){

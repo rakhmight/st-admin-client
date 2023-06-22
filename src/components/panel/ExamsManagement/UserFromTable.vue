@@ -4,7 +4,9 @@
 
         <td>
             <div class="pt-2 pb-2 d-flex flex-row align-center">
-                <v-avatar :image="user.bio.avatar"></v-avatar>
+                <div style="width: 40px; height: 40px;">
+                    <v-img :src="`${this.getAuthServerIP}/public/avatars/${user.id}.png`"></v-img>
+                </div>
                 <span class="ml-2">{{ user.bio.lastName }} {{ user.bio.firstName }} {{ user.bio.patronymic }}</span>
             </div>
         </td>
@@ -52,7 +54,7 @@ export default {
             choiseUser: this.users.indexOf(this.user.id)!=-1 ? true : false
         }
     },
-    computed: mapGetters(['getDepartments']),
+    computed: mapGetters(['getDepartments', 'getAuthServerIP']),
     methods: {
       getCourse(year){
         if(this.nextEducationYear && this.currentYear-year!=3){

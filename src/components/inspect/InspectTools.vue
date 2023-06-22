@@ -85,8 +85,10 @@ export default {
                 this.blockAllBtns = true
                 this.blockAllBtnsFunc()
                 // если inspector - поменять step
-                await makeReq(`${this.getAdminServerIP}/api/test/append`, 'POST', {
-                    ...this.getAuthParams,
+                await makeReq(`${this.getAdminServerIP}/api/tests/append`, 'POST', {
+                    auth: { 
+                        ...this.getAuthParams,
+                    },
                     data: {
                         id: this.getInspectTest,
                         history: [
@@ -97,7 +99,7 @@ export default {
                 })
                 .then((data)=>{
                     if(data.statusCode == 200){
-                        this.replaceTestImages(data.data)
+                        this.replaceTestImages(data.data.test)
                         this.$router.push('/box')
                     }
                 })
@@ -119,8 +121,10 @@ export default {
                 // если admin:
                 // - сменить status
                 // - приклеить remarks
-                await makeReq(`${this.getAdminServerIP}/api/test/reject`, 'POST', {
-                    ...this.getAuthParams,
+                await makeReq(`${this.getAdminServerIP}/api/tests/reject`, 'POST', {
+                    auth: { 
+                        ...this.getAuthParams,
+                    },
                     data: {
                         id: this.getInspectTest,
                         remarks: this.remarks,
@@ -128,14 +132,14 @@ export default {
                             ...this.test.history,
                             {
                                 date: new Date(),
-                                type: this.getRole=='inspector' ? 'rejected-inspector' : this.getRole=='admin' ? 'rejected-admin' : 'unknown'
+                                type: this.getRole==2 ? 'rejected-inspector' : this.getRole==3 ? 'rejected-admin' : 'unknown'
                             }
                         ]
                     }
                 })
                 .then(data=>{
                     if(data.statusCode == 200){
-                        this.replaceTestImages(data.data)
+                        this.replaceTestImages(data.data.test)
                         this.$router.push('/box')
                     }
                 })

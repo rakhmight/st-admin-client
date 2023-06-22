@@ -15,8 +15,7 @@ export default {
           state.testImages = value
         },
         replaceTestImages(state, value){
-          const target = state.testImages.find(testImage=>testImage._id==value._id)
-    
+          const target = state.testImages.find(testImage=>testImage.id==value.id)
           if(target){
             const index = state.testImages.indexOf(target)
             state.testImages.splice(index, 1)
@@ -26,7 +25,7 @@ export default {
         },
         changeTestImage(state, params){
           if(params.operation=='type'){
-            const target = state.testImages.find(image => image._id==params.id)
+            const target = state.testImages.find(image => image.id==params.id)
             const index = state.testImages.indexOf(target)
             state.testImages[index].type = params.type
           }

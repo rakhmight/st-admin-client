@@ -1,5 +1,5 @@
 {
-  "name": "st-ap",
+  "name": "st-admin-client",
   "version": "0.1.0",
   "private": true,
   "scripts": {

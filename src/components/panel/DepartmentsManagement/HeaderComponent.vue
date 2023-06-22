@@ -1,13 +1,13 @@
 <template>
     <div class="title">
         <div class="d-flex flex-row align-center justify-space-between mb-2">
-            <span class="text-h6" v-if="section=='subject'">Subjects</span>
-            <span class="text-h6" v-else>Themes</span>
+            <span class="text-h6" v-if="section=='department'">Departments</span>
+            <span class="text-h6" v-else>Positions</span>
             <div>
                 <v-menu
                 transition="slide-y-transition"
                 location="bottom center"
-                v-if="section=='subject'"
+                v-if="section=='department'"
                 >
                 <template v-slot:activator="{ props: menu  }">
                     <v-tooltip location="top">
@@ -48,23 +48,6 @@
                     </v-list>
                 </v-menu>
 
-                <v-tooltip text="Print themes">
-                <template v-slot:activator="{ props }">
-                    <v-btn
-                    v-bind="props"
-                    density="compact"
-                    color="#444"
-                    size="24"
-                    icon
-                    class="mr-3"
-                    v-if="section=='theme' && getCurrentSubject!==undefined && getCurrentSubject.themes.length"
-                    @click="printThemes"
-                    >
-                        <v-icon size="19">mdi-printer</v-icon>
-                    </v-btn>
-                </template>
-                </v-tooltip>
-
                 <v-tooltip :text="!status ? 'Add new' : 'Cancel'" location="left">
                 <template v-slot:activator="{ props }">
                     <v-btn
@@ -75,7 +58,7 @@
                     icon
                     class="mr-3"
                     @click="switchForm()"
-                    v-if="section=='theme' && getCurrentSubject!==undefined || section=='subject'"
+                    v-if="section=='position' && getCurrentDepartment!==undefined || section=='department'"
                     >
                     <v-icon v-if="!status">mdi-plus</v-icon>
                     <v-icon size="19" v-else>mdi-window-close</v-icon>
@@ -91,9 +74,6 @@
 <script>
 import { mergeProps } from 'vue'
 import { mapGetters } from 'vuex'
-import jsPDF from 'jspdf'
-import autoTable from 'jspdf-autotable'
-import {font} from '@/plugins/MontserratAlternates-normal.js'
 
 export default {
     props:{
@@ -101,52 +81,17 @@ export default {
         switchFunction: Function,
         status: Boolean
     },
-    computed: mapGetters(['getCurrentSubject']),
+    computed: mapGetters(['getCurrentDepartment']),
     methods:{
         switchForm(){
-            if(this.section == 'subject'){
-                this.switchFunction('subject')
+            if(this.section == 'department'){
+                this.switchFunction('department')
             }else{
-                this.switchFunction('theme')
+                this.switchFunction('position')
             }
         },
         
-        mergeProps,
-
-        printThemes(){
-            const doc = new jsPDF({
-                unit: "in",
-            })
-
-            const currentSubjects = this.getCurrentSubject
-            const themesToTable = []
-            currentSubjects.themes.forEach(theme => {
-                themesToTable.push([theme.id, theme.name.ru])
-            });
-
-            doc.addFileToVFS('MontserratAlternates-normal.ttf', font);
-            doc.addFont('MontserratAlternates-normal.ttf', 'MontserratAlternates', 'normal');
-
-            doc.setFont('MontserratAlternates')
-
-            autoTable(doc, {
-                head: [['ID', 'Название предмета']],
-                body: [
-                    [currentSubjects.id, currentSubjects.name.ru]
-                ],
-                styles: { font: 'MontserratAlternates'},
-            })
-
-            autoTable(doc, {
-                head: [['ID', 'Название темы']],
-                body: [
-                    ...themesToTable,
-                ],
-                styles: { font: 'MontserratAlternates'},
-            })
-            
-            doc.save(`${currentSubjects.name.ru}.pdf`,'')
-        }
+        mergeProps
     },
 }
 </script>

@@ -138,19 +138,19 @@ export default {
                 // куча проверок
                 if(test.author && typeof test.author == 'string' && test.fileDate && typeof test.fileDate == 'number' && test.history && typeof test.history == 'object' && test.id && typeof test.id == 'number' && test.params && typeof test.params == 'object' && test.questions && typeof test.questions == 'string' && test.signHash && typeof test.signHash == 'string' && test.testInfo && typeof test.testInfo == 'object' && test.testImage && typeof test.testImage == 'string'){
                     
-                    if(test.testImage == this.test._id){
+                    if(test.testImage == this.test.id){
                         this.blockSendBtn = false
                         this.testToSend = test
                         return
                     } else {
                         this.testFileError.status = true
-                        this.testFileError.msg = 'Загружаемый файл не относиться к данному тесту'
+                        this.testFileError.msg = 'The file you are uploading does not apply to this test.'
                         return
                     }
 
                 } else {
                     this.testFileError.status = true
-                    this.testFileError.msg = 'Некорректный формат теста'
+                    this.testFileError.msg = 'Incorrect test format'
                     return
                 }
 			}.bind(this), false)
@@ -160,7 +160,7 @@ export default {
 					reader.readAsText(this.testFile[0])
 				} else{
                     this.testFileError.status = true
-                    this.testFileError.msg = 'Некорректный формат теста'
+                    this.testFileError.msg = 'Incorrect test format'
                     return
                 }
             }
@@ -170,8 +170,10 @@ export default {
             this.blockSendBtn = true
             this.loader = true
             // отправка на сервер
-            await makeReq(`${this.getAdminServerIP}/api/test/update`, 'POST', {
-                ...this.getAuthParams,
+            await makeReq(`${this.getAdminServerIP}/api/tests/update`, 'POST', {
+                auth: {
+                    ...this.getAuthParams
+                },
                 data:{
                     test: this.testToSend,
                     id: this.testToSend.testImage

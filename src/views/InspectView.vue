@@ -40,23 +40,25 @@ export default {
         if(!this.getAuthState){
             this.$router.push('/')
         }
-        if(this.getRole=='author'){
+        if(this.getRole==1){
             this.$router.push('/box')
         }
         if(!this.getInspectTest){
             this.$router.push('/box')
         }
 
-        makeReq(`${this.getAdminServerIP}/api/test/gettest`, 'POST', {
-            ...this.getAuthParams,
-            data:{
+        makeReq(`${this.getAdminServerIP}/api/tests/gettest`, 'POST', {
+            auth: {
+                ...this.getAuthParams
+            },
+            data: {
                 id: this.getInspectTest
             }
         })
         .then(data=>{
             if(data.statusCode==200){
                 this.loader = false
-                this.test = JSON.parse(data.data)
+                this.test = JSON.parse(data.data.test)
 
                 this.questions = this.test.questions
                 this.params = this.test.params

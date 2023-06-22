@@ -124,7 +124,9 @@ export default {
             this.blockBtn = true
 
             await makeReq(`${this.getAdminServerIP}/api/devices/add`, 'POST', {
-                ...this.getAuthParams,
+                auth:{
+                    ...this.getAuthParams,
+                },
                 data:{
                     password: this.password
                 }

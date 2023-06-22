@@ -30,8 +30,12 @@
                 <span>Signs</span>
               </div>
               <div class="nav-group__item d-flex flex-row align-center" :class="tab=='subjects-themes' ? 'text-light-blue-special' : ''" @click="tab='subjects-themes'">
-                <v-icon size="22" class="mr-3">mdi-alpha-t-box-outline</v-icon>
-                <span>Subjects & themes</span>
+                <v-icon size="22" class="mr-3">mdi-alpha-s-box-outline</v-icon>
+                <span>Subjects</span>
+              </div>
+              <div class="nav-group__item d-flex flex-row align-center" :class="tab=='departments' ? 'text-light-blue-special' : ''" @click="tab='departments'">
+                <v-icon size="22" class="mr-3">mdi-alpha-d-box-outline</v-icon>
+                <span>Departments</span>
               </div>
               <div class="nav-group__item d-flex flex-row align-center" :class="tab=='devices' ? 'text-light-blue-special' : ''" @click="tab='devices'">
                 <v-icon size="20" class="mr-3">mdi-monitor</v-icon>
@@ -84,6 +88,7 @@
         <panel-exams-management v-if="tab=='exams'"/>
         <panel-signs-management v-if="tab=='signs'"/>
         <panel-subjects-themes-management v-if="tab=='subjects-themes'" />
+        <panel-departments-management v-if="tab=='departments'" />
         <panel-devices-management v-if="tab=='devices'" />
         <panel-reports v-if="tab=='reports'"/>
         <panel-server-state v-if="tab=='server-state'"/>
@@ -102,6 +107,7 @@ import PanelExamsManagement from '@/components/panel/ExamsManagement/PanelExamsM
 import PanelSignsManagement from '@/components/panel/SignsManagement/PanelSignsManagement'
 import PanelDevicesManagement from '@/components/panel/DevicesManagement/PanelDevicesManagement'
 import PanelSubjectsThemesManagement from '@/components/panel/SubjectsThemesManagement/PanelSubjectsThemesManagement'
+import PanelDepartmentsManagement from '@/components/panel/DepartmentsManagement/PanelDepartmentsManagement'
 import PanelReports from '@/components/panel/ReportsGeneral/PanelReports'
 import PanelServerState from '@/components/panel/PanelServerState'
 import PanelServerCalls from '@/components/panel/PanelServerCalls'
@@ -121,7 +127,7 @@ export default {
     if(!this.getAuthState){
         this.$router.push('/')
     }
-    if(this.getRole!='admin'){
+    if(this.getRole!=3){
       this.$router.push('/box')
     } else {
       socket.connect()
@@ -138,6 +144,7 @@ export default {
     PanelTestsManagement,
     PanelExamsManagement,
     PanelSignsManagement,
+    PanelDepartmentsManagement,
     PanelDevicesManagement,
     PanelSubjectsThemesManagement,
     PanelReports,

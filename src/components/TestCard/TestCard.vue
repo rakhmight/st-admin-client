@@ -5,7 +5,7 @@
             
           <!-- under Review -->
           <v-img
-          v-if="test.status.value=='under-review' && getRole=='author' || test.status.value=='under-review' && test.status.step==2 && getRole=='inspector'"
+          v-if="test.status.value=='under-review' && getRole==1 || test.status.value=='under-review' && test.status.step==2 && getRole==2"
           src="@/assets/media/test_check.png"
           contain
           max-width="40"
@@ -13,7 +13,7 @@
           ></v-img>
           <!-- Incoming -->
           <v-img
-          v-if="test.status.value=='under-review' && test.status.step==1 && getRole=='inspector' || test.status.value=='under-review' && test.status.step==2 && getRole=='admin'"
+          v-if="test.status.value=='under-review' && test.status.step==1 && getRole==2 || test.status.value=='under-review' && test.status.step==2 && getRole==3"
           src="@/assets/media/test_incoming.png"
           contain
           max-width="40"
@@ -52,14 +52,14 @@
             </tr>
             <tr>
               <td>Status:</td>
-              <td style="color:#9201ff;text-align: right;" v-if="test.status.value=='under-review' && getRole=='author' || test.status.value=='under-review' && test.status.step==2 && getRole=='inspector'">Under review</td>
-              <td style="color:#9d630c;text-align: right;" v-if="test.status.value=='under-review' && test.status.step==1 && getRole=='inspector' || test.status.value=='under-review' && test.status.step==2 && getRole=='admin'">Incoming</td>
+              <td style="color:#9201ff;text-align: right;" v-if="test.status.value=='under-review' && getRole==1 || test.status.value=='under-review' && test.status.step==2 && getRole==2">Under review</td>
+              <td style="color:#9d630c;text-align: right;" v-if="test.status.value=='under-review' && test.status.step==1 && getRole==2 || test.status.value=='under-review' && test.status.step==2 && getRole==3">Incoming</td>
               <td style="color:#14917f;text-align: right;" v-if="test.status.value=='approved'">Approved</td>
               <td style="color:#ff3001;text-align: right;" v-if="test.status.value=='rejected'">Rejected</td>
             </tr>
           </table>
           
-          <div style="position: absolute; bottom:10px;left:0;" v-if="test.status.value=='under-review' && getRole=='author' || test.status.value=='under-review' && test.status.step==2 && getRole=='inspector'">
+          <div style="position: absolute; bottom:10px;left:0;" v-if="test.status.value=='under-review' && getRole==1 || test.status.value=='under-review' && test.status.step==2 && getRole==2">
             <span style="font-size: 2em; color: #9201ff" >•</span>
             <span style="font-size: 2em;" :style="test.status.step>1 ? 'color: #9201ff' : 'color: #888'">•</span>
           </div>
@@ -89,9 +89,9 @@
 
               <test-info :test="test" />
               <test-history :test="test" />
-              <test-update :test="test" v-if="test.status.value=='rejected' && getRole=='author'" :reRenderTests="reRenderTests ? reRenderTests : undefined" />
-              <test-export :test="test" v-if="test.status.value=='rejected' && getRole=='author'"/>
-              <test-delete :test="test" v-if="getRole=='admin' || test.author==getAuthParams.id && test.status.value!='approved'"/>
+              <test-update :test="test" v-if="test.status.value=='rejected' && getRole==1" :reRenderTests="reRenderTests ? reRenderTests : undefined" />
+              <test-export :test="test" v-if="test.status.value=='rejected' && getRole==1"/>
+              <test-delete :test="test" v-if="getRole==3 || test.author==getAuthParams.id && test.status.value!='approved'"/>
 
             </v-list>
         </v-menu>
@@ -102,8 +102,8 @@
               v-bind="props"
               height="31"
               variant="text"
-              v-if="getRole=='inspector' && test.status.value=='under-review' && test.status.step==1 || getRole=='admin' && test.status.value=='under-review' && test.status.step==2"
-              @click="goToInspect(test._id)"
+              v-if="getRole==2 && test.status.value=='under-review' && test.status.step==1 || getRole==3 && test.status.value=='under-review' && test.status.step==2"
+              @click="goToInspect(test.id)"
               >
               <v-icon color="#0167FF" size="22">mdi-arrow-top-right</v-icon>
             </v-btn>

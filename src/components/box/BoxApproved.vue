@@ -33,6 +33,7 @@ export default {
         DataEmpty
     },
     mounted(){
+        console.log(this.getTestImages);
         this.getTestImages.forEach(testImage=>{
             if(testImage.status.value=='approved'){
                 this.tests.push(testImage)

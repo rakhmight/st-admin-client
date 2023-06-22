@@ -17,23 +17,23 @@
             </thead>
             <tbody>
             <tr
-            :onmouseover="section=='subject' ? 'this.style.backgroundColor=`rgba(0, 0, 0, 0.082)`;this.style.cursor=`pointer`;' : ''"
-            :onmouseout="section=='subject' ? 'this.style.backgroundColor=``;' : ''"
-            v-if="section=='subject'"
-            v-for="(subject, i) in getSubjects"
+            :onmouseover="section=='department' ? 'this.style.backgroundColor=`rgba(0, 0, 0, 0.082)`;this.style.cursor=`pointer`;' : ''"
+            :onmouseout="section=='department' ? 'this.style.backgroundColor=``;' : ''"
+            v-if="section=='department'"
+            v-for="(department, i) in getDepartments"
             :key="i"
-            @click="choiseSubject(i)"
-            :style="getCurrentSubject && getCurrentSubject.id === subject.id ? 'color:var(--main-color)' : ''"
+            @click="choiseDepartment(i)"
+            :style="getCurrentDepartment && getCurrentDepartment.id === department.id ? 'color:var(--main-color)' : ''"
             >
                 <td style="font-size: 0.8em;max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">             
                     <v-tooltip location="bottom" color="#00000073">
                     <template v-slot:activator="{ props }">
-                        <span v-bind="props" style="cursor: pointer;">{{ subject.id }}</span>
+                        <span v-bind="props" style="cursor: pointer;">{{ department.id }}</span>
                     </template>
-                    <span>{{ subject.id }}</span>
+                    <span>{{ department.id }}</span>
                     </v-tooltip>
                 </td>
-                <td>{{ subject.name.ru }}</td>
+                <td>{{ department.name.ru }}</td>
                 <td>
                     <v-menu
                     transition="slide-y-transition"
@@ -53,13 +53,13 @@
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                                <span class="menu-text">Edit subject</span>
+                                <span class="menu-text">Edit department</span>
                             </v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--red-color)">mdi-delete</v-icon>
-                                <span style="color:var(--red-color)" class="menu-text">Delete subject</span>
+                                <span style="color:var(--red-color)" class="menu-text">Delete department</span>
                             </v-list-item-title>
                         </v-list-item>
                     </v-list>
@@ -70,12 +70,12 @@
 
             
             <tr
-            v-if="section=='theme'"
-            v-for="(theme, i) in getThemes"
+            v-if="section=='position'"
+            v-for="(position, i) in getPositions"
             :key="i"
             >
-                <td>{{ theme.id }}</td>
-                <td>{{ theme.name.ru }}</td>
+                <td>{{ position.id }}</td>
+                <td>{{ position.name.ru }}</td>
                 <td>
                     <v-menu
                     transition="slide-y-transition"
@@ -95,13 +95,13 @@
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                                <span class="menu-text">Edit theme</span>
+                                <span class="menu-text">Edit position</span>
                             </v-list-item-title>
                         </v-list-item>
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--red-color)">mdi-delete</v-icon>
-                                <span style="color:var(--red-color)" class="menu-text">Delete theme</span>
+                                <span style="color:var(--red-color)" class="menu-text">Delete position</span>
                             </v-list-item-title>
                         </v-list-item>
                     </v-list>
@@ -112,7 +112,7 @@
         </v-table>
 
         <div
-        v-if="section=='subject' && !getSubjects.length || section == 'theme' && !getThemes.length && getCurrentSubject!==undefined"
+        v-if="section=='department' && !getDepartments.length || section == 'position' && !getPositions.length && getCurrentDepartment!==undefined"
         style="height: 60vh; width: 100%;"
         class="d-flex flex-column justify-center align-center"
         >
@@ -123,14 +123,14 @@
         </div>
 
         <div
-        v-if="section=='theme' && getCurrentSubject===undefined"
+        v-if="section=='position' && getCurrentDepartment===undefined"
         style="height: 60vh; width: 100%;"
         class="d-flex flex-column justify-center align-center"
         >
         <div style="min-height: 100px;" class="d-flex align-center">
             <v-img src="@/assets/media/list.png" center width="70px"></v-img>
         </div>
-        <span class="text-h7 mt-1" style="color: #777">Choise any subject</span>
+        <span class="text-h7 mt-1" style="color: #777">Choise any department</span>
         </div>
     </div>
 </template>
@@ -144,22 +144,24 @@ export default {
     },
     data(){
         return {
-            subjects: [],
-            themes: []
+            departments: [],
+            positions: []
         }
     },
     mounted(){
-        if(this.getCurrentSubject){
-            this.setThemes(this.getCurrentSubject.themes)
+        if(this.getCurrentDepartment){
+            this.setPositions(this.getCurrentDepartment.positions)
         }
-    },
-    computed: mapGetters(['getPositions', 'getCurrentSubject', 'getSubjects', 'getThemes']),
-    methods:{
-        ...mapMutations(['setThemes', 'setCurrentSubject']),
 
-        choiseSubject(key){
-            this.setThemes(this.getSubjects[key].themes)
-            this.setCurrentSubject(this.getSubjects[key])
+        console.log(this.getCurrentDepartment);
+    },
+    computed: mapGetters(['getPositions', 'getCurrentDepartment', 'getDepartments']),
+    methods:{
+        ...mapMutations(['setPositions', 'setCurrentDepartment']),
+
+        choiseDepartment(key){
+            this.setPositions(this.getDepartments[key].positions)
+            this.setCurrentDepartment(this.getDepartments[key])
         }
     }
 }

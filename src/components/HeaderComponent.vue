@@ -17,7 +17,7 @@
         <v-list density="compact" nav>
           <v-list-item prepend-icon="mdi-archive" title="Box" value="box" @click="$router.push('/box')"></v-list-item>
           <v-list-item prepend-icon="mdi-file-chart" title="Reports" value="reports" @click="$router.push('/reports')"></v-list-item>
-          <v-list-item prepend-icon="mdi-cog" title="Admin panel" value="panel" v-if="getRole=='admin'" @click="$router.push('/panel')"></v-list-item>
+          <v-list-item prepend-icon="mdi-cog" title="Admin panel" value="panel" v-if="getRole==3" @click="$router.push('/panel')"></v-list-item>
         <v-divider></v-divider>
         <h3 class="mt-3 mb-1 pl-2">Navigation</h3>
 
@@ -42,7 +42,7 @@
       <v-app-bar-title style="color: #fff" class="d-flex flex-row">
           <div class="d-flex flex-row align-center">
               <div style="height: 40px" class="d-flex align-center">
-                  <v-img src="@/assets/media/logo.svg" width="70"></v-img>
+                  <v-img src="@/assets/media/logo.svg" width="70px"></v-img>
               </div>
               <h3 style="color:#fff; font-family: MontserratThin" class="mr-1">Smart Testing</h3>
           </div>
@@ -100,11 +100,11 @@
             v-if="getAuthState"
             class="shrink mr-3"
             contain
-            :src="getUserData.bio.avatar"
+            :src="`${getAuthServerIP}/public/avatars/${getAuthParams.id}.png`"
             transition="scale-transition"
             width="25"
           />
-          <span style="color:#fff" v-if="getAuthState">{{ getUserData.bio.firstName }} ({{ getRole=='author' ? 'author' : getRole=='inspector' ? 'inspector' : 'administrator' }})</span>
+          <span style="color:#fff" v-if="getAuthState">{{ getUserData.bio.firstName }} ({{ getRole==1 ? 'author' : getRole==2 ? 'inspector' : 'administrator' }})</span>
           <v-icon class="ml-1" size="25">mdi-chevron-down</v-icon>
         </v-btn>
       </template>
@@ -173,17 +173,22 @@ export default {
              langs: [{lang: 'русский', short: 'ru'},{lang: "o'zbek", short: 'uz_l'}, {lang: "ўзбек", short: 'uz_k'},{lang: 'english', short: 'eng'}],
         }
     },
-    computed: mapGetters(['getRole', 'getUserData', 'getAuthState', 'getAuthServerIP']),
+    computed: mapGetters(['getRole', 'getUserData', 'getAuthState', 'getAuthServerIP', 'getAuthParams']),
     methods:{
       ...mapMutations(['changeAuthState']),
       async logout(){
-        let store = localStorage.getItem('auth')
+        let authStore = localStorage.getItem('auth')
 
-        if(store){
-          store = JSON.parse(store)
+        if(authStore){
+          authStore = JSON.parse(authStore)
 
-          await makeReq(`${this.getAuthServerIP}/api/users/logout`, 'POST', {data:{...store}})
-          .then(data=>{
+          await makeReq(`${this.getAuthServerIP}/api/user/logout`, 'POST', {
+            auth: {
+              requesting: 'client',
+              ...authStore
+            }
+          })
+          .then(()=>{
             // if(data.code == 'OK'){
             // } else{
             // }

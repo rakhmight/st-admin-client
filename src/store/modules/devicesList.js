@@ -16,7 +16,7 @@ export default {
         },
         changeDeviceState(state, value){
             if(value.type=='status'){
-                const target = state.devices.find(device=>device._id==value.id)
+                const target = state.devices.find(device=>device.id==value.id)
                 if(target!=-1){
                     const index = state.devices.indexOf(target)
                     if(value.status=='online'){

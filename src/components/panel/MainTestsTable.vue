@@ -28,9 +28,9 @@
                 <td style="max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">
                     <v-tooltip location="bottom" color="#00000073">
                     <template v-slot:activator="{ props }">
-                        <span v-bind="props" style="cursor: pointer;">{{ test._id }}</span>
+                        <span v-bind="props" style="cursor: pointer;">{{ test.id }}</span>
                     </template>
-                    <span>{{ test._id }}</span>
+                    <span>{{ test.id }}</span>
                     </v-tooltip>
                 </td>
                 <td>{{ getSubjectName(test.info.params.subject) }}</td>

@@ -66,7 +66,7 @@
                     @click="step++"
                     v-if="step<4"
                     >
-                    mdi-arrow-right
+                        mdi-arrow-right
                     </v-icon>
                 </div>
             </div>
@@ -74,19 +74,19 @@
             <div class="form__steps">
                 <v-window v-model="step">
                     <v-window-item :value="1">
-                        <date-step :switchStartFormat="switchStartFormat" :installDateData="installDateData" :examDateParams="examDateParams" />
+                        <date-step v-if="!reloadForm" :switchStartFormat="switchStartFormat" :installDateData="installDateData" :examDateParams="examDateParams" />
                     </v-window-item>
 
                     <v-window-item :value="2">
-                        <tests-step :choisingTest="choisingTest" :changeChoisedSubject="changeChoisedSubject" :switchChoisedSubject="switchChoisedSubject" />
+                        <tests-step v-if="!reloadForm" :choisingTest="choisingTest" :changeChoisedSubject="changeChoisedSubject" :switchChoisedSubject="switchChoisedSubject" />
                     </v-window-item>
 
                     <v-window-item :value="3">
-                        <users-step :usersManagement="usersManagement" :users="users" :choisingUser="choisingUser" :reRenderSingle="reRenderSingle" />
+                        <users-step v-if="!reloadForm" :usersManagement="usersManagement" :users="users" :choisingUser="choisingUser" :reRenderSingle="reRenderSingle" />
                     </v-window-item>
 
                     <v-window-item :value="4">
-                        <params-step :complex="complex" :paramsManagement="paramsManagement" :switchTests="switchTests"/>
+                        <params-step v-if="!reloadForm" :complex="complex" :paramsManagement="paramsManagement" :switchTests="switchTests"/>
                     </v-window-item>
                 </v-window>
             </div>
@@ -94,12 +94,13 @@
             <div class="d-flex align-center justify-center">
                 <v-btn
                 density="compact"
-                :color="!steps.first || !steps.second || !steps.third || !steps.fourth ? '#eee' : 'var(--main-color)'"
-                :disabled="!steps.first || !steps.second || !steps.third || !steps.fourth"
+                :color="!steps.first || !steps.second || !steps.third || !steps.fourth || blockBtn ? '#eee' : 'var(--main-color)'"
+                :disabled="!steps.first || !steps.second || !steps.third || !steps.fourth || blockBtn"
                 @click="approveExam"
+                width="300"
                 >
                 
-                <span :style="!steps.first || !steps.second || !steps.third || !steps.fourth ? 'color: #777' : 'color:#fff'" v-if="!loader">schedule an exam</span>
+                <span :style="!steps.first || !steps.second || !steps.third || !steps.fourth || blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">schedule an exam</span>
                     <v-progress-circular
                     :width="1"
                     size="15"
@@ -119,7 +120,7 @@ import DateStep from '@/components/panel/ExamsManagement/steps/DateStep'
 import TestsStep from '@/components/panel/ExamsManagement/steps/TestsStep'
 import UsersStep from '@/components/panel/ExamsManagement/steps/UsersStep'
 import ParamsStep from '@/components/panel/ExamsManagement/steps/ParamsStep'
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import makeReq from '@/services/makeReq';
 
 export default {
@@ -133,7 +134,10 @@ export default {
             },
             step: 1,
             loader: false,
+            blockBtn: false,
+            success: false,
             switchTests: false,
+            reloadForm: false,
 
             // Date step
             startFormat: undefined,
@@ -182,6 +186,7 @@ export default {
     },
     computed: mapGetters(['getUsersList', 'getTestImages', 'getAdminServerIP', 'getAuthParams']),
     methods:{
+        ...mapMutations(['addExam']),
         changeChoisedSubject(subjects){
             this.complex.forEach(exam=>{
                 let counter = 0
@@ -245,11 +250,13 @@ export default {
                     const target = this.complex.find(exam=>exam.subject==value.info.params.subject)
                     const index = this.complex.indexOf(target)
                     this.complex[index].tests.push(value.fileName)
+                    this.complex[index].themes.push(...value.info.params.themes)
                 } else {
                     this.complex.push({
                         subject: value.info.params.subject,
                         tests: [value.fileName],
-                        params: {}
+                        params: {},
+                        themes: [...value.info.params.themes]
                     })
                 }
             } else if(type=='remove'){
@@ -511,18 +518,82 @@ export default {
         },
 
         approveExam(){
+            this.loader = true
+            this.blockBtn = true
             const data = {
                 complex: this.complex,
                 params: this.params,
                 users: this.users,
-                date: this.examDateParams
+                examDateParams: this.examDateParams
             }
 
             console.log(data);
 
-            makeReq(`${this.getAdminServerIP}/api/exam/established`, 'POST', {
-                ...this.getAuthParams,
+            makeReq(`${this.getAdminServerIP}/api/exams/established`, 'POST', {
+                auth: {
+                    ...this.getAuthParams
+                },
                 data
+            }).then((data)=>{
+                console.log(data)
+                this.addExam(data.data.exam)
+                
+                this.loader = false
+                this.success = true
+                setTimeout(()=>{
+                    this.success = false
+                    this.blockBtn = false
+                }, 3000)
+                
+                this.reloadForm = true
+                // UI в начальные значения
+                this.params = {
+                    complex: {}
+                }
+                this.users = []
+                
+                this.steps = {
+                    first: false,
+                    second: false,
+                    third: false,
+                    fourth: false
+                }
+                this.step = 1
+                this.startFormat = undefined
+                this.examDateParams = {
+                    start:{
+                        date: undefined,
+                        time: undefined,
+                        byCommand: false,
+                    },
+                    end:{
+                        date: undefined,
+                        time: undefined,
+                        byCommand: false,
+                    }
+                }
+                this.usersParams = {
+                    students:{
+                        fullTime: [],
+                        inAbsentia: [],
+                        magistracy: []
+                    },
+                    enrollees:{
+                        fullTime: [],
+                        inAbsentia: [],
+                        magistracy: []
+                    },
+                    teachers: [],
+                    employees: []
+                }
+
+                setTimeout(()=>{
+                    this.reloadForm = false
+                }, 500)
+
+            })
+            .catch(err=>{
+                console.error(err)
             })
         }
     },

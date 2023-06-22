@@ -2,14 +2,14 @@
     <v-table density="compact">
         <thead>
         <tr>
-            <th class="text-left" min-width="30px" width="30px">
+            <th class="text-center" min-width="30px" width="30px">
             #
             </th>
             <th class="text-left">
-            Test / Subject
+            Subject('s)
             </th>
             <th class="text-left">
-            Tickets count (question count)
+            Tickets / Questions count
             </th>
             <th class="text-left">
             Planned
@@ -26,60 +26,69 @@
         </tr>
         </thead>
         <tbody>
-        <tr>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-            <td>1</td>
-            <td>2</td>
-            <td>
-                <v-menu
-                transition="slide-y-transition"
-                >
-                <template v-slot:activator="{ props }">
-                    <v-btn
-                    color="var(--main-color)"
-                    v-bind="props"
-                    density="compact"
-                    variant="text"
-                    icon="mdi-dots-horizontal"
-                    size="35"
-                    >
-                    </v-btn>
-                </template>
-                <v-list density="compact" min-width="120">
-                    <v-list-item>
-                        <v-list-item-title class="d-flex align-center">
-                            <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-information</v-icon>
-                            <span class="menu-text">Info</span>
-                        </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item>
-                        <v-list-item-title class="d-flex align-center">
-                            <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                            <span class="menu-text">Edit</span>
-                        </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item>
-                        <v-list-item-title class="d-flex align-center">
-                            <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-eye</v-icon>
-                            <span class="menu-text">Monitor the exam</span>
-                        </v-list-item-title>
-                    </v-list-item>
-                    <v-list-item>
-                        <v-list-item-title class="d-flex align-center">
-                            <v-icon size="18" class="mr-1" color="var(--red-color)">mdi-delete</v-icon>
-                            <span style="color:var(--red-color)" class="menu-text">Delete</span>
-                        </v-list-item-title>
-                    </v-list-item>
-                </v-list>
-                </v-menu>
-            </td>
-        </tr>
+            <exam-table-element
+            v-for="(exam, i) in getExams"
+            :key="i"
+            :exam="exam"
+            :examsTimes="examsTimes"
+            :i="i"
+            />
         </tbody>
     </v-table>
 </template>
+
+<script>
+import { mapGetters } from 'vuex'
+import ExamTableElement from '@/components/panel/ExamsManagement/ExamTableElement.vue'
+
+export default {
+    data(){
+        return {
+            examsTimes: [],
+            examsTimersChecker: undefined
+        }
+    },
+    components:{
+        ExamTableElement
+    },
+    computed: mapGetters(['getExams']),
+    methods:{
+        checkExamsTimers(){
+            this.examsTimes = []
+            this.getExams.forEach(exam=>{
+
+                if(exam.isActive){
+                    if(!exam.examDateParams.start.byCommand){
+                        const date = new Date(Date.parse(`${exam.examDateParams.start.date} ${exam.examDateParams.start.time}`))
+                        let status
+                        if(date > Date.now()){
+                            status = 'in-order'
+                        } else if(date < Date.now()){
+                            status = 'active'
+                        }
+                        
+                        this.examsTimes.push({
+                            id: exam.id,
+                            status: status
+                        })
+                    }
+                }
+            })
+        }
+    },
+    mounted(){
+        this.checkExamsTimers()
+
+        this.examsTimersChecker = setInterval(()=>{
+            this.checkExamsTimers()
+        },10000)
+    },
+    unmounted(){
+        clearInterval(this.examsTimersChecker)
+    }
+}
+</script>
+
 
 <style scoped>
 .v-table{

@@ -38,6 +38,7 @@ body{
     height: 100%;
     background-color: var(--bg-color);
     position: relative;
+    overflow-y: auto;
 }
 
 html{
@@ -45,7 +46,7 @@ html{
 }
 
 ::-webkit-scrollbar {
-    width: 12px; /* ширина для вертикального скролла */
+    width: 6px; /* ширина для вертикального скролла */
     background-color: #b9b9b9;
 }
 

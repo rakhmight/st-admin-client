@@ -110,10 +110,12 @@ export default {
             this.blockBtn = true
             this.loader = true
 
-            await makeReq(`${this.getAdminServerIP}/api/test/changetype`, 'POST', {
-                ...this.getAuthParams,
-                data:{
-                    id: this.test._id,
+            await makeReq(`${this.getAdminServerIP}/api/tests/changetype`, 'POST', {
+                auth: {  
+                    ...this.getAuthParams,
+                },
+                data: {
+                    id: this.test.id,
                     type: this.testType
                 }
             })
@@ -123,7 +125,7 @@ export default {
                     this.loader = false
 
                     // изменение типа в стейте
-                    this.changeTestImage({ operation: 'type', id:this.test._id, type: this.testType })
+                    this.changeTestImage({ operation: 'type', id:this.test.id, type: this.testType })
 
                     setTimeout(()=>{
                         this.blockBtn = false

@@ -89,7 +89,7 @@
                         <span v-if="device.status=='online'">online</span>
                         </v-tooltip>
                     </td>
-                    <td class="text-center">{{ device._id }}</td>
+                    <td class="text-center">{{ device.id }}</td>
                     <td class="text-center">
                         <span style="color:#7c5807" v-if="device.status=='binding'">waiting for binding..</span>
                         <span style="color:#777" v-if="device.status=='offline'">offline</span>
