@@ -39,8 +39,8 @@
                     @click:append="show1 = !show1"
                     :error="adminPasswordError"
                 ></v-text-field>
-                <v-divider class="mb-5"></v-divider>
-                <v-text-field
+                <!-- <v-divider class="mb-5"></v-divider> -->
+                <!-- <v-text-field
                     variant="outlined"
                     density="compact"
                     v-model="memberPassword"
@@ -49,7 +49,7 @@
                     @click:append="show1 = !show1"
                     label="Choised member's password"
                     :error="memberPasswordError"
-                ></v-text-field>
+                ></v-text-field> -->
 
                 <div class="w-100 d-flex justify-center">
                     <v-btn
@@ -138,17 +138,17 @@ export default {
                 this.blockBtn = false
             }
         },
-        memberPassword(){
-            this.memberPasswordError = false
-            let target = this.error.errors.indexOf('memberPassword')
-            if(target!=-1){
-                this.error.errors.splice(target, 1)
-            }
+        // memberPassword(){
+        //     this.memberPasswordError = false
+        //     let target = this.error.errors.indexOf('memberPassword')
+        //     if(target!=-1){
+        //         this.error.errors.splice(target, 1)
+        //     }
 
-            if(!this.error.errors.length){
-                this.blockBtn = false
-            }
-        }
+        //     if(!this.error.errors.length){
+        //         this.blockBtn = false
+        //     }
+        // }
     },
     methods:{
         async getSign(){
@@ -159,11 +159,11 @@ export default {
                 this.adminPasswordError = true
                 this.error.errors.push('adminPassword')
             }
-            if(!this.memberPassword){
-                errorsCounter++
-                this.memberPasswordError = true
-                this.error.errors.push('memberPassword')
-            }
+            // if(!this.memberPassword){
+            //     errorsCounter++
+            //     this.memberPasswordError = true
+            //     this.error.errors.push('memberPassword')
+            // }
 
             if(errorsCounter){
                 this.blockBtn = true
@@ -183,7 +183,7 @@ export default {
                     },
                     member:{
                         id: this.memberID,
-                        password: this.memberPassword
+                        // password: this.memberPassword
                     }
             })
 
@@ -198,7 +198,7 @@ export default {
                     },
                     member:{
                         id: this.memberID,
-                        password: this.memberPassword
+                        // password: this.memberPassword
                     }
                 }
             })
@@ -212,7 +212,7 @@ export default {
                     const member = this.getUsersList.find(member=>member.id==this.memberID)
                     sign.fullName = `${member.bio.lastName} ${member.bio.firstName} ${member.bio.patronymic}`
 
-                    downloadObjectAsJson(sign, `${this.memberID}-sign`)
+                    downloadObjectAsJson(sign, `${sign.fullName}-sign`)
 
                     setTimeout(()=>{
                         this.success = false

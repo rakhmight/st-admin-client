@@ -9,6 +9,7 @@ import userData from '@/store/modules/userData'
 import devicesList from '@/store/modules/devicesList'
 import params from '@/store/modules/params'
 import examsList from '@/store/modules/examsList'
+import exam from './modules/exam'
 
 export default createStore({
   modules: {
@@ -21,6 +22,7 @@ export default createStore({
     userData,
     devicesList,
     params,
-    examsList
+    examsList,
+    exam
   }
 })

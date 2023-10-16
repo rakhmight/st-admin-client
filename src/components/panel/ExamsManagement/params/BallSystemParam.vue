@@ -4,7 +4,7 @@
             <span style="color: var(--main-color)" v-if="complex.length>1">• {{ getSubjectName(exam.subject) }}</span>
         </div>
         
-        <div v-if="existBallSystem && ballSystemEqual">
+        <div v-if="existBallSystem && ballSystemEqual || difficultyExist">
             <v-radio-group
             color="var(--main-color)"
             density="compact"
@@ -12,23 +12,65 @@
             >
                 <v-radio
                     label="use existing"
-                    :value="true"
+                    value="exists"
                     class="mb-2"
+                    v-if="existBallSystem && ballSystemEqual"
                 ></v-radio>
                 <v-radio
                     label="custom"
-                    :value="false"
+                    value="custom"
+                    class="mb-2"
+                ></v-radio>
+                <v-radio
+                    label="by difficulty"
+                    value="by-difficulty"
+                    v-if="difficultyExist"
                 ></v-radio>
             </v-radio-group>
         </div>
 
-        <div class="d-flex flex-row" style="gap: 15px" v-if="examBallSystemRadio==false">            
+        <div class="d-flex flex-row" style="gap: 15px" v-if="examBallSystemRadio=='custom'">            
             <v-text-field
             density="compact"
             variant="outlined"
             type="number"
             label="For currect answer"
             v-model.number="balls.currect"
+            min="0"
+            ></v-text-field>
+            <v-text-field
+            density="compact"
+            variant="outlined"
+            type="number"
+            label="For uncurrect answer"
+            v-model.number="balls.uncurrect"
+            min="0"
+            ></v-text-field>
+        </div>
+
+        <div class="d-flex flex-column" style="gap: 15px" v-if="examBallSystemRadio=='by-difficulty'">
+            <v-text-field
+            density="compact"
+            variant="outlined"
+            type="number"
+            label="For currect EASY difficulty answer"
+            v-model.number="balls.easy"
+            min="0"
+            ></v-text-field>
+            <v-text-field
+            density="compact"
+            variant="outlined"
+            type="number"
+            label="For currect MEDIUM difficulty answer"
+            v-model.number="balls.medium"
+            min="0"
+            ></v-text-field>
+            <v-text-field
+            density="compact"
+            variant="outlined"
+            type="number"
+            label="For currect HARD difficulty answer"
+            v-model.number="balls.hard"
             min="0"
             ></v-text-field>
             <v-text-field
@@ -52,7 +94,8 @@ export default {
         exam: Object,
         paramsManagement: Function,
         complex: Array,
-        switchTests: Boolean
+        switchTests: Boolean,
+        difficultyExist: Boolean
     },
     data(){
         return {
@@ -67,18 +110,71 @@ export default {
     },
     watch:{
         examBallSystemRadio(){
-            if(this.examBallSystemRadio){
+            if(this.examBallSystemRadio=='exists'){
                 this.balls = null
-            } else {
+            } else if(this.examBallSystemRadio=='custom') {
                 this.balls = {
                     currect: undefined,
                     uncurrect: undefined
                 } 
+            } else if(this.examBallSystemRadio=='by-difficulty'){
+                this.balls ={
+                    easy: undefined,
+                    medium: undefined,
+                    hard: undefined,
+                    uncurrect: undefined
+                }
             }
         },
         'balls.currect'(){
+            console.log(this.balls);
+            if(this.balls!=null){
+                    console.log(1111);
+                if(this.balls.currect>0 && this.balls.uncurrect>=0){
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                } else {
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
+                }
+            } else {
+                    console.log(2222);
+                this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+            }
+        },
+        'balls.uncurrect'(){
+            console.log(this.balls);
+            if(this.difficultyExist){
+                if(this.balls!=null){
+                    if(this.examBallSystemRadio=='by-difficulty'){
+                        if(this.balls.easy>0 && this.balls.medium>0 && this.balls.hard>0 && this.balls.uncurrect>=0){
+                            this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                        } else {
+                            this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
+                        }
+                    } else if(this.examBallSystemRadio=='custom'){
+                        if(this.balls.currect>0 && this.balls.uncurrect>=0){
+                            this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                        } else {
+                            this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
+                        }
+                    }
+                } else {
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                }
+            } else {
+                if(this.balls!==null){
+                    if(this.balls.currect>0 && this.balls.uncurrect>=0){
+                        this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                    } else {
+                        this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
+                    }
+                } else {
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                }
+            }
+        },
+        'balls.easy'(){
             if(this.balls!==null){
-                if(this.balls.currect>0 && this.balls.uncurrect>=0 && this.balls.uncurrect!==''){
+                if(this.balls.easy>0 && this.balls.medium>0 && this.balls.hard>0 && this.balls.uncurrect>=0){
                     this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
                 } else {
                     this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
@@ -87,9 +183,20 @@ export default {
                 this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
             }
         },
-        'balls.uncurrect'(){
+        'balls.medium'(){
             if(this.balls!==null){
-                if(this.balls.currect>0 && this.balls.uncurrect>=0 && this.balls.uncurrect!==''){
+                if(this.balls.easy>0 && this.balls.medium>0 && this.balls.hard>0 && this.balls.uncurrect>=0){
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+                } else {
+                    this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
+                }
+            } else {
+                this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
+            }
+        },
+        'balls.hard'(){
+            if(this.balls!==null){
+                if(this.balls.easy>0 && this.balls.medium>0 && this.balls.hard>0 && this.balls.uncurrect>=0){
                     this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
                 } else {
                     this.paramsManagement(this.exam.subject, 'exam-ball-system', undefined)
@@ -99,7 +206,7 @@ export default {
             }
         },
         switchTests(){
-            this.ballSystemExist()
+            this.ballSystemExistAndDifficulty()
             
             if(this.existBallSystem){
                 this.checkBallsEquality()
@@ -112,7 +219,7 @@ export default {
             return getSubject(id, this.getSubjects)
         },
 
-        ballSystemExist(){
+        ballSystemExistAndDifficulty(){
             this.examBallSystemRadio = undefined
             let bsCount = 0
 
@@ -126,9 +233,9 @@ export default {
             if(this.exam.tests.length==bsCount){
                 this.existBallSystem = true
                 this.examBallSystemRadio = undefined
-            } else {
+            } else if(!this.difficultyExist && this.exam.tests.length!=bsCount) {
                 this.existBallSystem = false
-                this.examBallSystemRadio = false
+                this.examBallSystemRadio = 'custom'
             }
         },
 
@@ -173,7 +280,7 @@ export default {
         }
     },
     mounted(){
-        this.ballSystemExist()
+        this.ballSystemExistAndDifficulty()
         if(this.existBallSystem){
             this.checkBallsEquality()
         }

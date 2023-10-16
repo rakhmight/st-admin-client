@@ -21,8 +21,8 @@
             :onmouseout="section=='department' ? 'this.style.backgroundColor=``;' : ''"
             v-if="section=='department'"
             v-for="(department, i) in getDepartments"
-            :key="i"
-            @click="choiseDepartment(i)"
+            :key="department.id"
+            @click="choiseDepartment(i, department.id)"
             :style="getCurrentDepartment && getCurrentDepartment.id === department.id ? 'color:var(--main-color)' : ''"
             >
                 <td style="font-size: 0.8em;max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">             
@@ -71,8 +71,8 @@
             
             <tr
             v-if="section=='position'"
-            v-for="(position, i) in getPositions"
-            :key="i"
+            v-for="(position) in getPositions"
+            :key="position.id"
             >
                 <td>{{ position.id }}</td>
                 <td>{{ position.name.ru }}</td>
@@ -137,6 +137,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
+import { copyToClipBoard } from '@/utils/copyToClipBoard'
 
 export default {
     props:{
@@ -159,9 +160,11 @@ export default {
     methods:{
         ...mapMutations(['setPositions', 'setCurrentDepartment']),
 
-        choiseDepartment(key){
+        choiseDepartment(key, id){
             this.setPositions(this.getDepartments[key].positions)
             this.setCurrentDepartment(this.getDepartments[key])
+
+            copyToClipBoard(id)
         }
     }
 }

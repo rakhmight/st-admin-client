@@ -11,7 +11,7 @@
 
             <v-window v-model="tab" class="mt-5">
                 <v-window-item value="group">
-                    <group-select :usersManagement="usersManagement" />
+                    <group-select :usersManagement="usersManagement" :resetUsersList="resetUsersList" />
                 </v-window-item>
                 <v-window-item value="single">
                     <single-select :usersManagement="usersManagement" :users="users" :choisingUser="choisingUser" :reRenderSingle="reRenderSingle" />
@@ -29,7 +29,8 @@ export default {
         usersManagement: Function,
         users: Array,
         choisingUser: Function,
-        reRenderSingle: Boolean
+        reRenderSingle: Boolean.apply,
+        resetUsersList: Function
     },
     data(){
         return{

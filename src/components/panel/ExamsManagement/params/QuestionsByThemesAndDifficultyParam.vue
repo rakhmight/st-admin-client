@@ -8,7 +8,7 @@
             <v-radio-group
             color="var(--main-color)"
             density="compact"
-            v-model="themesDistributionRadio"
+            v-model="themesDifficultyDistributionRadio"
             >
                 <v-radio
                     label="random"
@@ -22,23 +22,23 @@
             </v-radio-group>
         </div>
 
-        <div v-if="themesDistributionRadio">
+        <div v-if="themesDifficultyDistributionRadio">
             <div class="d-flex flex-row align-center">
                 <v-icon size="18" color="var(--main-color)">mdi-help-circle-outline</v-icon>
-                <span class="ml-1">Total questions: <b>{{ questionsCountTemp }}</b></span>
+                <span class="ml-1">Total questions: <b>{{ questionsCountTemp ? questionsCountTemp : 0 }}</b></span>
             </div>
 
             <v-divider></v-divider>
 
             <div class="mt-3 d-flex flex-column" style="gap:15px">
                 <!--  -->
-                <themes-sub
+                <theme-difficulty-sub
                 v-for="(theme) in themes"
                 :key="theme"
                 :theme="theme"
                 :exam="exam"
                 :questionsCount="questionsCountTemp"
-                :questionsByThemesMngt="questionsByThemesMngt"
+                :questionsByThemesDifficultyMngt="questionsByThemesDifficultyMngt"
                 :switchQuestions="switchQuestions"
                 :switchTests="switchTests"
                 :choisedThemes="choisedThemes"
@@ -51,7 +51,7 @@
 <script>
 import { getSubject } from '@/plugins/getInfo'
 import { mapGetters } from 'vuex';
-import ThemesSub from '@/components/panel/ExamsManagement/params/ThemesSub.vue'
+import ThemeDifficultySub from '@/components/panel/ExamsManagement/params/ThemeDifficultySub.vue'
 
 export default {
     props:{
@@ -63,11 +63,11 @@ export default {
         choisedThemes: Array
     },
     components:{
-        ThemesSub
+        ThemeDifficultySub
     },
     data(){
         return {
-            themesDistributionRadio: undefined,
+            themesDifficultyDistributionRadio: undefined,
             themesRanking: [],
             themes: [],
             questionsCountTemp: undefined,
@@ -75,8 +75,8 @@ export default {
         }
     },
     watch:{
-        themesDistributionRadio(){
-            if(this.themesDistributionRadio==false){
+        themesDifficultyDistributionRadio(){
+            if(this.themesDifficultyDistributionRadio==false){
                 this.themesRanking = null
                 this.switchQuestions = !this.switchQuestions
                 this.questionsCountTemp = this.questionsCount
@@ -86,12 +86,12 @@ export default {
         },
 
         themesRanking(){
-            if(this.themesDistributionRadio===true && this.questionsCountTemp==0){
+            if(this.themesDifficultyDistributionRadio===true && this.questionsCountTemp==0){
                 console.log(this.questionsCountTemp);
                 this.paramsManagement(this.exam.subject, 'themes-ranking', this.themesRanking)
-            } else if (this.themesDistributionRadio===true && this.questionsCountTemp!=0) {
+            } else if (this.themesDifficultyDistributionRadio===true && this.questionsCountTemp!=0) {
                 this.paramsManagement(this.exam.subject, 'themes-ranking', undefined)
-            }else if(this.themesDistributionRadio===false){
+            }else if(this.themesDifficultyDistributionRadio===false){
                 this.paramsManagement(this.exam.subject, 'themes-ranking', null)
             }
         },
@@ -135,17 +135,19 @@ export default {
             }
         },
 
-        questionsByThemesMngt(type, theme){
+        questionsByThemesDifficultyMngt(type, theme, difficulty){
+
             if(type=='plus'){
                 const target = this.themesRanking.find(item=>item.theme==theme)
                 if(target){
                     const index = this.themesRanking.indexOf(target)
-                    this.themesRanking[index].count++
+                    if(difficulty=='easy') this.themesRanking[index].easy++
+                    if(difficulty=='medium') this.themesRanking[index].medium++
+                    if(difficulty=='hard') this.themesRanking[index].hard++
                 } else {
-                    this.themesRanking.push({
-                        theme,
-                        count: 1
-                    })
+                    if(difficulty=='easy') this.themesRanking.push({ theme, easy: 1, medium: 0, hard: 0 })
+                    if(difficulty=='medium') this.themesRanking.push({ theme, easy: 0, medium: 1, hard: 0 })
+                    if(difficulty=='hard') this.themesRanking.push({ theme, easy: 0, medium: 0, hard: 1 })
                 }
 
                 this.questionsCountTemp--
@@ -153,7 +155,10 @@ export default {
                 const target = this.themesRanking.find(item=>item.theme==theme)
                 if(target){
                     const index = this.themesRanking.indexOf(target)
-                    this.themesRanking[index].count--
+                    
+                    if(difficulty=='easy') this.themesRanking[index].easy--
+                    if(difficulty=='medium') this.themesRanking[index].medium--
+                    if(difficulty=='hard') this.themesRanking[index].hard--
 
                     this.questionsCountTemp++
 
@@ -168,12 +173,47 @@ export default {
             } else {
                 this.paramsManagement(this.exam.subject, 'themes-ranking', this.themesRanking)
             }
-        }
+        },
+
+        // questionsByThemesMngt(type, theme){
+        //     if(type=='plus'){
+        //         const target = this.themesRanking.find(item=>item.theme==theme)
+        //         if(target){
+        //             const index = this.themesRanking.indexOf(target)
+        //             this.themesRanking[index].count++
+        //         } else {
+        //             this.themesRanking.push({
+        //                 theme,
+        //                 count: 1
+        //             })
+        //         }
+
+        //         this.questionsCountTemp--
+        //     } else if(type=='minus'){
+        //         const target = this.themesRanking.find(item=>item.theme==theme)
+        //         if(target){
+        //             const index = this.themesRanking.indexOf(target)
+        //             this.themesRanking[index].count--
+
+        //             this.questionsCountTemp++
+
+        //             if(this.themesRanking[index].count==0){
+        //                 this.themesRanking.splice(index, 1)
+        //             }
+        //         }
+        //     }
+
+        //     if(this.questionsCountTemp){
+        //         this.paramsManagement(this.exam.subject, 'themes-ranking', undefined)
+        //     } else {
+        //         this.paramsManagement(this.exam.subject, 'themes-ranking', this.themesRanking)
+        //     }
+        // }
     },
     mounted(){
         this.countThemes()
-        this.themesRanking = []
         this.questionsCountTemp = this.questionsCount
+        this.themesRanking = []
     }
 }
 </script>

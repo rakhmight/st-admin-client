@@ -126,7 +126,6 @@ export default {
 
             doc.addFileToVFS('MontserratAlternates-normal.ttf', font);
             doc.addFont('MontserratAlternates-normal.ttf', 'MontserratAlternates', 'normal');
-
             doc.setFont('MontserratAlternates')
 
             autoTable(doc, {
@@ -142,7 +141,7 @@ export default {
                 body: [
                     ...themesToTable,
                 ],
-                styles: { font: 'MontserratAlternates'},
+                styles: { font: 'MontserratAlternates'}, // MontserratAlternates
             })
             
             doc.save(`${currentSubjects.name.ru}.pdf`,'')

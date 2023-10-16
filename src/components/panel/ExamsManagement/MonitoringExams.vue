@@ -2,9 +2,9 @@
     <div class="content">
         <subtitle-component :subtitle="'Exam monitoring and management'" />
 
-        <exams-table />
+        <exams-table :changeTab="changeTab" />
         
-        <data-empty :text="'Users not found'" v-if="!getExams.length" />
+        <data-empty :text="'Exams not found'" v-if="!getExams.length" />
     </div>
 </template>
 
@@ -15,6 +15,9 @@ import ExamsTable from '@/components/panel/ExamsManagement/ExamsTable';
 import DataEmpty from '@/components/DataEmpty.vue'
 
 export default {
+    props:{
+        changeTab: Function
+    },
     components:{
         SubtitleComponent,
         ExamsTable,

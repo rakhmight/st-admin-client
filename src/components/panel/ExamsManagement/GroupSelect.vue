@@ -31,53 +31,100 @@
                     :items="studentsTypes"
                     density="compact"
                     variant="outlined"
-                    multiple
                     v-model="selectedStudentsType"
                     ></v-select>
                 </div>
 
                 <div>
-                    <div v-if="selectedStudentsType.indexOf('full-time')!=-1">
-                        <div class="d-flex flex-row align-center mb-2">
-                            <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
-                            <span class="ml-1">Select groups with full-time education</span>
+                    <div class="d-flex" style="gap: 15px; width: 100%; justify-content: space-between;">
+                        <div v-if="selectedStudentsType=='full-time'">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select course</span>
+                            </div>
+                            <v-select
+                            label="Choose course"
+                            :items="[1,2,3,4]"
+                            density="compact"
+                            variant="outlined"
+                            v-model="selectedCourseFullTime"
+                            ></v-select>
                         </div>
-                        <v-select
-                        label="Choose group"
-                        :items="groups"
-                        density="compact"
-                        variant="outlined"
-                        multiple
-                        v-model="selectedStudentsGroupsFullTime"
-                        ></v-select>
+                        <div v-if="selectedStudentsType=='full-time' && selectedCourseFullTime">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select groups with full-time education</span>
+                            </div>
+                            <v-select
+                            label="Choose group"
+                            :items="groups"
+                            density="compact"
+                            variant="outlined"
+                            multiple
+                            v-model="selectedStudentsGroupsFullTime"
+                            ></v-select>
+                        </div>
                     </div>
-                    <div v-if="selectedStudentsType.indexOf('in-absentia')!=-1">
-                        <div class="d-flex flex-row align-center mb-2">
-                            <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
-                            <span class="ml-1">Select groups with in absentia education</span>
+
+                    <div class="d-flex" style="gap: 15px; width: 100%; justify-content: space-between;">
+                        <div v-if="selectedStudentsType=='in-absentia'">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select course</span>
+                            </div>
+                            <v-select
+                            label="Choose course"
+                            :items="[1,2,3,4]"
+                            density="compact"
+                            variant="outlined"
+                            v-model="selectedCourseInAbsentia"
+                            ></v-select>
                         </div>
-                        <v-select
-                        label="Choose group"
-                        :items="groups"
-                        density="compact"
-                        variant="outlined"
-                        multiple
-                        v-model="selectedStudentsGroupsInAbsentia"
-                        ></v-select>
+                        <div v-if="selectedStudentsType=='in-absentia' && selectedCourseInAbsentia">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select groups with in absentia education</span>
+                            </div>
+                            <v-select
+                            label="Choose group"
+                            :items="groups"
+                            density="compact"
+                            variant="outlined"
+                            multiple
+                            v-model="selectedStudentsGroupsInAbsentia"
+                            ></v-select>
+                        </div>
                     </div>
-                    <div v-if="selectedStudentsType.indexOf('magistracy')!=-1">
-                        <div class="d-flex flex-row align-center mb-2">
-                            <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
-                            <span class="ml-1">Select groups with magistracy education</span>
+                             
+                    <div class="d-flex" style="gap: 15px; width: 100%; justify-content: space-between;">
+                        <div v-if="selectedStudentsType=='magistracy'">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select course</span>
+                            </div>
+                            <v-select
+                            label="Choose course"
+                            :items="[1,2]"
+                            density="compact"
+                            variant="outlined"
+                            v-model="selectedCourseMagistracy"
+                            ></v-select>
                         </div>
-                        <v-select
-                        label="Choose a form of study"
-                        :items="groups"
-                        density="compact"
-                        variant="outlined"
-                        multiple
-                        v-model="selectedStudentsGroupsMagistracy"
-                        ></v-select>
+
+                        <div v-if="selectedStudentsType=='magistracy' && selectedCourseMagistracy">
+                            <div class="d-flex flex-row align-center mb-2">
+                                <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                                <span class="ml-1">Select groups with magistracy education</span>
+                            </div>
+                            <v-select
+                            label="Choose a form of study"
+                            :items="groups"
+                            density="compact" 
+                            variant="outlined"
+                            multiple
+                            v-model="selectedStudentsGroupsMagistracy"
+                            ></v-select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -191,7 +238,8 @@ import { mapGetters } from 'vuex'
 
 export default {
     props:{
-        usersManagement: Function
+        usersManagement: Function,
+        resetUsersList: Function
     },
     data(){
         return {
@@ -215,12 +263,12 @@ export default {
             ],
             teachersTypes: [],
             employeesTypes: [],
-            groups: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40],
+            groups: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125],
 
             //
             selectedUsersTypes: [],
 
-            selectedStudentsType: [],
+            selectedStudentsType: null,
 
             selectedStudentsGroupsFullTime: [],
             selectedStudentsGroupsInAbsentia: [],
@@ -233,22 +281,49 @@ export default {
             selectedEnrolleesGroupsMagistracy: [],
 
             selectedEmployeesType: [],
-            selectedTeachersType: []
+            selectedTeachersType: [],
+
+            selectedCourseFullTime: null,
+            selectedCourseInAbsentia: null,
+            selectedCourseMagistracy: null
 
         }
     },
     computed: mapGetters(['getDepartments']),
     watch:{
+        selectedStudentsType(){
+            this.resetUsersList()
+
+            this.selectedStudentsGroupsFullTime= []
+            this.selectedStudentsGroupsInAbsentia= []
+            this.selectedStudentsGroupsMagistracy= [],
+
+            this.selectedCourseFullTime= null
+            this.selectedCourseInAbsentia= null
+            this.selectedCourseMagistracy= null
+        },
+        selectedCourseFullTime(){
+            if(this.selectedStudentsGroupsFullTime.length)
+            this.usersManagement('group', {role: 'student', educationForm: 'full-time', course: this.selectedCourseFullTime }, this.selectedStudentsGroupsFullTime)
+        },
+        selectedCourseInAbsentia(){
+            if(this.selectedStudentsGroupsInAbsentia.length)
+            this.usersManagement('group', {role: 'student', educationForm: 'in-absentia', course: this.selectedCourseInAbsentia }, this.selectedStudentsGroupsInAbsentia)
+        },
+        selectedCourseMagistracy(){
+            if(this.selectedCourseMagistracy)
+            this.usersManagement('group', {role: 'student', educationForm: 'magistracy', course: this.selectedCourseMagistracy }, this.selectedStudentsGroupsMagistracy)
+        },
         selectedStudentsGroupsFullTime(){
-            this.usersManagement('group', {role: 'student', educationForm: 'full-time' }, this.selectedStudentsGroupsFullTime)
+            this.usersManagement('group', {role: 'student', educationForm: 'full-time', course: this.selectedCourseFullTime }, this.selectedStudentsGroupsFullTime)
         },
         
         selectedStudentsGroupsInAbsentia(){
-            this.usersManagement('group', {role: 'student', educationForm: 'in-absentia' }, this.selectedStudentsGroupsInAbsentia)
+            this.usersManagement('group', {role: 'student', educationForm: 'in-absentia', course: this.selectedCourseInAbsentia }, this.selectedStudentsGroupsInAbsentia)
         },
         
         selectedStudentsGroupsMagistracy(){
-            this.usersManagement('group', {role: 'student', educationForm: 'magistracy' }, this.selectedStudentsGroupsMagistracy)
+            this.usersManagement('group', {role: 'student', educationForm: 'magistracy', course: this.selectedCourseMagistracy }, this.selectedStudentsGroupsMagistracy)
         },
 
         selectedEnrolleesGroupsFullTime(){

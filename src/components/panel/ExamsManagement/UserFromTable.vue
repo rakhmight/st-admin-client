@@ -12,18 +12,7 @@
         </td>
 
         <td>
-            <div v-if="user.userRole == 'student'">
-                <span>student of {{ getCourse(+user.roleProperties.recieptDate) }} course {{ user.roleProperties.group }} group</span>
-            </div>
-            <div v-if="user.userRole == 'enrollee'">
-                <span>enrollee of {{ user.roleProperties.group }} group (year of admission: {{ user.roleProperties.admissionYear }})</span>
-            </div>
-            <div v-if="user.userRole == 'teacher'">
-                <span>{{ getPosition(user.roleProperties.department,user.roleProperties.position) }} of {{ getDepartment(user.roleProperties.department) }} chair </span>
-            </div>
-            <div v-if="user.userRole == 'employee'">
-                <span>{{ getPosition(user.roleProperties.department,user.roleProperties.position) }} of {{ getDepartment(user.roleProperties.department) }} department </span>
-            </div>
+            <user-info :user="user" />
         </td>
 
         <td>
@@ -39,6 +28,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import UserInfo from './UserInfo.vue';
 
 export default {
     props:{
@@ -46,6 +36,9 @@ export default {
         user: Object,
         users: Array,
         choisingUser: Function
+    },
+    components: {
+        UserInfo
     },
     data(){
         return {            
@@ -65,7 +58,7 @@ export default {
 
       getDepartment(department){
         const departmentName= this.getDepartments.find(item => item.id == department) || 'unknown'
-        return departmentName.name.ru
+        return departmentName.name.ru || departmentName.id
       },
 
       getPosition(department, position){

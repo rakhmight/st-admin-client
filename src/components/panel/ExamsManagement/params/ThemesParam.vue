@@ -45,7 +45,9 @@ export default {
         exam: Object,
         paramsManagement: Function,
         complex: Array,
-        switchTests: Boolean
+        switchTests: Boolean,
+        switchDifficultyExist: Function,
+        changeChoisedThemes: Function
     },
     data(){
         return {
@@ -68,16 +70,17 @@ export default {
         choisedThemes(){
             if(this.examThemesRadio!==false){
                 if(this.choisedThemes.length){
-                    this.paramsManagement(this.exam.subject, 'themes', this.choisedThemes)
+                    this.changeChoisedThemes(this.exam.subject, this.choisedThemes)
                 } else {
-                    this.paramsManagement(this.exam.subject, 'themes', undefined)
+                    this.changeChoisedThemes(this.exam.subject, undefined)
                 }
             } else {
-                this.paramsManagement(this.exam.subject, 'themes', this.choisedThemes)
+                this.changeChoisedThemes(this.exam.subject, this.choisedThemes)
             }
         },
 
         switchTests(){
+            this.difficultyExistChecker()
             this.countThemes()
         }
     },
@@ -111,10 +114,28 @@ export default {
                     value: theme
                 })
             })
+        },        
+
+        difficultyExistChecker(){
+            let exist = 0
+            this.exam.tests.forEach(test=>{
+                const target = this.getTestImages.find(image=>image.fileName==test)
+                if(target.info.params.considerDifficulty){
+                    exist++
+                }
+            })
+
+            if(exist==this.exam.tests.length){
+                this.difficultyExist=true
+            } else {
+                this.difficultyExist=false
+            }
+            this.switchDifficultyExist(this.difficultyExist, this.exam.subject)
         }
     },
     mounted(){
         this.countThemes()
+        this.difficultyExistChecker()
     }
 }
 </script>

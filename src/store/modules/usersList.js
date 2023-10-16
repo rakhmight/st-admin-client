@@ -14,6 +14,9 @@ export default {
         updateUsersList(state, value){
           state.usersList.push(value)
         },
+        multipleUpdateUsersList(state, value){
+          state.usersList.push(...value)
+        },
     },
     actions: {
     }

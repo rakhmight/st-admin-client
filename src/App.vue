@@ -121,4 +121,10 @@ html{
 .v-list-item:hover{
     background-color: rgba(0, 0, 0, 0.162)
 }
+
+.lim-txt{
+  overflow-x: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
 </style>

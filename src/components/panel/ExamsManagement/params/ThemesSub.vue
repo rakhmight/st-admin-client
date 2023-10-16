@@ -39,7 +39,8 @@ export default {
         exam: Object,
         questionsByThemesMngt: Function,
         switchQuestions: Boolean,
-        switchTests: Boolean
+        switchTests: Boolean,
+        choisedThemes: Array
     },
     data(){
         return {
@@ -73,6 +74,14 @@ export default {
 
         switchTests(){
             this.themeQuestions = 0
+        },
+
+        choisedThemes(){
+            this.themeQuestions = {
+                easy: 0,
+                medium: 0,
+                hard: 0
+            }
         }
     }
 }

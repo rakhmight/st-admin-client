@@ -5,7 +5,7 @@
       <v-divider class="mb-5 mt-3"></v-divider>
       <!-- <p>Войдите с помощью сервера аутентификации системы Smart Academy. Нажмите на кнопку ниже и не закрывайте откроющееся окно пока не закончите вход.</p> -->
 
-      <div class="mt-5 d-flex flex-column" style="gap: 10px">
+      <div class="mt-5 d-flex flex-column w-100" style="gap: 10px">
         <v-text-field
         label="Write your login here"
         variant="outlined"
@@ -26,7 +26,7 @@
         ></v-text-field>
       </div>
 
-      <div class="alerts mt-5">           
+      <div class="alerts mt-5 w-100">           
         <v-alert
         density="compact"
         color="var(--red-color)"
@@ -48,22 +48,25 @@
         </v-alert>
       </div>
 
-      <v-btn
-      @click="auth()"
-      :color="blockBtn ? '#eee' : 'var(--main-color)'"
-      class="mt-3"
-      :disabled="blockBtn"
-      density="compact"
-      >
-        <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Enter</span>
-        <v-progress-circular
-        :width="1"
-        size="15"
-        color="var(--main-color)"
-        indeterminate
-        v-else
-        ></v-progress-circular>
-      </v-btn>
+      <div style="width: 100%; display: flex; justify-content: center;">
+        <v-btn
+        width="200"
+        @click="auth()"
+        :color="blockBtn ? '#eee' : 'var(--main-color)'"
+        class="mt-3"
+        :disabled="blockBtn"
+        density="compact"
+        >
+          <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Enter</span>
+          <v-progress-circular
+          :width="1"
+          size="15"
+          color="var(--main-color)"
+          indeterminate
+          v-else
+          ></v-progress-circular>
+        </v-btn>
+      </div>
 
       <div class="system">
         <div class="logo">

@@ -1,77 +1,105 @@
 <template>
-    <div class="content">
-        <title-component :title="'Send for check'" />
-
-        <div class="wrapper" style="position: relative;">
-            <div class="form">
-                <div class="form__title mb-5">
-                    <span class="text-h5">Upload your work</span>
-                    <v-divider class="mt-1"></v-divider>
-                </div>
-                <div class="form__content">
-                    <v-file-input
-                    accept="application/json"
-                    show-size
-                    counter
-                    clearable
-                    label="Choise file"
+    <v-dialog
+       transition="dialog-top-transition"
+       width="auto"
+       v-model="dialog"
+     >
+       <template v-slot:activator="{ props: menu }">            
+            <v-tooltip>
+                <template v-slot:activator="{ props: tooltip }">
+                    <v-btn
+                    v-bind="merge(menu, tooltip)"
+                    icon
+                    variant="text"
                     density="compact"
-                    variant="outlined"
-                    v-model="testFile"
-                    @change="handleTestUpload()"
-                    :error="testFileError.status"
-                    :error-messages="testFileError.msg"
-                    :loading="loadFile"
                     color="var(--main-color)"
-                    ></v-file-input>
-
-                    <div class="w-100 d-flex justify-center mt-5">
-                        <v-btn
-                        density="compact"
-                        :color="blockSendBtn ? '#eee': 'var(--main-color)'"
-                        width="200"
-                        :disabled="blockSendBtn"
-                        @click="sendForCheck()"
-                        >
-                        <span :style="blockSendBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Send</span>
-                        <v-progress-circular
-                        :width="1"
-                        size="15"
-                        color="var(--main-color)"
-                        indeterminate
-                        v-else
-                        ></v-progress-circular>
-                        </v-btn>
-                    </div>
-                </div>
-            </div>
-
-            <div style="position: absolute; width: 600px;bottom:170px">
-                <v-alert
+                    >
+                    <v-icon style="font-size: 18px;">mdi-upload</v-icon>
+                    </v-btn>
+                </template>
+                    <span>Upload test</span>
+            </v-tooltip>
+       </template>
+       <template v-slot:default="{ isActive }">
+         <div class="dialog">
+           <v-toolbar
+             color="var(--bg-special-color)"
+           >
+               <div class="pl-3 pr-3 d-flex flex-row align-center justify-space-between w-100">
+                   <span class="text-h5" style="color: #fff">Upload test</span>
+                   <v-btn
+                   density="compact"
+                   icon
+                   @click="dialog=false"
+                   >
+                       <v-icon color="var(--red-color)" size="30">mdi-close-box</v-icon>
+                   </v-btn>
+               </div>
+           </v-toolbar>
+           <div class="dialog__c">
+                <v-file-input
+                accept="application/json"
+                show-size
+                counter
+                clearable
+                label="Choise file"
                 density="compact"
+                variant="outlined"
+                v-model="testFile"
+                @change="handleTestUpload()"
+                :error="testFileError.status"
+                :error-messages="testFileError.msg"
+                :loading="loadFile"
                 color="var(--main-color)"
-                class="d-flex flex-row align-center"
-                v-if="success"
-                >
-                    <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                    <span style="color:#fff">Test sent for review</span>
-                </v-alert>
-                <v-alert
-                density="compact"
-                color="var(--red-color)"
-                class="d-flex flex-row align-center"
-                v-if="error.value"
-                >
-                    <v-icon color="#fff" class="mr-1">mdi-alert-circle-outline</v-icon>
-                    <span style="color:#fff">{{ error.msg }}</span>
-                </v-alert>
-            </div>
-        </div>
-    </div>
+                ></v-file-input>
+
+                <div>
+                    <v-alert
+                    density="compact"
+                    color="var(--main-color)"
+                    class="d-flex flex-row align-center"
+                    v-if="success"
+                    >
+                        <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
+                        <span style="color:#fff">Test sent for review</span>
+                    </v-alert>
+                    <v-alert
+                    density="compact"
+                    color="var(--red-color)"
+                    class="d-flex flex-row align-center"
+                    v-if="error.value"
+                    >
+                        <v-icon color="#fff" class="mr-1">mdi-alert-circle-outline</v-icon>
+                        <span style="color:#fff">{{ error.msg }}</span>
+                    </v-alert>
+                </div>
+
+                <div class="w-100 d-flex justify-center mt-5">
+                    <v-btn
+                    density="compact"
+                    :color="blockSendBtn ? '#eee': 'var(--main-color)'"
+                    width="200"
+                    :disabled="blockSendBtn"
+                    @click="sendForCheck()"
+                    >
+                    <span :style="blockSendBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Send</span>
+                    <v-progress-circular
+                    :width="1"
+                    size="15"
+                    color="var(--main-color)"
+                    indeterminate
+                    v-else
+                    ></v-progress-circular>
+                    </v-btn>
+                </div>
+           </div>
+         </div>
+       </template>
+     </v-dialog>
 </template>
 
 <script>
-import TitleComponent from '@/components/TitleComponent';
+import { mergeProps } from 'vue'
 import { mapGetters, mapMutations} from 'vuex';
 import makeReq from '@/services/makeReq';
 
@@ -81,6 +109,7 @@ export default {
     },
     data(){
         return {
+            dialog: false,
             testFileError: {
                 status: false,
                 msg: undefined
@@ -97,12 +126,12 @@ export default {
             }
         }
     },
-    components:{
-        TitleComponent
-    },
     computed: mapGetters(['getAuthParams', 'getTestImages', 'getAdminServerIP']),
     methods:{
         ...mapMutations(['updateTestImages']),
+        merge(a,b){
+            return mergeProps(a,b)
+        },
         handleTestUpload(){
             this.blockSendBtn = true
             this.loadFile = true
@@ -140,7 +169,7 @@ export default {
         async sendForCheck(){
             this.loader = true
             this.blockSendBtn = true
-            await makeReq(`${this.getAdminServerIP}/api/tests/upload`, 'POST',{
+            await makeReq(`${this.getAdminServerIP}/api/tests/admin-upload`, 'POST',{
                 auth:{
                     ...this.getAuthParams
                 },
@@ -158,14 +187,13 @@ export default {
                             params: this.testToSend.params
                         },
                         status: {
-                            value: 'under-review', step: 1, rejected: undefined
+                            value: 'under-review', step: 2, rejected: undefined
                         },
                         id: data.data._id
                     })
-                    // re-render
-                    this.switchReRender()
 
                     this.success = true
+                    this.switchReRender()
                     setTimeout(()=>{
                         this.blockSendBtn = true
                         this.success = false
@@ -189,15 +217,9 @@ export default {
 }
 </script>
 
-<style scoped>
-.wrapper{
-    width: 100%;
-    height: 70vh;
-    display: flex;
-    align-items: center;
-    justify-content: center
-}
-.form{
+
+<style>
+.dialog__c{
     padding: 15px;
     background-color: #fff;
     border-radius: 5px;

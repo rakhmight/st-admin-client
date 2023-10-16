@@ -103,6 +103,7 @@
                     :paramsManagement="paramsManagement"
                     :complex="complex"
                     :switchTests="switchTests"
+                    :difficultyExist="difficultyExist"
                     />
                 </div>
             </div>
@@ -191,13 +192,15 @@
                     :paramsManagement="paramsManagement"
                     :complex="complex"
                     :switchTests="switchTests"
+                    :switchDifficultyExist="switchDifficultyExist"
+                    :changeChoisedThemes="changeChoisedThemes"
                     />
                 </div>
 
                 <v-divider></v-divider>
 
-                <!-- Сколько вопросов д.б. в 1 билете по темам -->
-                <div class="rows">
+                <!-- Сколько вопросов д.б. в 1 билете по темам -- Если нет сложности в тестах --> 
+                <div class="rows" v-if="!difficultyExist">
                     <div class="d-flex flex-row align-center">
                         <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
                         <span class="ml-1">Themes distribution:</span>
@@ -212,13 +215,32 @@
                     :complex="complex"
                     :switchTests="switchTests"
                     :questionsCount="questionsCount"
+                    :choisedThemes="choisedThemes"
                     />
                 </div>
 
-                <v-divider></v-divider>
+                <div class="rows" v-if="difficultyExist">
+                    <div class="d-flex flex-row align-center">
+                        <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
+                        <span class="ml-1">Themes distribution (by difficulty):</span>
+                    </div>
 
-                <!-- Сколько вопросов д.б. в 1 билете по сложности -->
-                <div class="rows">
+                    <!--  -->
+                    <questions-by-themes-and-difficulty-param
+                    v-if="complex.length"
+                    v-for="(exam, i) in complex"
+                    :key="i"
+                    :exam="exam"
+                    :paramsManagement="paramsManagement"
+                    :complex="complex"
+                    :switchTests="switchTests"
+                    :questionsCount="questionsCount"
+                    :choisedThemes="choisedThemes"
+                    />
+                </div>
+
+                <!-- Сколько вопросов д.б. в 1 билете по сложности #и по теме -->
+                <!-- <div class="rows" v-if="difficultyExist">
                     <div class="d-flex flex-row align-center">
                         <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
                         <span class="ml-1">Difficulty distribution:</span>
@@ -233,8 +255,9 @@
                     :complex="complex"
                     :switchTests="switchTests"
                     :questionsCount="questionsCount"
+                    :switchDifficultyExist="switchDifficultyExist"
                     />
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -415,6 +438,7 @@ import ResultDisplayTimeParam from '@/components/panel/ExamsManagement/params/Re
 import DisplayedResultParam from '@/components/panel/ExamsManagement/params/DisplayedResultParam.vue'
 import EvaluationSystemParam from '@/components/panel/ExamsManagement/params/EvaluationSystemParam.vue'
 import DataEmpty from '@/components/DataEmpty.vue'
+import QuestionsByThemesAndDifficultyParam from '../params/QuestionsByThemesAndDifficultyParam.vue'
 
 export default {
     props:{
@@ -441,7 +465,8 @@ export default {
         ResultDisplayTimeParam,
         DisplayedResultParam,
         EvaluationSystemParam,
-        DataEmpty
+        DataEmpty,
+        QuestionsByThemesAndDifficultyParam
     },
     computed: mapGetters(['getSubjects' ,'getTestImages']),
     data(){
@@ -450,8 +475,10 @@ export default {
             questionsCount: undefined,
             //difficultyExist: false,
             showResults: [],
-            switchResultShowing: false
+            switchResultShowing: false,
 
+            difficultyExist: false,
+            choisedThemes: []
         }
     },
     watch:{
@@ -466,8 +493,19 @@ export default {
         }
     },
     methods:{
+        changeChoisedThemes(subject, value){
+            this.paramsManagement(subject, 'themes', value)
+
+            if(value) this.choisedThemes = value
+            else this.choisedThemes = []
+        },
         changeQuestionsCount(count){
             this.questionsCount = count
+        },
+
+        switchDifficultyExist(value, subject){
+            this.difficultyExist = value
+            this.paramsManagement(subject, 'difficulty-exist', value)
         },
 
         // checkDifficultyExist(){

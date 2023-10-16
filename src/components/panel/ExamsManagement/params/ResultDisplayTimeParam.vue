@@ -4,14 +4,32 @@
             <span style="color: var(--main-color)" v-if="complex.length>1">• {{ getSubjectName(exam.subject) }}</span>
         </div>
 
-        <div class="d-flex flex-row" style="gap: 5px">
+        <div>
+            <v-radio-group
+            color="var(--main-color)"
+            density="compact"
+            v-model="displayTimeRadio"
+            >
+                <v-radio
+                    label="do not limit"
+                    value="unlimit"
+                    class="mb-2"
+                ></v-radio>
+                <v-radio
+                    label="restrict"
+                    value="limited"
+                ></v-radio>
+            </v-radio-group>
+        </div>
+
+        <div class="d-flex flex-row" style="gap: 5px" v-if="displayTimeRadio=='limited'">
             <div style="width: 90px;">
                 <v-text-field
                 density="compact"
                 variant="outlined"
                 type="number"
                 label="Time"
-                v-model.number="displayTime"
+                v-model="displayTime"
                 min="0"
                 ></v-text-field>
             </div>
@@ -34,15 +52,25 @@ export default {
     },
     data(){
         return {
-            displayTime: 0
+            displayTime: 0,
+            displayTimeRadio: undefined
         }
     },
     watch:{
+        displayTimeRadio(){
+            if(this.displayTimeRadio == 'unlimit'){
+                this.displayTime = null
+            } else if(this.displayTimeRadio == 'limited'){
+                this.displayTime = 0
+                this.paramsManagement(this.exam.subject, 'result-display-time', undefined)
+            }
+        },
+
         displayTime(){
             if(this.displayTime>0){
                 this.paramsManagement(this.exam.subject, 'result-display-time', this.displayTime)
-            } else {
-                this.paramsManagement(this.exam.subject, 'result-display-time', undefined)
+            } else if(this.displayTime === null){
+                this.paramsManagement(this.exam.subject, 'result-display-time', null)
             }
         },
 

@@ -56,7 +56,8 @@ export default {
         paramsManagement: Function,
         complex: Array,
         questionsCount: Number,
-        switchTests: Boolean
+        switchTests: Boolean,
+        switchDifficultyExist: Function
     },
     components:{
         DifficultySub
@@ -168,7 +169,7 @@ export default {
             } else {
                 this.difficultyExist=false
             }
-            console.log(this.difficultyExist);
+            this.switchDifficultyExist(this.difficultyExist)
         }
     },
     mounted(){

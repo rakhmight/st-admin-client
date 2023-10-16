@@ -56,6 +56,9 @@
                 Member
                 </th>
                 <th class="text-left">
+                Info
+                </th>
+                <th class="text-left">
                 Role
                 </th>
                 <th class="text-left">
@@ -76,6 +79,9 @@
                         </div>
                         <span class="ml-2">{{ member.bio.lastName }} {{ member.bio.firstName }} {{ member.bio.patronymic }}</span>
                     </div>
+                </td>
+                <td>
+                    <user-info :user="member" />
                 </td>
                 <td v-if="member.permission==0"><span style="color: var(--main-color)">User</span></td>
                 <td v-if="member.permission==1"><span style="color: var(--main-color)">Author of tests</span></td>
@@ -165,6 +171,7 @@ import GetSign from '@/components/panel/SignsManagement/dialogs/GetSign';
 import { mergeProps } from 'vue'
 import { mapGetters } from 'vuex';
 import DataEmpty from '@/components/DataEmpty.vue'
+import UserInfo from './ExamsManagement/UserInfo.vue';
 
 export default {
     props:{
@@ -197,7 +204,8 @@ export default {
     components: {
         SubtitleComponent,
         GetSign,
-        DataEmpty
+        DataEmpty,
+        UserInfo
     }
 }
 </script>

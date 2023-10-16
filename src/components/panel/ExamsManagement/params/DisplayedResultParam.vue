@@ -32,14 +32,14 @@ export default {
         return {
             displayedParams: [
                 { title: 'Spent Time', value: 'spentTime' },
-                { title: 'Number of correct and incorrect answers', value: 'currectUncurrectAnswers' },
-                { title: 'Score (ball)', value: 'score' },
+                { title: 'Number of correct and incorrect answers', value: 'showAStat' },
+                { title: 'Score (ball)', value: 'ball' },
                 { title: 'Percentage (%)', value: 'percentage' },
-                { title: 'Time spent on each question', value: 'eachQuestionsTime' },
-                { title: 'answers skip statistics', value: 'answersSkipStat' },
-                { title: 'Themes with the most wrong answers', value: 'wrongThemesAnswers' },
-                { title: 'Show errors', value: 'showErrors' },
-                { title: 'Show all activity history', value: 'showActivity' },
+                // { title: 'Time spent on each question', value: 'eachQT' },
+                // { title: 'answers skip statistics', value: 'showSkipStat' },
+                { title: 'Themes with the most wrong answers', value: 'wrongThA' },
+                { title: 'Show wrong answered questions', value: 'wrongQ' },
+                { title: 'Show wrong answered questions & answers', value: 'wrongQA' },
             ],
             choisedParams: []
         }

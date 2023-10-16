@@ -21,8 +21,8 @@
             :onmouseout="section=='subject' ? 'this.style.backgroundColor=``;' : ''"
             v-if="section=='subject'"
             v-for="(subject, i) in getSubjects"
-            :key="i"
-            @click="choiseSubject(i)"
+            :key="subject.id"
+            @click="choiseSubject(i, subject.id)"
             :style="getCurrentSubject && getCurrentSubject.id === subject.id ? 'color:var(--main-color)' : ''"
             >
                 <td style="font-size: 0.8em;max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">             
@@ -71,8 +71,8 @@
             
             <tr
             v-if="section=='theme'"
-            v-for="(theme, i) in getThemes"
-            :key="i"
+            v-for="(theme) in getThemes"
+            :key="theme.id"
             >
                 <td>{{ theme.id }}</td>
                 <td>{{ theme.name.ru }}</td>
@@ -137,6 +137,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
+import { copyToClipBoard } from '@/utils/copyToClipBoard'
 
 export default {
     props:{
@@ -157,9 +158,11 @@ export default {
     methods:{
         ...mapMutations(['setThemes', 'setCurrentSubject']),
 
-        choiseSubject(key){
+        choiseSubject(key, id){
             this.setThemes(this.getSubjects[key].themes)
             this.setCurrentSubject(this.getSubjects[key])
+
+            copyToClipBoard(id)
         }
     }
 }
@@ -167,8 +170,9 @@ export default {
 
 <style scoped>
 .table-wrapper{
-    height: 100%;
-    overflow-y: scroll;
+    overflow-y: auto;
+    max-height: 75vh;
+    min-height: 75vh;
 }
 ::-webkit-scrollbar {
     width: 6px;

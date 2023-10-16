@@ -10,6 +10,7 @@
             >
                 <v-tab value="all-members" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">All members</span></v-tab>
                 <v-tab value="add-member" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Add new member</span></v-tab>
+                <v-tab value="multi-add" style="border-bottom: 1px solid #ccc"><span class="text-subtitle-2">Add group of members</span></v-tab>
             </v-tabs>
 
             <v-window v-model="tab" class="mt-5">
@@ -18,6 +19,9 @@
                 </v-window-item>
                 <v-window-item value="add-member">
                     <add-user />
+                </v-window-item>
+                <v-window-item value="multi-add">
+                    <multi-add />
                 </v-window-item>
             </v-window>
         </div>
@@ -28,6 +32,7 @@
 import TitleComponent from '@/components/TitleComponent';
 import MainUsersTable from '@/components/panel/MainUsersTable';
 import AddUser from './AddUser';
+import MultiAdd from './MultiAdd';
 
 export default {
     data(){
@@ -38,7 +43,8 @@ export default {
     components:{
         TitleComponent,
         MainUsersTable,
-        AddUser
+        AddUser,
+        MultiAdd
     }
 }
 </script>

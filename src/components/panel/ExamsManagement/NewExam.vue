@@ -82,7 +82,7 @@
                     </v-window-item>
 
                     <v-window-item :value="3">
-                        <users-step v-if="!reloadForm" :usersManagement="usersManagement" :users="users" :choisingUser="choisingUser" :reRenderSingle="reRenderSingle" />
+                        <users-step v-if="!reloadForm" :usersManagement="usersManagement" :users="users" :choisingUser="choisingUser" :reRenderSingle="reRenderSingle" :resetUsersList="resetUsersList" />
                     </v-window-item>
 
                     <v-window-item :value="4">
@@ -122,6 +122,7 @@ import UsersStep from '@/components/panel/ExamsManagement/steps/UsersStep'
 import ParamsStep from '@/components/panel/ExamsManagement/steps/ParamsStep'
 import { mapGetters, mapMutations } from 'vuex';
 import makeReq from '@/services/makeReq';
+import { getCourse } from '@/plugins/getInfo'
 
 export default {
     data(){
@@ -155,6 +156,7 @@ export default {
             },
             usersParams:{
                 students:{
+                    course: null,
                     fullTime: [],
                     inAbsentia: [],
                     magistracy: []
@@ -280,12 +282,15 @@ export default {
         usersManagement(type, options, value){
             if(type=='group'){
                 if(options.role=='student' && options.educationForm=='full-time'){
+                    this.usersParams.students.course = options.course
                     this.usersParams.students.fullTime = value
                 }
                 if(options.role=='student' && options.educationForm=='in-absentia'){
+                    this.usersParams.students.course = options.course
                     this.usersParams.students.inAbsentia = value
                 }
                 if(options.role=='student' && options.educationForm=='magistracy'){
+                    this.usersParams.students.course = options.course
                     this.usersParams.students.magistracy = value
                 }
                 if(options.role=='enrollee' && options.educationForm=='full-time'){
@@ -311,28 +316,31 @@ export default {
             }
             
         },
-
+        resetUsersList(){
+            this.users = []
+        },
         usersCouting(){
             this.users = []
 
             this.getUsersList.forEach(user => {
                 if(this.usersParams.students.fullTime.length){
                     this.usersParams.students.fullTime.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        // console.log(user.roleProperties.recieptDate, user.bio.firstName, new Date().getFullYear() - this.usersParams.students.course);
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.students.inAbsentia.length){
                     this.usersParams.students.inAbsentia.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.students.magistracy.length){
                     this.usersParams.students.magistracy.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
                             this.users.push(user.id)
                         }
                     })
@@ -376,7 +384,7 @@ export default {
 
             });
 
-            //console.log(this.users);
+            console.log(this.users)
             this.reRenderSingle = true
             setTimeout(()=>{
                 this.reRenderSingle = false
@@ -433,9 +441,9 @@ export default {
                     }
                 })
 
-                if(testsWithDifficulty!=exam.tests.length){
-                    paramsCount--
-                }
+                // if(testsWithDifficulty!=exam.tests.length){
+                //     paramsCount--
+                // }
 
                 for(let param in exam.params){
                     if(exam.params[param] || exam.params[param] === null || exam.params[param] === false){
@@ -493,6 +501,8 @@ export default {
                     this.complex[index].params.displayedResultParams = param
                 } else if(type == 'evaluation-system'){
                     this.complex[index].params.evaluationSystem = param
+                } else if(type == 'difficulty-exist'){
+                    this.complex[index].params.difficultyExist = param
                 }
             } else {
                 if(type == 'exams-interval'){
@@ -520,14 +530,60 @@ export default {
         approveExam(){
             this.loader = true
             this.blockBtn = true
+
+            const usersParams = []
+            this.users.map(user=>{
+                const targetUser = this.getUsersList.find(eu => eu.id == user)
+                if(targetUser){
+                    usersParams.push(targetUser)
+
+                    // if(targetUser.userRole == 'student'){
+                    //     const checkUser = usersParams.find(up => up.course == getCourse(targetUser.roleProperties.recieptDate) && up.role == targetUser.userRole && up.form == targetUser.roleProperties.educationForm && up.group == targetUser.roleProperties.group)
+
+                    //     if(checkUser) {
+                    //         const checkedUserIndex = usersParams.indexOf(checkUser)
+                    //         usersParams[checkedUserIndex].users.push(user)
+                    //     } else usersParams.push({
+                    //         role: targetUser.userRole,
+                    //         form: targetUser.roleProperties.educationForm,
+                    //         course: getCourse(targetUser.roleProperties.recieptDate),
+                    //         group: targetUser.roleProperties.group,
+                    //         users: [user]
+                    //     })
+                    // } else if(targetUser.userRole == 'enrollee'){
+                    //     const checkUser = usersParams.find(up => up.role == targetUser.userRole && up.form == targetUser.roleProperties.formOfEducation && up.group == targetUser.roleProperties.group)
+
+                    //     if(checkUser) {
+                    //         const checkedUserIndex = usersParams.indexOf(checkUser)
+                    //         usersParams[checkedUserIndex].users.push(user)
+                    //     } else usersParams.push({
+                    //         role: targetUser.userRole,
+                    //         form: targetUser.roleProperties.educationForm,
+                    //         group: targetUser.roleProperties.group,
+                    //         users: [user]
+                    //     })
+                    // } else if(targetUser.userRole == 'teacher' || targetUser.userRole == 'employee'){
+                    //     const checkUser = usersParams.find(up => up.role == targetUser.userRole && up.department == targetUser.roleProperties.department)
+
+                    //     if(checkUser) {
+                    //         const checkedUserIndex = usersParams.indexOf(checkUser)
+                    //         usersParams[checkedUserIndex].users.push(user)
+                    //     } else usersParams.push({
+                    //         role: targetUser.userRole,
+                    //         department: targetUser.roleProperties.department,
+                    //         users: [user]
+                    //     })
+                    // }
+                }
+            })
+
             const data = {
                 complex: this.complex,
                 params: this.params,
                 users: this.users,
-                examDateParams: this.examDateParams
+                examDateParams: this.examDateParams,
+                usersParams
             }
-
-            console.log(data);
 
             makeReq(`${this.getAdminServerIP}/api/exams/established`, 'POST', {
                 auth: {

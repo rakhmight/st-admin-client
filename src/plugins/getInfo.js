@@ -16,6 +16,20 @@ export function getAuthor(id, users){
     }
 }
 
+export function getCourse(year){
+    year = +year
+    let nextEducationYear = false
+    let currentYear = new Date().getFullYear()
+    if(new Date().getMonth()>8){
+        nextEducationYear = true
+    }
+
+    if(nextEducationYear && currentYear-year!=3){
+        return (currentYear-year)+1
+    }
+    return currentYear-year
+}
+
 export function getDate(date){
     date = new Date(date)
     if((date.getMonth()+1)<9){

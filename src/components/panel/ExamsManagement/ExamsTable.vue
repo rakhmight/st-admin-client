@@ -28,10 +28,12 @@
         <tbody>
             <exam-table-element
             v-for="(exam, i) in getExams"
-            :key="i"
+            :key="exam.id"
             :exam="exam"
             :examsTimes="examsTimes"
             :i="i"
+            :checkExamsTimers="checkExamsTimers"
+            :changeTab="changeTab"
             />
         </tbody>
     </v-table>
@@ -42,6 +44,9 @@ import { mapGetters } from 'vuex'
 import ExamTableElement from '@/components/panel/ExamsManagement/ExamTableElement.vue'
 
 export default {
+    props:{
+        changeTab: Function
+    },
     data(){
         return {
             examsTimes: [],
@@ -71,7 +76,24 @@ export default {
                             id: exam.id,
                             status: status
                         })
+                    } else if(exam.examDateParams.start.byCommand){
+                        if(exam.hasBegun){
+                            this.examsTimes.push({
+                                id: exam.id,
+                                status: 'active'
+                            })
+                        } else {
+                            this.examsTimes.push({
+                                id: exam.id,
+                                status: 'stopped'
+                            })
+                        }
                     }
+                } else {
+                    this.examsTimes.push({
+                        id: exam.id,
+                        status: 'in-active'
+                    })
                 }
             })
         }
