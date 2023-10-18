@@ -30,6 +30,7 @@
                                     variant="text"
                                     density="compact"
                                     color="var(--main-color)"
+                                    @click="startExam()"
                                     >
                                     </v-btn>
                                 </template>
@@ -45,6 +46,7 @@
                                     variant="text"
                                     density="compact"
                                     color="var(--red-color)"
+                                    @click="stopExam()"
                                     >
                                     </v-btn>
                                 </template>
@@ -197,6 +199,53 @@
                             </tr>
                         </tbody>
                     </v-table>
+
+                    <v-table density="compact" style="font-size: 0.9rem" v-if="getCurrentExam.complex.length>1">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-start align-center" style="gap: 5px">
+                                        <v-icon color="var(--main-color)" size="19px">mdi-order-numeric-ascending</v-icon>
+                                        <span>Order:</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p v-for="(ex, i) in getCurrentExam.params.complex.examsOrder" :key="ex">
+                                        <span style="color: var(--main-color)">{{ i+1 }}.</span> {{ getSubjectName(ex) }}
+                                    </p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
+
+                    <v-table density="compact" style="font-size: 0.9rem" v-if="getCurrentExam.complex.length>1">
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-start align-center" style="gap: 5px">
+                                        <v-icon color="var(--main-color)" size="small">mdi-check-decagram-outline</v-icon>
+                                        <span>Order of results display:</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p v-if="getCurrentExam.params.complex.complexResults=='regularly'">after each module exam</p>
+                                    <p v-if="getCurrentExam.params.complex.complexResults=='finally'">after all modules</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="d-flex justify-start align-center" style="gap: 5px">
+                                        <v-icon color="var(--main-color)" size="small">mdi-timer-outline</v-icon>
+                                        <span>Order of transition to the next module:</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <p v-if="getCurrentExam.params.complex.examsInterval != null">timeout {{ getCurrentExam.params.complex.examsInterval }} sec.</p>
+                                    <p v-else>by examinee command (click to button)</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
                 </div>
 
                 <div class="d-flex justify-space-between">
@@ -290,7 +339,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ mngtExam.params.questionTime==null ? 'unlim' : mngtExam.params.questionTime }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -303,8 +352,8 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
-                                        </div>
+                                            <span>{{ mngtExam.params.changeAnswerPossibility ? 'yes' : 'no' }}</span>
+                                        </div> 
                                     </td>
                                 </tr>
                                 <tr>
@@ -316,7 +365,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ mngtExam.params.difficultyExist ? 'yes' : 'no' }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -334,7 +383,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ mngtExam.params.ticketsCount }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -347,7 +396,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ mngtExam.params.questionsCount }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -360,7 +409,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ mngtExam.params.answersCount==null ? 'all' : mngtExam.params.answersCount }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -373,7 +422,7 @@
                                     </td>
                                     <td>
                                         <div>
-                                            <span>true</span>
+                                            <span>{{ getExamLanguages(mngtExam.params.languages) }}</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -393,8 +442,45 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="pt-1 pb-1">
-                                            <p>true</p>
+                                        <div class="pt-1 pb-1" v-if="!mngtExam.params.difficultyExist">
+                                            <div v-if="mngtExam.params.themesRanking == null">
+                                                <p>auto</p>
+                                            </div>
+
+                                            <div v-else>
+                                                <table width="100%">
+                                                    <tr v-for="(theme, i) in mngtExam.params.themesRanking" :key="theme">
+                                                        <td><b>{{ i+1 }}. {{ getThemeName(mngtExam.subject, theme.theme) }}</b></td>
+                                                        <td><span style="color: var(--main-color)">{{ theme.count }}</span></td>
+                                                    </tr>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div class="pt-1 pb-1" v-else>
+                                            <div v-if="mngtExam.params.themesRanking == null">
+                                                <p>auto</p>
+                                            </div>
+
+                                            <div v-else>
+                                                <div v-for="(theme, i) in mngtExam.params.themesRanking" :key="theme">
+                                                    <p><b>{{ i+1 }}. {{ getThemeName(mngtExam.subject, theme.theme) }}</b></p>
+                                                    <table width="100%">
+                                                        <tr>
+                                                            <td>Easy:</td>
+                                                            <td><span style="color: var(--main-color)">{{ theme.easy }}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Medium:</td>
+                                                            <td><span style="color: var(--main-color)">{{ theme.medium }}</span></td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>Hard:</td>
+                                                            <td><span style="color: var(--main-color)">{{ theme.hard }}</span></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
@@ -411,8 +497,65 @@
                                         </div>
                                     </td>
                                     <td>
+                                        <div class="pt-1 pb-1" v-if="mngtExam.params.ballSystem == null">
+                                            <p>custom</p>
+                                        </div>
+                                        <div class="pt-1 pb-1" v-if="mngtExam.params.ballSystem != null">
+                                            <table width="100%">
+                                                <tr v-if="mngtExam.params.ballSystem.easy">
+                                                    <td>Easy q.:</td>
+                                                    <td>{{ mngtExam.params.ballSystem.easy }} ball</td>
+                                                </tr>
+                                                <tr v-if="mngtExam.params.ballSystem.medium">
+                                                    <td>Medium q.:</td>
+                                                    <td>{{ mngtExam.params.ballSystem.medium }} ball</td>
+                                                </tr>
+                                                <tr v-if="mngtExam.params.ballSystem.hard">
+                                                    <td>Hard q.:</td>
+                                                    <td>{{ mngtExam.params.ballSystem.hard }} ball</td>
+                                                </tr>
+                                                <tr v-if="mngtExam.params.ballSystem.currect">
+                                                    <td>Currect q.:</td>
+                                                    <td>{{ mngtExam.params.ballSystem.currect }} ball</td>
+                                                </tr>
+                                                <tr v-if="mngtExam.params.ballSystem.uncurrect || mngtExam.params.ballSystem.uncurrect==0">
+                                                    <td>Uncurrect q.:</td>
+                                                    <td>{{ mngtExam.params.ballSystem.uncurrect }} ball</td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="d-flex justify-start align-center pt-1" style="gap: 5px">
+                                            <v-icon color="var(--main-color)" size="small">mdi-percent-outline</v-icon>
+                                            <span>Evaluation system:</span>
+                                        </div>
+                                    </td>
+                                    <td>
                                         <div class="pt-1 pb-1">
-                                            <p>true</p>
+                                            
+                                            <table width="100%">
+                                                <tr>
+                                                    <td>
+                                                        <span style="font-weight: 600; color: var(--main-color)">"5"</span> <span style="color: #888">(great)</span>
+                                                    </td>
+                                                    <td>{{ `${mngtExam.params.evaluationSystem.great.from}-${mngtExam.params.evaluationSystem.great.to} %` }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span style="font-weight: 600; color: var(--main-color)">"4"</span> <span style="color: #888">(good)</span>
+                                                    </td>
+                                                    <td>{{ `${mngtExam.params.evaluationSystem.good.from}-${mngtExam.params.evaluationSystem.good.to} %` }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>
+                                                        <span style="font-weight: 600; color: var(--main-color)">"3"</span> <span style="color: #888">(satisfactorily)</span>
+                                                    </td>
+                                                    <td>{{ `${mngtExam.params.evaluationSystem.satisfactorily.from}-${mngtExam.params.evaluationSystem.satisfactorily.to} %` }}</td>
+                                                </tr>
+                                            </table>
                                         </div>
                                     </td>
                                 </tr>
@@ -430,11 +573,11 @@
                                     </td>
                                     <td>
                                         <div class="pt-1 pb-1">
-                                            <p>true</p>
+                                            <p>{{ mngtExam.params.showResults ? 'yse' : 'no' }}</p>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr v-if="mngtExam.params.showResults">
                                     <td>
                                         <div class="d-flex justify-start align-center pt-1" style="gap: 5px">
                                             <v-icon color="var(--main-color)" size="small">mdi-clock-outline</v-icon>
@@ -443,11 +586,12 @@
                                     </td>
                                     <td>
                                         <div class="pt-1 pb-1">
-                                            <p>true</p>
+                                            <p v-if="mngtExam.params.resultDisplayTime==null">unlim</p>
+                                            <p v-else>{{ mngtExam.params.resultDisplayTime }} sec.</p>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr v-if="mngtExam.params.showResults">
                                     <td>
                                         <div class="d-flex justify-start align-center pt-1" style="gap: 5px">
                                             <v-icon color="var(--main-color)" size="small">mdi-send</v-icon>
@@ -456,20 +600,7 @@
                                     </td>
                                     <td>
                                         <div class="pt-1 pb-1">
-                                            <p>true</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div class="d-flex justify-start align-center pt-1" style="gap: 5px">
-                                            <v-icon color="var(--main-color)" size="small">mdi-percent-outline</v-icon>
-                                            <span>Evaluation system:</span>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div class="pt-1 pb-1">
-                                            <p>true</p>
+                                            <p>{{ getDisplayedResults(mngtExam.params.displayedResultParams) }}</p>
                                         </div>
                                     </td>
                                 </tr>
@@ -556,7 +687,7 @@
 
  <script>
 import { mapGetters } from 'vuex';
-import { getSubject, getThemes } from '@/plugins/getInfo'
+import { getSubject, getThemes, getLanguages, getTheme } from '@/plugins/getInfo'
 import UserInfo from './UserInfo.vue';
 
  export default {
@@ -572,6 +703,58 @@ import UserInfo from './UserInfo.vue';
     },
     computed: mapGetters(['getCurrentExam', 'getSubjects', 'getUsersList', 'getAuthServerIP']),
     methods: {
+
+        startExam(){}, // TODO:
+        stopExam(){}, // TODO:
+
+        getThemeName(subject, theme){
+            return getTheme(subject, theme, this.getSubjects)
+        },
+
+        getDisplayedResults(results){
+            const displayedResults = []
+            results.map(res=>{
+                switch (res) {
+                    case 'spentTime':
+                        displayedResults.push('Spent Time')
+                        break;
+                    case 'showAStat':
+                        displayedResults.push('Number of correct and incorrect answers')
+                        break;
+                    case 'ball':
+                        displayedResults.push('Score (ball)')
+                        break;
+                    case 'percentage':
+                        displayedResults.push('Percentage (%)')
+                        break;
+                    case 'eachQT':
+                        displayedResults.push('Time spent on each question')
+                        break;
+                    case 'showSkipStat':
+                        displayedResults.push('Answers skip statistics')
+                        break;
+                    case 'wrongThA':
+                        displayedResults.push('Themes with the most wrong answers')
+                        break;
+                    case 'wrongQ':
+                        displayedResults.push('Show wrong answered questions')
+                        break;
+                    case 'wrongQA':
+                        displayedResults.push('Show wrong answered questions & answers')
+                        break;
+                    default:
+                        break;
+                }
+
+            })
+            
+            return displayedResults.join(', ')
+        },
+
+        getExamLanguages(languages){
+            return getLanguages(languages)
+        },
+
         getSubjectName(subject){
             return getSubject(subject, this.getSubjects)
         },

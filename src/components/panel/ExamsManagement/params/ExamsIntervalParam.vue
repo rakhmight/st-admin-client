@@ -9,7 +9,7 @@
             v-model="examsIntervalRadio"
             >
                 <v-radio
-                    label="at the command of the administrator"
+                    label="at the command of the examinee"
                     value="on-command"
                     class="mb-2"
                 ></v-radio>

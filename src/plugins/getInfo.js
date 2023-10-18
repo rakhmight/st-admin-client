@@ -81,6 +81,7 @@ export function getThemes(sub, thems, subjects){
 }
 
 export function getTheme(sub, theme, subjects){
+    console.log(sub);
     const subject = subjects.find(subject=>subject.id==sub)
 
     const themeName = subject.themes.find(item => item.id==theme)
