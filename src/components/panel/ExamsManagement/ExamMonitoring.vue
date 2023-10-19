@@ -30,7 +30,7 @@
                                     variant="text"
                                     density="compact"
                                     color="var(--main-color)"
-                                    @click="startExam()"
+                                    @click="updateExam(getCurrentExam, 'begun')"
                                     >
                                     </v-btn>
                                 </template>
@@ -46,7 +46,7 @@
                                     variant="text"
                                     density="compact"
                                     color="var(--red-color)"
-                                    @click="stopExam()"
+                                    @click="updateExam(getCurrentExam, 'stopped')"
                                     >
                                     </v-btn>
                                 </template>
@@ -691,6 +691,9 @@ import { getSubject, getThemes, getLanguages, getTheme } from '@/plugins/getInfo
 import UserInfo from './UserInfo.vue';
 
  export default {
+    props: {
+        updateExam: Function
+    },
     data(){
         return {
             tab: undefined,
@@ -703,9 +706,6 @@ import UserInfo from './UserInfo.vue';
     },
     computed: mapGetters(['getCurrentExam', 'getSubjects', 'getUsersList', 'getAuthServerIP']),
     methods: {
-
-        startExam(){}, // TODO:
-        stopExam(){}, // TODO:
 
         getThemeName(subject, theme){
             return getTheme(subject, theme, this.getSubjects)

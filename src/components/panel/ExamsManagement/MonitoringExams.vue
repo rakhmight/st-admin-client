@@ -2,7 +2,10 @@
     <div class="content">
         <subtitle-component :subtitle="'Exam monitoring and management'" />
 
-        <exams-table :changeTab="changeTab" />
+        <exams-table
+        :changeTab="changeTab"
+        :updateExam="updateExam"
+        />
         
         <data-empty :text="'Exams not found'" v-if="!getExams.length" />
     </div>
@@ -16,7 +19,8 @@ import DataEmpty from '@/components/DataEmpty.vue'
 
 export default {
     props:{
-        changeTab: Function
+        changeTab: Function,
+        updateExam: Function
     },
     components:{
         SubtitleComponent,

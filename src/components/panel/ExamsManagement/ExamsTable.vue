@@ -34,6 +34,7 @@
             :i="i"
             :checkExamsTimers="checkExamsTimers"
             :changeTab="changeTab"
+            :updateExam="updateExam"
             />
         </tbody>
     </v-table>
@@ -45,7 +46,8 @@ import ExamTableElement from '@/components/panel/ExamsManagement/ExamTableElemen
 
 export default {
     props:{
-        changeTab: Function
+        changeTab: Function,
+        updateExam: Function,
     },
     data(){
         return {

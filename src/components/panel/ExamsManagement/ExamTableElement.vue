@@ -84,7 +84,7 @@
                 variant="text"
                 density="compact"
                 color="var(--main-color)"
-                @click="updateExam('begun')"
+                @click="updateExamEx('begun')"
                 v-if="!exam.hasBegun && exam.examDateParams.start.byCommand"
                 >
                 </v-btn>
@@ -94,7 +94,7 @@
                 variant="text"
                 density="compact"
                 color="var(--red-color)"
-                @click="updateExam('stopped')"
+                @click="updateExamEx('stopped')"
                 >
                 </v-btn>
             </td>
@@ -113,7 +113,8 @@ export default {
         examsTimes: Array,
         i: Number,
         checkExamsTimers: Function,
-        changeTab: Function
+        changeTab: Function,
+        updateExam: Function
     },
     data(){
         return {
@@ -122,32 +123,17 @@ export default {
     },
     computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getAuthParams', 'getUsersList']),
     methods: {
-        ...mapMutations(['updateExamState', 'setCurrentExam']),
+        ...mapMutations(['setCurrentExam']),
 
         choiceExam(){
             this.setCurrentExam(this.exam)
             this.changeTab('exam')
         },
 
-        async updateExam(type){
-            if(!this.exam.hasBegun && this.exam.examDateParams.start.byCommand || this.exam.hasBegun && this.exam.examDateParams.end.byCommand){
-                await makeReq(`${this.getAdminServerIP}/api/exams/updatestate`, "POST", {
-                    auth: {
-                        ...this.getAuthParams
-                    },
-                    data:{
-                        type,
-                        examID: this.exam.id
-                    }
-                })
-                .then(data=>{
-                    if(data.statusCode==200){
-                        this.updateExamState({type, examID: this.exam.id})
-                        this.checkExamsTimers()
-                    }
-                })
-                .catch(error => console.error(error))
-            }
+        // !!!
+        async updateExamEx(type){
+            await this.updateExam(this.exam, type)
+            this.checkExamsTimers()
         },
 
         getSubjectName(id){

@@ -17,13 +17,17 @@
 
             <v-window v-model="tab" class="mt-5">
                 <v-window-item value="monitoring">
-                    <monitoring-exams :changeTab="changeTab" />
+                    <monitoring-exams
+                    :changeTab="changeTab"
+                    :updateExam="updateExam"
+                    :checkExamsTimers="checkExamsTimers"
+                    />
                 </v-window-item>
                 <v-window-item value="new">
                     <new-exam />
                 </v-window-item>
                 <v-window-item value="exam">
-                    <exam-monitoring />
+                    <exam-monitoring :updateExam="updateExam" />
                 </v-window-item>
             </v-window>
         </div>
@@ -35,8 +39,9 @@ import TitleComponent from '@/components/TitleComponent';
 import MonitoringExams from '@/components/panel/ExamsManagement/MonitoringExams';
 import NewExam from '@/components/panel/ExamsManagement/NewExam';
 import ExamMonitoring from './ExamMonitoring.vue';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapMutations } from 'vuex';
 import { getSubject } from '@/plugins/getInfo'
+import makeReq from '@/services/makeReq'
 
 export default {
     data(){
@@ -45,7 +50,7 @@ export default {
             showExamPanel: false
         }
     },
-    computed: mapGetters(['getCurrentExam', 'getSubjects']),
+    computed: mapGetters(['getCurrentExam', 'getSubjects', 'getAuthParams', 'getAdminServerIP']),
     components:{
         TitleComponent,
         MonitoringExams,
@@ -53,6 +58,8 @@ export default {
         ExamMonitoring
     },
     methods: {
+        ...mapMutations(['updateExamState']),
+
         getSubjectName(){
             if(this.getCurrentExam.complex.length == 1) {
                 return getSubject(this.getCurrentExam.complex[0].subject, this.getSubjects)
@@ -66,7 +73,28 @@ export default {
         checkCurrentExam(){
             if(this.getCurrentExam) this.showExamPanel = true
             else this.showExamPanel = false
-        }
+        },
+
+        async updateExam(exam, type){
+            if(!exam.hasBegun && exam.examDateParams.start.byCommand || exam.hasBegun && exam.examDateParams.end.byCommand){
+                await makeReq(`${this.getAdminServerIP}/api/exams/updatestate`, "POST", {
+                    auth: {
+                        ...this.getAuthParams
+                    },
+                    data:{
+                        type,
+                        examID: exam.id
+                    }
+                })
+                .then(data=>{
+                    if(data.statusCode==200){
+                        this.updateExamState({type, examID: exam.id})
+                    }
+                })
+                .catch(error => console.error(error))
+            }
+        },
+        
     },
     watch:{
         getCurrentExam(){
