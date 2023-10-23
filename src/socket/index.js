@@ -3,6 +3,7 @@ import { io } from "socket.io-client"
 import { connectEvent } from "./events/connect"
 import { disconnectEvent } from "./events/disconnect"
 import { devicesStatusEvent } from "./events/devicesStatus"
+import { examineeStatusEvent } from "./events/examineeStatus"
 
 const URL = "http://172.16.18.223:4500"
 
@@ -19,3 +20,4 @@ export const socket = io(URL, {
 connectEvent(socket)
 disconnectEvent(socket)
 devicesStatusEvent(socket)
+examineeStatusEvent(socket)
