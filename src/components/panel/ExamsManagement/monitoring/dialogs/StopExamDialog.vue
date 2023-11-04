@@ -88,12 +88,15 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import { socket } from "@/socket";
 
 export default {
     props: {
         user: Object,
-        getUserName: Function
+        getUserName: Function,
+        getStatus: Function,
+        stopTimer: Function
     },
    data(){
        return {
@@ -109,7 +112,7 @@ export default {
             blockBtn: false
        }
    },
-   computed: mapGetters(['getAuthParams', 'getAuthServerIP']),
+   computed: mapGetters(['getAuthParams', 'getAuthServerIP', 'getCurrentExam', 'getAdminServerIP']),
    watch:{
        adminPassword(){
            this.adminPasswordError.status = false
@@ -119,6 +122,8 @@ export default {
        },
    },
    methods:{
+        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus']),
+
        async excludeUser(){
 
            if(!this.adminPassword){
@@ -138,21 +143,49 @@ export default {
                     requesting: 'client'
                 }
            })
-           .then(data=>{
+           .then(async (data) => {
                this.loader = false
 
                if(data.statusCode==200){
-                   this.success = true
+                   const stopExam = await makeReq(`${this.getAdminServerIP}/api/exams/stop-exam`, 'POST', {
+                        auth: {
+                            ...this.getAuthParams,
+                        },
+                        data:{
+                            userID: this.user.id,
+                            examID: this.getCurrentExam.id,
+                        }
+                    })
 
-                   console.log('OK');
+                    if(stopExam){
+                        if(stopExam.statusCode == 200){
+                            this.success = true
 
-                   setTimeout(()=>{
-                       this.success = false
-                       this.blockBtn = false
-                       this.adminPassword = undefined
-                       this.dialog = false
-                       this.showPassword = false
-                   },3000)
+                            socket.emit('client-exam-stop', {
+                                userID: this.user.id,
+                                examID: this.getCurrentExam.id,
+                            })
+                            this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'stop' })
+                            this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'stop' })
+                            this.stopTimer()
+
+                            setTimeout(()=>{
+                                this.success = false
+                                this.blockBtn = false
+                                this.adminPassword = undefined
+                                this.dialog = false
+                                this.showPassword = false
+                            },3000)
+                        } else {
+                            this.blockBtn = false
+                            this.adminPasswordError.status = true
+                            this.adminPasswordError.msg = "Some problems on serve-side"
+                        }
+                    } else {
+                        this.blockBtn = false
+                        this.adminPasswordError.status = true
+                        this.adminPasswordError.msg = "Some problems on serve-side"
+                    }
                } else if(data.statusCode == 403){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Wrong password"

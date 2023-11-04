@@ -27,7 +27,7 @@
                     <new-exam />
                 </v-window-item>
                 <v-window-item value="exam">
-                    <exam-monitoring :updateExam="updateExam" />
+                    <exam-monitoring :updateExam="updateExam" :changeTab="changeTab" />
                 </v-window-item>
             </v-window>
         </div>
@@ -58,7 +58,7 @@ export default {
         ExamMonitoring
     },
     methods: {
-        ...mapMutations(['updateExamState']),
+        ...mapMutations(['updateExamState', 'updateCurrentExamState']),
 
         getSubjectName(){
             if(this.getCurrentExam.complex.length == 1) {
@@ -77,7 +77,7 @@ export default {
 
         async updateExam(exam, type){
             if(!exam.hasBegun && exam.examDateParams.start.byCommand || exam.hasBegun && exam.examDateParams.end.byCommand){
-                await makeReq(`${this.getAdminServerIP}/api/exams/updatestate`, "POST", {
+                const data = await makeReq(`${this.getAdminServerIP}/api/exams/updatestate`, "POST", {
                     auth: {
                         ...this.getAuthParams
                     },
@@ -86,12 +86,13 @@ export default {
                         examID: exam.id
                     }
                 })
-                .then(data=>{
-                    if(data.statusCode==200){
-                        this.updateExamState({type, examID: exam.id})
-                    }
-                })
                 .catch(error => console.error(error))
+
+                if(data && data.statusCode==200){
+                    this.updateExamState({type, examID: exam.id})
+                    this.updateCurrentExamState({ type })
+                    return data
+                }
             }
         },
         

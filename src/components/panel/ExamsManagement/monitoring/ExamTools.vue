@@ -106,20 +106,11 @@
                 </v-tooltip>
             </div>
             <div>
-                <v-tooltip>
-                    <template v-slot:activator="{ props }">
-                        <v-btn
-                        v-bind="props"
-                        icon
-                        variant="text"
-                        density="compact"
-                        color="var(--red-color)"
-                        >
-                            <v-icon size="22px">mdi-delete-outline</v-icon>
-                        </v-btn>
-                    </template>
-                    <span>Delete exam</span>
-                </v-tooltip>
+                <delete-exam-dialog
+                :examID="getCurrentExam.id"
+                :isComplex="getCurrentExam.complex.length > 1"
+                :changeTab="changeTab"
+                />
             </div>
         </div>
     </div>
@@ -127,11 +118,16 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import DeleteExamDialog from './dialogs/DeleteExamDialog.vue';
 
 export default {
     props: {
-        updateExam: Function
+        updateExam: Function,
+        changeTab: Function
     },
     computed: mapGetters(['getCurrentExam']),
+    components: {
+        DeleteExamDialog
+    }
 }
 </script>

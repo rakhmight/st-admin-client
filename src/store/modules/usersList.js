@@ -12,10 +12,10 @@ export default {
           state.usersList = value
         },
         updateUsersList(state, value){
-          state.usersList.push(value)
+          state.usersList.unshift(value)
         },
         multipleUpdateUsersList(state, value){
-          state.usersList.push(...value)
+          state.usersList.unshift(...value)
         },
     },
     actions: {

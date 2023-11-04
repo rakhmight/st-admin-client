@@ -23,9 +23,6 @@ export function examineeStatusEvent(socket) {
         store._mutations.updateCurrentExamineeStatus[0](examineeData)
         store._mutations.updateExamineeStatus[0](examineeData)
     });
-
-    socket.on("admin-stopExam", (examineeData) => {
-    });
       
     // socket.on("admin-connectDevice", (deviceID) => {
     //     store._mutations.changeDeviceState[0]({ type: 'status', id: deviceID, status: 'online' })

@@ -1,6 +1,6 @@
 <template>
     <tr>
-            <td class="text-center">{{ i+1 }}</td>
+            <td class="text-center">{{ i }}</td>
             <td>
                 <p
                 v-for="(subject, i) in getExamSubjects(exam)"
@@ -114,7 +114,8 @@ export default {
         i: Number,
         checkExamsTimers: Function,
         changeTab: Function,
-        updateExam: Function
+        updateExam: Function,
+        makeList: Function
     },
     data(){
         return {
@@ -132,8 +133,11 @@ export default {
 
         // !!!
         async updateExamEx(type){
-            await this.updateExam(this.exam, type)
-            this.checkExamsTimers()
+            const data = await this.updateExam(this.exam, type)
+            if(data){
+                this.checkExamsTimers()
+                this.makeList()
+            }
         },
 
         getSubjectName(id){

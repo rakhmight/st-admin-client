@@ -15,7 +15,7 @@
         <td>
             <div v-if="timer!=null">
                 <p v-if="timer>0" style="color: var(--main-color)">{{ formatTime(timer) }}</p>
-                <p v-else style="color: var(--red-color)">time over</p>
+                <p v-else style="color: var(--red-color)">time over {{ timer }}</p>
             </div>
             <p v-else style="color: #888">-</p>
         </td>
@@ -42,12 +42,29 @@
                     </v-btn>
                 </template>
                 <v-list density="compact" min-width="120">
-                    <stop-exam-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
-                    <pause-exam-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
+                    <stop-exam-dialog
+                    v-if="getStatus().status=='working' || getStatus().status=='paused'"
+                    :user="user"
+                    :getUserName="getUserName"
+                    :getStatus="getStatus"
+                    :stopTimer="stopTimer"
+                    />
+                    <pause-exam-dialog
+                    v-if="getStatus().status=='working' || getStatus().status=='paused'"
+                    :user="user"
+                    :getStatus="getStatus"
+                    :pauseTimer="pauseTimer"
+                    :getUserName="getUserName"
+                    :resumeTimer="resumeTimer"
+                    />
                     <reset-exam-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
                     <results-dialog :user="user" :getUserName="getUserName" />
                     <change-questions-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
-                    <exclude-user-dialog :user="user" :getUserName="getUserName" />
+                    <exclude-user-dialog
+                    :user="user"
+                    :getUserName="getUserName"
+                    :getStatus="getStatus"
+                    />
                 </v-list>
             </v-menu>
         </td>
@@ -77,20 +94,26 @@ export default {
         }
     },
     mounted(){
-        if(this.user.time.value){
+        if(this.user.time.value && this.user.time.start != null){
             const timeData = Date.now() - this.user.time.start
             if(timeData>0){
                 clearInterval(this.timerInterval)
                 this.timer = this.user.time.value - Math.round(timeData/1000)
                 
-                this.timerInterval = setInterval(()=>{
-                    if(this.timer!=0){
-                        this.timer-=1
-                    } else {
-                        clearInterval(this.timerInterval)
-                    }
-                },1000)
+                if(this.timer>0){
+                    this.timerInterval = setInterval(()=>{
+                        if(this.timer!=0){
+                            this.timer-=1
+                        } else {
+                            clearInterval(this.timerInterval)
+                        }
+                    },1000)
+                } else {
+                    this.timer = 0
+                }
             }
+        } else {
+            this.timer = this.user.time.value
         }
     },
     watch: {
@@ -98,31 +121,48 @@ export default {
             this.examineeStatusCount()
         },
         'user.time.value'(){
-            clearInterval(this.timerInterval)
-            this.timer = this.user.time.value
+            if(this.user.time.start != null){
+                clearInterval(this.timerInterval)
+                this.timer = this.user.time.value
 
-            if(this.user.time.value){
-                this.timerInterval = setInterval(()=>{
-                    if(this.timer!=0){
-                        this.timer-=1
-                    } else {
-                        clearInterval(this.timerInterval)
-                    }
-                },1000)
+                if(this.user.time.value){
+                    this.timerInterval = setInterval(()=>{
+                        if(this.timer!=0){
+                            this.timer-=1
+                        } else {
+                            clearInterval(this.timerInterval)
+                        }
+                    },1000)
+                }
+            } else {
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                    this.timer = null
+                }
             }
         },
         'user.time.start'(){
-            clearInterval(this.timerInterval)
-            this.timer = this.user.time.value
+            if(this.user.time.start != null){
+                
+                clearInterval(this.timerInterval)
+                this.timer = this.user.time.value
 
-            if(this.user.time.value){
-                this.timerInterval = setInterval(()=>{
-                    if(this.timer!=0){
-                        this.timer-=1
-                    } else {
-                        clearInterval(this.timerInterval)
-                    }
-                },1000)
+                if(this.user.time.value){
+                    this.timerInterval = setInterval(()=>{
+                        if(this.timer!=0){
+                            this.timer-=1
+                        } else {
+                            clearInterval(this.timerInterval)
+                        }
+                    },1000)
+                }
+            } else {
+                if(this.timerInterval){
+                    clearInterval(this.timerInterval)
+                    this.timerInterval = undefined
+                    this.timer = null
+                }
             }
         }
     },
@@ -137,6 +177,21 @@ export default {
     },
     computed: mapGetters(['getUsersList', 'getAuthServerIP', 'getCurrentExam', 'getSubjects']),
     methods: {
+
+        stopTimer(){
+            this.pauseTimer()
+            this.timer = null
+        },
+
+        resumeTimer(){
+            return this.timer
+        },
+
+        pauseTimer(){
+            clearInterval(this.timerInterval)
+            this.timerInterval = undefined
+            return this.timer
+        },
         
         getSubjectName(subject) {
             return getSubject(subject, this.getSubjects)
@@ -161,23 +216,16 @@ export default {
                 switch (userData.status) {
                     case 'waiting':
                         return { status: 'waiting', des: 'pending', subject: userData.subject || null }
-                        break;
                     case 'working':
                         return { status: 'working', des: 'passes the exam..', subject: userData.subject || null }
-                        break;
                     case 'blocked':
                         return { status: 'blocked', des: 'blocked', subject: userData.subject || null }
-                        break;
                     case 'finished':
                         return { status: 'finished', des: 'finished', subject: userData.subject || null }
-                        break;
                     case 'failed':
                         return { status: 'failed', des: 'failed', subject: userData.subject || null }
-                        break;
                     case 'paused':
                         return { status: 'paused', des: 'paused', subject: userData.subject || null }
-                        break;
-                
                     default:
                         break;
                 }
@@ -198,6 +246,7 @@ export default {
     },
     unmounted() {
         clearInterval(this.timerInterval)
+        this.timerInterval = undefined
     }
 }
 </script>

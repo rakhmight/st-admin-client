@@ -4,13 +4,21 @@
        width="auto"
        v-model="dialog"
      >
-       <template v-slot:activator="{ props }">
-           <v-list-item v-bind="props">
-               <v-list-item-title class="d-flex align-center">
-                   <v-icon size="18" class="mr-1" color="var(--bg-special-color)">mdi-file-question-outline</v-icon>
-                   <span class="menu-text">Change questions</span>
-               </v-list-item-title>
-           </v-list-item>
+       <template v-slot:activator="{ props: menu }">
+            <v-tooltip>
+                <template v-slot:activator="{ props: tooltip }">
+                    <v-btn
+                    v-bind="mergeProps(menu, tooltip)"
+                    icon
+                    variant="text"
+                    density="compact"
+                    color="var(--red-color)"
+                    >
+                        <v-icon size="22px">mdi-delete-outline</v-icon>
+                    </v-btn>
+                </template>
+                <span>Delete exam</span>
+            </v-tooltip>
        </template>
        <template v-slot:default="{ isActive }">
          <div class="dialog">
@@ -18,7 +26,7 @@
              color="var(--bg-special-color)"
            >
                <div class="pl-3 pr-3 d-flex flex-row align-center justify-space-between w-100">
-                   <span class="text-h5" style="color: #fff">Change questions for {{ getUserName() }}</span>
+                   <span class="text-h5" style="color: #fff">Delete exam: {{ examID }}</span>
                    <v-btn
                    density="compact"
                    icon
@@ -39,30 +47,21 @@
                    @click:append="showPassword = !showPassword"
                    :error="adminPasswordError.status"
                ></v-text-field>
-               
-                <v-text-field
-                    label="Question ID"
-                    placeholder="Enter question ID"
-                    variant="outlined"
-                    density="compact"
-                   v-model.number="question"
-                ></v-text-field>
 
                <div class="w-100 d-flex justify-center">
                    <v-btn
                    density="compact"
-                   :color="blockBtn ? '#eee' : 'var(--bg-special-color)'"
+                   :color="blockBtn ? '#eee' : 'var(--red-color)'"
                    width="200"
-                   @click="excludeUser()"
+                   @click="deleteExam()"
                    :disabled="blockBtn"
                    >
-                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Change questions</span>
+                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Delete exam</span>
                    <v-progress-circular
                    :width="1"
                    size="15"
                    color="var(--main-color)"
                    indeterminate
-                   class=""
                    v-else
                    ></v-progress-circular>
                    </v-btn>
@@ -87,7 +86,7 @@
                v-if="success"
                >
                    <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                   <span style="color:#fff">Questions changed successfully</span>
+                   <span style="color:#fff">Exam deleted successfully</span>
                </v-alert>
            </div>
          </div>
@@ -97,13 +96,14 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { mapGetters } from 'vuex'
-import { socket } from "@/socket";
+import { mapGetters, mapMutations } from 'vuex'
+import { mergeProps } from 'vue'
 
 export default {
-    props: {
-        user: Object,
-        getUserName: Function
+    props:{
+        examID: String,
+        isComplex: Boolean,
+        changeTab: Function
     },
    data(){
        return {
@@ -116,11 +116,10 @@ export default {
             },
             success: false,
             loader: false,
-            blockBtn: false,
-            question: undefined
+            blockBtn: false
        }
    },
-   computed: mapGetters(['getAuthParams', 'getAuthServerIP']),
+   computed: mapGetters(['getAuthParams', 'getAuthServerIP', 'getAdminServerIP']),
    watch:{
        adminPassword(){
            this.adminPasswordError.status = false
@@ -128,25 +127,16 @@ export default {
                this.blockBtn = false
            }
        },
-       question(){
-           this.adminPasswordError.status = false
-           if(!this.adminPasswordError.status){
-               this.blockBtn = false
-           }
-       }
    },
    methods:{
-       async excludeUser(){
+    mergeProps,
+    ...mapMutations(['setCurrentExam', 'deleteFromExamList']),
+
+    async deleteExam(){
 
            if(!this.adminPassword){
                this.adminPasswordError.status = true
                this.adminPasswordError.msg = "Enter the current administrator's password"
-               return
-           }
-           
-           if(!this.question){
-               this.adminPasswordError.status = true
-               this.adminPasswordError.msg = "Enter the question ID"
                return
            }
 
@@ -161,25 +151,53 @@ export default {
                     requesting: 'client'
                 }
            })
-           .then(data=>{
+           .then(async (data)=>{
                this.loader = false
 
                if(data.statusCode==200){
-                   this.success = true
 
-                   // client-change-question
-                   socket.emit('client-change-question', {
-                        userID: this.user.id,
-                        questionID: this.question
+                    await makeReq(`${this.getAdminServerIP}/api/exams/delete`, 'POST', {
+                        auth: {
+                            ...this.getAuthParams,
+                        },
+                        data: {
+                            examID: this.examID,
+                            params: {
+                                isComplex: this.isComplex
+                            }
+                        }
+                    })
+                    .then(data => {
+                        if(data.statusCode == 200) {
+                            this.success = true
+
+                            console.log('OK');
+                            this.changeTab('monitoring')
+                            this.deleteFromExamList(this.examID)
+                            this.setCurrentExam(undefined)
+
+                            setTimeout(()=>{
+                                this.success = false
+                                this.blockBtn = false
+                                this.adminPassword = undefined
+                                this.dialog = false
+                                this.showPassword = false
+                            },3000)
+                        } else if(data.statusCode == 400) {
+                            this.adminPasswordError.status = true
+                            this.adminPasswordError.msg = "Bad request"
+                            console.log(403);
+                            return
+                        } else {
+                            this.adminPasswordError.status = true
+                            this.adminPasswordError.msg = "Some problems with server"
+                            console.log(500);
+                        }
+                    })
+                    .catch(err=>{
+                        console.error(err);
                     })
 
-                   setTimeout(()=>{
-                       this.success = false
-                       this.blockBtn = false
-                       this.adminPassword = undefined
-                       this.dialog = false
-                       this.showPassword = false
-                   },3000)
                } else if(data.statusCode == 403){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Wrong password"
@@ -195,7 +213,7 @@ export default {
            .catch(err=>{
                console.error(err);
            })
-       }
+    }
    }
 }
 </script>

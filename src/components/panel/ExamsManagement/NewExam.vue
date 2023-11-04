@@ -280,6 +280,8 @@ export default {
         },
 
         usersManagement(type, options, value){
+            console.log(options);
+            console.log(value);
             if(type=='group'){
                 if(options.role=='student' && options.educationForm=='full-time'){
                     this.usersParams.students.course = options.course
@@ -326,42 +328,42 @@ export default {
                 if(this.usersParams.students.fullTime.length){
                     this.usersParams.students.fullTime.forEach(element=>{
                         // console.log(user.roleProperties.recieptDate, user.bio.firstName, new Date().getFullYear() - this.usersParams.students.course);
-                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course && user.roleProperties.educationForm == 'full-time'){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.students.inAbsentia.length){
                     this.usersParams.students.inAbsentia.forEach(element=>{
-                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course && user.roleProperties.educationForm == 'in-absentia'){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.students.magistracy.length){
                     this.usersParams.students.magistracy.forEach(element=>{
-                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course){
+                        if(user.roleProperties.group==element && getCourse(user.roleProperties.recieptDate) == this.usersParams.students.course && user.roleProperties.educationForm == 'magistracy'){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.enrollees.fullTime.length){
                     this.usersParams.enrollees.fullTime.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        if(user.roleProperties.group==element && user.roleProperties.formOfEducation == 'full-time'){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.enrollees.inAbsentia.length){
                     this.usersParams.enrollees.inAbsentia.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        if(user.roleProperties.group==element && user.roleProperties.formOfEducation == 'in-absentia'){
                             this.users.push(user.id)
                         }
                     })
                 }
                 if(this.usersParams.enrollees.magistracy.length){
                     this.usersParams.enrollees.magistracy.forEach(element=>{
-                        if(user.roleProperties.group==element){
+                        if(user.roleProperties.group==element && user.roleProperties.formOfEducation == 'magistracy'){
                             this.users.push(user.id)
                         }
                     })

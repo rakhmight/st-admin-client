@@ -12,7 +12,7 @@ export default {
           state.devices = value
         },
         updateDevicesList(state, value){
-            state.devices.push(value)
+            state.devices.unshift(value)
         },
         changeDeviceState(state, value){
             if(value.type=='status'){

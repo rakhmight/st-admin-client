@@ -1,5 +1,5 @@
 <template>
-    <div class="content d-flex flex-column" style="gap:30px">
+    <div v-if="this.getCurrentExam" class="content d-flex flex-column" style="gap:30px">
         <div v-if="this.getCurrentExam.complex.length>1">
             <v-tabs
             v-model="tab"
@@ -18,7 +18,7 @@
         </div>
 
         <div class="block d-flex flex-column" style="gap: 10px" v-if="mngtExam">
-            <exam-tools :updateExam="updateExam" />
+            <exam-tools :updateExam="updateExam" :changeTab="changeTab" />
 
             <v-divider />
 
@@ -50,13 +50,22 @@
 
                 <tbody>
                     <examinee-from-table
-                    v-for="user in getCurrentExam.users"
+                    v-for="user in examineesList"
                     :key="user"
                     :user="user"
                     :examineeStatusCount="examineeStatusCount"
                     />
                 </tbody>
             </v-table>
+            
+            <v-pagination
+            class="mt-3"
+            v-model="page"
+            :length="pages"
+            :total-visible="7"
+            density="compact"
+            rounded="circle"
+            ></v-pagination>
         </div>
     </div>
 </template>
@@ -69,7 +78,8 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
 
  export default {
     props: {
-        updateExam: Function
+        updateExam: Function,
+        changeTab: Function
     },
     data(){
         return {
@@ -82,7 +92,11 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
                 failed: 0,
                 finished: 0,
                 blocked: 0
-            }
+            },
+            examineesList: [],
+            page: 1,
+            pageSize: 30,
+            listCount: 0
         }
     },
     components: {
@@ -90,7 +104,14 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
         ExamInfo,
         ExamineeFromTable
     },
-    computed: mapGetters(['getCurrentExam']),
+    computed: {
+        ...mapGetters(['getCurrentExam']),
+        
+		pages() {
+			if (this.pageSize == null || this.listCount == null) return 0;
+			return Math.ceil(this.listCount / this.pageSize);
+		}
+    },
     methods:{
         examineeStatusCount(){
             this.examineeByStatus = {
@@ -126,22 +147,57 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
                         break;
                 }
             })
-        }
+        },
+
+        initPage(){
+			this.listCount = this.getCurrentExam.users.length;
+			if (this.listCount < this.pageSize) {
+				this.examineesList = this.getCurrentExam.users;
+			} else {
+				this.examineesList = this.getCurrentExam.users.slice(0, this.pageSize);
+			}
+		},
+
+        updatePage(pageIndex){
+			let _start = (pageIndex - 1) * this.pageSize;
+			let _end = pageIndex * this.pageSize;
+			this.examineesList = this.getCurrentExam.users.slice(_start, _end);
+			this.page = pageIndex;
+		}
     },
     watch: {
+        'getCurrentExam.id'(){
+            if(this.getCurrentExam){
+                this.initPage()
+                this.updatePage(this.page)
+            }
+        },
+
         'getCurrentExam.users'(){
-            this.examineeStatusCount()
+            if(this.getCurrentExam){
+                this.examineeStatusCount()
+                this.initPage()
+                this.updatePage(this.page)
+            }
         },
         tab(){
             this.mngtExam = this.getCurrentExam.complex.find(ce => ce.subject == this.tab)
         },
         getCurrentExam(){
-            this.mngtExam = this.getCurrentExam.complex[0]
+            if(this.getCurrentExam){
+                this.mngtExam = this.getCurrentExam.complex[0]
+            }
+        },
+        page(){
+            this.updatePage(this.page)
         }
     },
     mounted(){
         this.mngtExam = this.getCurrentExam.complex[0]
         this.examineeStatusCount()
+
+        this.initPage()
+		this.updatePage(this.page)
     }
  }
  </script>

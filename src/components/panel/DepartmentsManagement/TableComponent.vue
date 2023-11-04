@@ -154,7 +154,7 @@ export default {
             this.setPositions(this.getCurrentDepartment.positions)
         }
 
-        console.log(this.getCurrentDepartment);
+        // console.log(this.getCurrentDepartment);
     },
     computed: mapGetters(['getPositions', 'getCurrentDepartment', 'getDepartments']),
     methods:{

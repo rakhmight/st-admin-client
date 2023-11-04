@@ -20,7 +20,7 @@ export default {
           state.subjects = value
         },
         updateSubjects(state, value){
-          state.subjects.push(value)
+          state.subjects.unshift(value)
         },
         updateSubjectThemes(state, obj){
           state.subjects[obj.index].themes = obj.themes

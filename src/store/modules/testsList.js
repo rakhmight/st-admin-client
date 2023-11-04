@@ -9,7 +9,7 @@ export default {
     },
     mutations: {
         updateTestImages(state, value){
-          state.testImages.push(value)
+          state.testImages.unshift(value)
         },
         setTestImages(state, value){
           state.testImages = value
@@ -20,7 +20,7 @@ export default {
             const index = state.testImages.indexOf(target)
             state.testImages.splice(index, 1)
     
-            state.testImages.push(value)
+            state.testImages.unshift(value)
           }
         },
         changeTestImage(state, params){

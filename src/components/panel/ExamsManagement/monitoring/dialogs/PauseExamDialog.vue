@@ -61,7 +61,7 @@
                    size="15"
                    color="var(--main-color)"
                    indeterminate
-                   v-else
+                   v-if="loader"
                    ></v-progress-circular>
                    </v-btn>
                </div>
@@ -96,12 +96,16 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import { socket } from "@/socket";
 
 export default {
     props: {
         user: Object,
-        getUserName: Function
+        getUserName: Function,
+        getStatus: Function,
+        pauseTimer: Function,
+        resumeTimer: Function
     },
    data(){
        return {
@@ -117,7 +121,7 @@ export default {
             blockBtn: false
        }
    },
-   computed: mapGetters(['getAuthParams', 'getAuthServerIP']),
+   computed: mapGetters(['getAuthParams', 'getAuthServerIP', 'getCurrentExam']),
    watch:{
        adminPassword(){
            this.adminPasswordError.status = false
@@ -127,6 +131,7 @@ export default {
        },
    },
    methods:{
+        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus']),
        async excludeUser(){
 
            if(!this.adminPassword){
@@ -152,7 +157,35 @@ export default {
                if(data.statusCode==200){
                    this.success = true
 
-                   console.log('OK');
+                   
+                   if(this.user.status == 'working'){
+                    const timerValue = this.pauseTimer()
+                    socket.emit('client-exam-pause', {
+                        userID: this.user.id,
+                        examID: this.getCurrentExam.id,
+                        subject: this.getStatus().subject,
+                        time: {
+                            value: timerValue,
+                            start: null
+                        }
+                    })
+                    this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'pause', time: { value: timerValue, start: null } })
+                    this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'pause', time: { value: timerValue, start: null } })
+                   } else if(this.user.status == 'paused'){
+                    const timerValue = this.resumeTimer()
+                    const resumeTime = Date.now()
+                    socket.emit('client-exam-resume', {
+                        userID: this.user.id,
+                        examID: this.getCurrentExam.id,
+                        subject: this.getStatus().subject,
+                        time: {
+                            value: timerValue,
+                            start: resumeTime
+                        }
+                    })
+                    this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'resume', time: { value: timerValue, start: resumeTime } })
+                    this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'resume', time: { value: timerValue, start: resumeTime } })
+                   }
 
                    setTimeout(()=>{
                        this.success = false
@@ -164,12 +197,10 @@ export default {
                } else if(data.statusCode == 403){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Wrong password"
-                    console.log(403);
                     return
                } else if(data.statusCode == 404){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Administrator not found"
-                    console.log(404);
                     return
                }
            })

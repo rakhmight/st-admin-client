@@ -70,7 +70,7 @@
 
                 <tbody>
                 <tr
-                v-for="(device, i) in getDevices"
+                v-for="(device, i) in devicesList"
                 :key="i"
                 >
                     <td class="pt-2 pb-2 text-center" style="width:100px">
@@ -129,7 +129,16 @@
                     </td>
                 </tr>
                 </tbody>
-            </v-table>
+            </v-table>            
+
+            <v-pagination
+            class="mt-3"
+            v-model="page"
+            :length="pages"
+            :total-visible="7"
+            density="compact"
+            rounded="circle"
+            ></v-pagination>
 
             <data-empty :text="'No registered devices'" v-if="!getDevices.length"/>
         </div>
@@ -144,10 +153,54 @@ import { mapGetters } from 'vuex';
 import DataEmpty from '@/components/DataEmpty.vue';
 
 export default {
+    data(){
+        return {
+            devicesList: [],
+            page: 1,
+            pageSize: 30,
+            listCount: 0
+        }
+    },
+    watch: {
+        page(){
+            this.updatePage(this.page)
+        },
+        'getDevices.length'(){
+            this.initPage();
+            this.updatePage(this.page);
+        }
+    },
+    mounted(){
+        this.initPage();
+		this.updatePage(this.page);
+    },
     methods: {
       mergeProps,
+
+        initPage(){
+			this.listCount = this.getDevices.length;
+			if (this.listCount < this.pageSize) {
+				this.devicesList = this.getDevices;
+			} else {
+				this.devicesList = this.getDevices.slice(0, this.pageSize);
+			}
+		},
+
+        updatePage(pageIndex){
+			let _start = (pageIndex - 1) * this.pageSize;
+			let _end = pageIndex * this.pageSize;
+			this.devicesList = this.getDevices.slice(_start, _end);
+			this.page = pageIndex;
+		}
     },
-    computed: mapGetters(['getDevices']),
+    computed: {
+        ...mapGetters(['getDevices']),
+        
+		pages() {
+			if (this.pageSize == null || this.listCount == null) return 0;
+			return Math.ceil(this.listCount / this.pageSize);
+		}
+    },
     components:{
         SubtitleComponent,
         AddDevice,

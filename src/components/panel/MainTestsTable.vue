@@ -22,7 +22,7 @@
             </thead>
             <tbody>
             <tr
-            v-for="(test, i) in tests"
+            v-for="(test, i) in testsList"
             :key="i"
             >
                 <td style="max-width:70px;overflow-x: hidden;white-space: nowrap;text-overflow: ellipsis; text-align: right;">
@@ -74,7 +74,16 @@
                 </td>
             </tr>
             </tbody>
-        </v-table>
+        </v-table>        
+
+        <v-pagination
+        class="mt-3"
+        v-model="page"
+        :length="pages"
+        :total-visible="7"
+        density="compact"
+        rounded="circle"
+        ></v-pagination>
     </div>
 </template>
 
@@ -90,13 +99,58 @@ export default {
     props:{
         tests: Array
     },
-    computed: mapGetters(['getSubjects']),
+    data(){
+        return {
+            page: 1,
+            pageSize: 40,
+            listCount: 0,
+            testsList: []
+        }
+    },
+    computed:{
+        ...mapGetters(['getSubjects']),
+        
+		pages() {
+			if (this.pageSize == null || this.listCount == null) return 0;
+			return Math.ceil(this.listCount / this.pageSize);
+		}
+    },
+    watch: {
+        page(){
+            this.updatePage(this.page)
+        },
+
+        tests(){
+            this.initPage();
+            this.updatePage(this.page);
+        }
+    },
+    mounted(){
+        this.initPage();
+		this.updatePage(this.page);
+    },
     methods: {
         mergeProps,
 
         getSubjectName(id){
             return getSubject(id, this.getSubjects)
         },
+
+        initPage(){
+			this.listCount = this.tests.length;
+			if (this.listCount < this.pageSize) {
+				this.testsList = this.tests;
+			} else {
+				this.testsList = this.tests.slice(0, this.pageSize);
+			}
+		},
+
+        updatePage(pageIndex){
+			let _start = (pageIndex - 1) * this.pageSize;
+			let _end = pageIndex * this.pageSize;
+			this.testsList = this.tests.slice(_start, _end);
+			this.page = pageIndex;
+		}
 
     },
     components:{

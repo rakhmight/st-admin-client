@@ -88,12 +88,14 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
+import { socket } from "@/socket";
 
 export default {
     props: {
         user: Object,
-        getUserName: Function
+        getUserName: Function,
+        getStatus: Function,
     },
    data(){
        return {
@@ -109,7 +111,7 @@ export default {
             blockBtn: false
        }
    },
-   computed: mapGetters(['getAuthParams', 'getAuthServerIP']),
+   computed: mapGetters(['getAuthParams', 'getAuthServerIP', 'getCurrentExam']),
    watch:{
        adminPassword(){
            this.adminPasswordError.status = false
@@ -119,6 +121,8 @@ export default {
        },
    },
    methods:{
+    ...mapMutations(['excludeExaminee', 'excludeExamineeCurrentExam']),
+
     async excludeUser(){
 
            if(!this.adminPassword){
@@ -144,6 +148,13 @@ export default {
                if(data.statusCode==200){
                    this.success = true
 
+                   socket.emit('client-exclude-user', {
+                        userID: this.user.id,
+                        examID: this.getCurrentExam.id,
+                        subject: this.getStatus().subject
+                    })
+                    this.excludeExaminee({ examID: this.getCurrentExam.id, userID: this.user.id })
+                    this.excludeExamineeCurrentExam({ userID: this.user.id })
                    console.log('OK');
 
                    setTimeout(()=>{

@@ -21,7 +21,7 @@ export default {
         },
 
         updateDepartments(state, value){
-          state.departments.push(value)
+          state.departments.unshift(value)
         },
         updatePositions(state, obj){
           state.departments[obj.index].positions = obj.positions

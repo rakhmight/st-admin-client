@@ -104,9 +104,6 @@ import { mapGetters, mapMutations} from 'vuex';
 import makeReq from '@/services/makeReq';
 
 export default {
-    props:{
-        switchReRender: Function
-    },
     data(){
         return {
             dialog: false,
@@ -193,7 +190,6 @@ export default {
                     })
 
                     this.success = true
-                    this.switchReRender()
                     setTimeout(()=>{
                         this.blockSendBtn = true
                         this.success = false

@@ -235,7 +235,7 @@ export default defineComponent({
       })
       .then(data=>{
         if(data.statusCode == 200){
-          this.setUsersList(data.data.usersList)
+          this.setUsersList(data.data.usersList.reverse())
         }
       })
       .catch(error=>{
@@ -254,7 +254,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setDepartments(data.data.departments)
+            this.setDepartments(data.data.departments.reverse())
           }
         })
         .catch(error=>{
@@ -272,7 +272,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setSubjects(data.data.subjects)
+            this.setSubjects(data.data.subjects.reverse())
           }
         })
         .catch(error=>{
@@ -290,7 +290,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setExams(data.data.examsImages)
+            this.setExams(data.data.examsImages.reverse())
           }
         })
         .catch(error=>{
@@ -308,7 +308,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setTestImages(data.data.testsImages)
+            this.setTestImages(data.data.testsImages.reverse())
           }
         })
         .catch(error=>{
@@ -326,7 +326,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setDevices(data.data.devices)
+            this.setDevices(data.data.devices.reverse())
           }
         })
         .catch(error=>{
@@ -346,7 +346,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setSubjects(data.data.subjects)
+            this.setSubjects(data.data.subjects.reverse())
           }
         })
         .catch(error=>{
@@ -364,7 +364,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setTestImages(data.data.testImages)
+            this.setTestImages(data.data.testImages.reverse())
           }
         })
         .catch(error=>{
@@ -384,7 +384,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setTestImages(data.data.testsImages)
+            this.setTestImages(data.data.testsImages.reverse())
           }
         })
         .catch(error=>{
@@ -402,7 +402,7 @@ export default defineComponent({
         })
         .then(data=>{
           if(data.statusCode == 200){
-            this.setSubjects(data.data.subjects)
+            this.setSubjects(data.data.subjects.reverse())
           }
         })
         .catch(error=>{

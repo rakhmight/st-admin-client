@@ -67,11 +67,12 @@
             </tr>
             </thead>
             <tbody>
+
             <tr
-            v-for="(member, i) in members"
-            :key="i"
+            v-for="member in membersList"
+            :key="member.id"
             >
-                <td>{{ i+1 }}</td>
+                <td>{{ member.number }}</td>
                 <td>
                     <div class="pt-2 pb-2 d-flex flex-row align-center">
                         <div style="width: 40px; height: 40px;">
@@ -160,6 +161,15 @@
             </tr>
             </tbody>
         </v-table>
+
+        <v-pagination
+        class="mt-3"
+        v-model="page"
+        :length="pages"
+        :total-visible="7"
+        density="compact"
+        rounded="circle"
+        ></v-pagination>
         
         <data-empty :text="'Users not found'" v-if="!members.length" />
     </div>
@@ -179,27 +189,69 @@ export default {
     },
     data(){
         return {
-            members:[]
+            members:[],
+            membersList: [],
+            page: 1,
+            pageSize: 30,
+            listCount: 0
         }
     },
     
     computed: {
-        ...mapGetters(['getUsersList', 'getAuthServerIP'])
+        ...mapGetters(['getUsersList', 'getAuthServerIP']),
+        
+		pages() {
+			if (this.pageSize == null || this.listCount == null) return 0;
+			return Math.ceil(this.listCount / this.pageSize);
+		}
+    },
+    watch: {
+        page(){
+            this.updatePage(this.page)
+        },
+
+        'getUsersList.length'(){
+            this.makeList()
+            this.initPage();
+            this.updatePage(this.page);
+        }
     },
     mounted(){
-        console.log(this.getUsersList);
-        if(this.mode=='users'){
-            this.members = this.getUsersList
-        } else {
-            this.getUsersList.forEach(member => {
-                if(member.hasSign){
-                    this.members.push(member)
-                }
-            });
-        }
+        this.makeList()
+        this.initPage();
+		this.updatePage(this.page);
     },
     methods: {
         mergeProps,
+
+        makeList(){
+            this.members= []
+            this.getUsersList.forEach((member, i) => {
+                const memberI = { ...member, number: i+1 }
+                
+                if(this.mode=='users') this.members.push(memberI)
+                else {
+                    if(member.hasSign) this.members.push(memberI)
+                }
+            })
+        },
+
+        initPage(){
+            this.listCount = []
+			this.listCount = this.members.length;
+			if (this.listCount < this.pageSize) {
+				this.membersList = this.members;
+			} else {
+				this.membersList = this.members.slice(0, this.pageSize);
+			}
+		},
+
+        updatePage(pageIndex){
+			let _start = (pageIndex - 1) * this.pageSize;
+			let _end = pageIndex * this.pageSize;
+			this.membersList = this.members.slice(_start, _end);
+			this.page = pageIndex;
+		}
     },
     components: {
         SubtitleComponent,
@@ -213,5 +265,29 @@ export default {
 <style scoped>
 .v-table{
     font-size: 0.9em
+}
+
+.grid-table{
+    font-size: 0.9em;
+    display: grid;
+    grid-template-columns:repeat(5, 1fr);
+}
+.grid-table > div {
+    padding: 8px 4px;
+    border-bottom: #777;
+    height: 32%;
+}
+
+.scroller{
+    width: 100%;
+    height: 600px;
+    overflow-y: auto
+}
+
+.user {
+  height: 32%;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
 }
 </style>

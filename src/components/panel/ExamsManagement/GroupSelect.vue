@@ -307,8 +307,10 @@ export default {
             this.usersManagement('group', {role: 'student', educationForm: 'full-time', course: this.selectedCourseFullTime }, this.selectedStudentsGroupsFullTime)
         },
         selectedCourseInAbsentia(){
-            if(this.selectedStudentsGroupsInAbsentia.length)
+            if(this.selectedStudentsGroupsInAbsentia.length){
             this.usersManagement('group', {role: 'student', educationForm: 'in-absentia', course: this.selectedCourseInAbsentia }, this.selectedStudentsGroupsInAbsentia)
+                console.log(11111);
+        }
         },
         selectedCourseMagistracy(){
             if(this.selectedCourseMagistracy)

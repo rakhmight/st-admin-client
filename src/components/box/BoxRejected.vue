@@ -4,12 +4,21 @@
 
         <div class="cards">
             <test-card
-            v-for="(test, i) in tests"
+            v-for="(test, i) in testsList"
             :key="i"
             :test="test"
             :reRenderTests="reRenderTests"
             />
         </div>
+
+        <v-pagination
+        class="mt-3"
+        v-model="page"
+        :length="pages"
+        :total-visible="7"
+        density="compact"
+        rounded="circle"
+        ></v-pagination>
 
         <data-empty :text="`You don't have rejected tests`" v-if="!tests.length" />
     </div>
@@ -24,10 +33,32 @@ import { mapGetters } from 'vuex';
 export default {
     data(){
         return {
-            tests: []
+            tests: [],
+            testsList: [],
+            page: 1,
+            pageSize: 40,
+            listCount: 0
         }
     },
-    computed: mapGetters(['getTestImages', 'getRole']),
+    computed: {
+        ...mapGetters(['getTestImages', 'getRole']),
+        
+		pages() {
+			if (this.pageSize == null || this.listCount == null) return 0;
+			return Math.ceil(this.listCount / this.pageSize);
+		}
+    },
+    watch: {
+        page(){
+            this.updatePage(this.page)
+        },
+
+        'getTestImages.length'(){
+            this.reRenderTests()
+            this.initPage();
+            this.updatePage(this.page);
+        }
+    },
     components:{
         TitleComponent,
         TestCard,
@@ -35,23 +66,43 @@ export default {
     },
     mounted(){
         this.reRenderTests()
+        this.initPage();
+		this.updatePage(this.page);
     },
-    methods:{
-        reRenderTests(){
+    methods: {
+        reRenderTests(){            
             this.tests = []
-            
-            this.getTestImages.forEach(testImage=>{
+            this.getTestImages.forEach((test, i) => {
+                const testI = { ...test, number: i+1 }
+                
                 if(this.getRole==1 || this.getRole==2){
-                    if(testImage.status.value=='rejected'){
-                        this.tests.push(testImage)
+                    if(test.status.value=='rejected'){
+                        this.tests.push(testI)
                     }
                 } else if(this.getRole==3){
-                    if(testImage.status.value=='rejected' && testImage.status.rejected=='admin'){
-                        this.tests.push(testImage)
+                    if(test.status.value=='rejected' && test.status.rejected=='admin'){
+                        this.tests.push(testI)
                     }
                 }
             })
-        }
+        },        
+
+        initPage(){
+            this.listCount = []
+			this.listCount = this.tests.length;
+			if (this.listCount < this.pageSize) {
+				this.testsList = this.tests;
+			} else {
+				this.testsList = this.tests.slice(0, this.pageSize);
+			}
+		},
+
+        updatePage(pageIndex){
+			let _start = (pageIndex - 1) * this.pageSize;
+			let _end = pageIndex * this.pageSize;
+			this.testsList = this.tests.slice(_start, _end);
+			this.page = pageIndex;
+		}
     }
 }
 </script>
