@@ -34,7 +34,7 @@ export default {
     },
     data(){
         return{
-            tab: 'group'
+            tab: 'group',
         }
     },
     components:{

@@ -85,6 +85,29 @@
                         <span>Edit params of exam</span>
                     </v-tooltip>
                 </div>
+                <div>
+                    <add-examinees-dialog
+                    :examID="getCurrentExam.id"
+                    :isComplex="getCurrentExam.complex.length > 1"
+                    />
+                </div>
+                <div>
+                    <v-tooltip>
+                        <template v-slot:activator="{ props }">
+                            <v-btn
+                            v-bind="props"
+                            icon
+                            variant="text"
+                            density="compact"
+                            color="#888"
+                            @click="getRetakeList()"
+                            >
+                                <v-icon size="22px">mdi-format-list-numbered</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Get json list for retake</span>
+                    </v-tooltip>
+                </div>
             </div>
         </div>
 
@@ -119,15 +142,29 @@
 <script>
 import { mapGetters } from 'vuex';
 import DeleteExamDialog from './dialogs/DeleteExamDialog.vue';
+import AddExamineesDialog from './dialogs/AddExamineesDialog.vue';
+import downloadObjectAsJson from '@/plugins/downloadObjectAsJson'
 
 export default {
     props: {
         updateExam: Function,
-        changeTab: Function
+        changeTab: Function,
+        mngtExam: Object
+    },
+    methods: {
+        getRetakeList(){
+            const retakeListData = { retakeList: [] }
+            this.getCurrentExam.users.map(user=>{
+                if(user.status == 'blocked' || user.status == 'waiting' || user.status == 'failed') retakeListData.retakeList.push(user.id)
+            })
+
+            downloadObjectAsJson(retakeListData, `RETAKE LIST of exam of ${this.mngtExam.subject} subject`)
+        }
     },
     computed: mapGetters(['getCurrentExam']),
     components: {
-        DeleteExamDialog
+        DeleteExamDialog,
+        AddExamineesDialog
     }
 }
 </script>

@@ -1,7 +1,28 @@
 <template>
     <div class="form__step" v-if="complex.length">
+
+        <div class="d-flex flex-column" style="gap: 10px" v-if="subjectPotentialParams.length">
+            <div v-for="exam in subjectPotentialParams" :key="exam.subject">
+                <div
+                v-if="!exam.isUsed"
+                class="d-flex align-center"
+                style="gap: 15px"
+                >
+                    <span style="color: var(--main-color)">• {{ getSubjectName(exam.subject) }}</span>
+                    <v-btn
+                    density="compact"
+                    color="var(--main-color)"
+                    @click="useSubjectParams(exam.subject)"
+                    :disabled="switchPotentialParams"
+                    >
+                    <span style="color: #fff">Use previous params</span>
+                    </v-btn>
+                </div>
+            </div>
+        </div>
+
         <!-- Параметры процесса экзаменации -->
-        <div class="params">
+        <div class="params" v-if="!switchPotentialParams">
             <div class="params__header d-flex">
                 <div class="d-flex flex-row align-center" style="padding: 3px 10px; background-color: var(--bg-special-color);">
                     <v-icon size="16" color="#fff">mdi-step-forward</v-icon>
@@ -25,13 +46,14 @@
                     :exam="exam"
                     :paramsManagement="paramsManagement"
                     :complex="complex"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.examTime : undefined"
                     />
                 </div>
 
                 <v-divider></v-divider>
 
                 <!-- Время на 1 вопрос -->
-                <div class="rows">
+                <!-- <div class="rows">
                     <div class="d-flex flex-row align-center">
                         <v-icon size="16" color="var(--bg-special-color)">mdi-circle-double</v-icon>
                         <span class="ml-1">Time for a question:</span>
@@ -47,7 +69,7 @@
                     />
                 </div>
 
-                <v-divider></v-divider>
+                <v-divider></v-divider> -->
 
                 <!-- Возможность смены ответа -->
                 <div class="rows">
@@ -63,6 +85,7 @@
                     :exam="exam"
                     :paramsManagement="paramsManagement"
                     :complex="complex"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.changeAnswerPossibility : undefined"
                     />
                 </div>
 
@@ -83,6 +106,7 @@
                     :paramsManagement="paramsManagement"
                     :complex="complex"
                     :switchTests="switchTests"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.languages : undefined"
                     />
                 </div>
 
@@ -104,15 +128,16 @@
                     :complex="complex"
                     :switchTests="switchTests"
                     :difficultyExist="difficultyExist"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.ballSystem : undefined"
                     />
                 </div>
             </div>
         </div>
         
-        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4"></v-divider>
+        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4" v-if="!switchPotentialParams"></v-divider>
         
         <!-- Параметры билетов -->
-        <div class="params">
+        <div class="params" v-if="!switchPotentialParams">
             <div class="params__header d-flex">
                 <div class="d-flex flex-row align-center" style="padding: 3px 10px; background-color: var(--bg-special-color);">
                     <v-icon size="16" color="#fff">mdi-step-forward</v-icon>
@@ -135,6 +160,7 @@
                     :exam="exam"
                     :paramsManagement="paramsManagement"
                     :complex="complex"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.ticketsCount : undefined"
                     />
                 </div>
 
@@ -153,6 +179,7 @@
                     :paramsManagement="paramsManagement"
                     :complex="complex"
                     :changeQuestionsCount="changeQuestionsCount"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.questionsCount : undefined"
                     />
                 </div>
 
@@ -172,6 +199,7 @@
                     :exam="exam"
                     :paramsManagement="paramsManagement"
                     :complex="complex"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.answersCount : undefined"
                     />
                 </div>
 
@@ -194,6 +222,7 @@
                     :switchTests="switchTests"
                     :switchDifficultyExist="switchDifficultyExist"
                     :changeChoisedThemes="changeChoisedThemes"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.themes : undefined"
                     />
                 </div>
 
@@ -216,6 +245,7 @@
                     :switchTests="switchTests"
                     :questionsCount="questionsCount"
                     :choisedThemes="choisedThemes"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.themesRanking : undefined"
                     />
                 </div>
 
@@ -236,6 +266,7 @@
                     :switchTests="switchTests"
                     :questionsCount="questionsCount"
                     :choisedThemes="choisedThemes"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.themesRanking : undefined"
                     />
                 </div>
 
@@ -261,10 +292,10 @@
             </div>
         </div>
 
-        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4" v-if="complex.length>1"></v-divider>
+        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4" v-if="complex.length>1 && !switchPotentialParams"></v-divider>
         
         <!-- Параметры комплексного экзамена -->
-        <div class="params" v-if="complex.length>1">
+        <div class="params" v-if="complex.length>1 && !switchPotentialParams">
             <div class="params__header d-flex">
                 <div class="d-flex flex-row align-center" style="padding: 3px 10px; background-color: var(--bg-special-color);">
                     <v-icon size="16" color="#fff">mdi-step-forward</v-icon>
@@ -319,10 +350,10 @@
             </div>
         </div>
         
-        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4"></v-divider>
+        <v-divider thickness="5" color="var(--bg-special-color)" style="opacity: 0.4" v-if="!switchPotentialParams"></v-divider>
 
         <!-- Параметры результатов экзамена -->
-        <div class="params">
+        <div class="params" v-if="!switchPotentialParams">
             <div class="params__header d-flex">
                 <div class="d-flex flex-row align-center" style="padding: 3px 10px; background-color: var(--bg-special-color);">
                     <v-icon size="16" color="#fff">mdi-step-forward</v-icon>
@@ -346,6 +377,7 @@
                     :paramsManagement="paramsManagement"
                     :complex="complex"
                     :switchShowingResults="switchShowingResults"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.showResults : undefined"
                     />
 
                 </div>
@@ -368,6 +400,7 @@
                     :complex="complex"
                     :showResults="showResults"
                     :switchResultShowing="switchResultShowing"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.resultDisplayTime : undefined"
                     />
                 </div>
 
@@ -389,6 +422,7 @@
                     :complex="complex"
                     :showResults="showResults"
                     :switchResultShowing="switchResultShowing"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.displayedResultParams : undefined"
                     />
                 </div>
 
@@ -406,9 +440,19 @@
                     :exam="exam"
                     :paramsManagement="paramsManagement"
                     :complex="complex"
+                    :potentialParam="usedPotentialParams.find(item => item.subject == exam.subject) ? usedPotentialParams.find(item => item.subject == exam.subject).params.evaluationSystem : undefined"
                     />
                 </div>
             </div>
+        </div>
+
+        <div
+        v-if="switchPotentialParams"
+        class="d-flex flex-column align-center justify-center"
+        style="width: 100%; height: 40vh"
+        >
+            <v-progress-circular model-value="20" indeterminate :size="60" width="2" color="var(--main-color)"></v-progress-circular>
+            <p class="mt-4" style="color:#444; font-size: 0.9rem;">Data injecting..</p>
         </div>
     </div>
 
@@ -440,11 +484,17 @@ import EvaluationSystemParam from '@/components/panel/ExamsManagement/params/Eva
 import DataEmpty from '@/components/DataEmpty.vue'
 import QuestionsByThemesAndDifficultyParam from '../params/QuestionsByThemesAndDifficultyParam.vue'
 
+import { getSubject } from '@/plugins/getInfo'
+
 export default {
     props:{
         complex: Array,
         paramsManagement: Function,
-        switchTests: Boolean
+        switchTests: Boolean,
+        usedPotentialParams: Array,
+        useSubjectParams: Function,
+        switchPotentialParams: Boolean,
+        subjectPotentialParams: Array
     },
     components:{
         ExamTimeParam,
@@ -484,6 +534,8 @@ export default {
     watch:{
         switchTests(){
             //this.checkDifficultyExist()
+            
+            // синхронизация визуала с параметрами
 
             if(this.complex.length>1){
                 this.paramsManagement(undefined, 'init-complex')
@@ -493,6 +545,11 @@ export default {
         }
     },
     methods:{
+        
+        getSubjectName(id){
+            return getSubject(id, this.getSubjects)
+        },
+
         changeChoisedThemes(subject, value){
             this.paramsManagement(subject, 'themes', value)
 
@@ -507,34 +564,6 @@ export default {
             this.difficultyExist = value
             this.paramsManagement(subject, 'difficulty-exist', value)
         },
-
-        // checkDifficultyExist(){
-        //     let stop = false
-
-        //     if(this.complex.length){
-        //         if(!stop){
-        //             this.complex.forEach(exam=>{
-        //                 let counter = 0
-        //                 if(!stop){
-        //                     exam.tests.forEach(test=>{
-        //                         const target = this.getTestImages.find(image=>image.fileName==test)
-
-        //                         if(target.info.params.considerDifficulty){
-        //                             counter++
-        //                         }
-        //                     })
-        //                 }
-
-        //                 if(counter==exam.tests.length){
-        //                     this.difficultyExist = true
-        //                     stop = true
-        //                 } else {
-        //                     this.difficultyExist = false
-        //                 }
-        //             })
-        //         }
-        //     }
-        // },
 
         switchShowingResults(type, subject){
             if(type=='add'){

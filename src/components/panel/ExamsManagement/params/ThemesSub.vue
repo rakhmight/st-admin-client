@@ -40,7 +40,8 @@ export default {
         questionsByThemesMngt: Function,
         switchQuestions: Boolean,
         switchTests: Boolean,
-        choisedThemes: Array
+        choisedThemes: Array,
+        potentialValue: Object | undefined
     },
     data(){
         return {
@@ -48,6 +49,15 @@ export default {
         }
     },
     computed: mapGetters(['getSubjects']),
+    mounted(){
+        if(this.potentialValue){
+            if(this.potentialValue.count > 0){
+                for(let i = 0; i != this.potentialValue.count; i++){
+                    this.plusTheme()
+                }
+            }
+        }
+    },
     methods:{
         getThemeName(id){
             return getTheme(this.exam.subject, id, this.getSubjects)

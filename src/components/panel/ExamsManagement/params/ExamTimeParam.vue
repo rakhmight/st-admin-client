@@ -46,12 +46,25 @@ export default {
     props:{
         exam: Object,
         paramsManagement: Function,
-        complex: Array
+        complex: Array,
+        potentialParam: Number | undefined | null
     },
     data(){
         return {
             examTimeRadio: undefined,
-            examTimeParam: undefined
+            examTimeParam: undefined,
+
+            potentialParamInjection: false
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            this.potentialParamInjection = true
+            this.examTimeRadio = 'limited'
+            this.examTimeParam = this.potentialParam
+        } else if(this.potentialParam === null){
+            this.examTimeRadio = 'unlimit'
+            this.examTimeParam = null
         }
     },
     watch:{
@@ -59,7 +72,8 @@ export default {
             if(this.examTimeRadio=='unlimit'){
                 this.examTimeParam = null
             } else {
-                this.examTimeParam = undefined
+                if(!this.potentialParamInjection) this.examTimeParam = undefined
+                else this.potentialParamInjection = false
             }
         },
 

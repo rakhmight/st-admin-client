@@ -25,11 +25,17 @@ export default {
     props:{
         exam: Object,
         paramsManagement: Function,
-        complex: Array
+        complex: Array,
+        potentialParam: Number | undefined
     },
     data(){
         return {
             ticketsCount: 0
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            this.ticketsCount = this.potentialParam
         }
     },
     watch:{

@@ -42,12 +42,24 @@ export default {
     props:{
         exam: Object,
         paramsManagement: Function,
-        complex: Array
+        complex: Array,
+        potentialParam: Number | null | undefined
     },
     data(){
         return {
             limitAnswersCount: undefined,
-            answersCountParam: undefined
+            answersCountParam: undefined,
+
+            potentialParamInjection: false
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            this.potentialParamInjection = true
+            this.limitAnswersCount = true
+            this.answersCountParam = this.potentialParam
+        }else if(this.potentialParam === null){
+            this.limitAnswersCount = false
         }
     },
     watch:{
@@ -55,7 +67,9 @@ export default {
             if(this.limitAnswersCount==false){
                 this.answersCountParam = null
             } else {
-                this.answersCountParam = undefined
+                if(!this.potentialParamInjection){
+                    this.answersCountParam = undefined
+                } else this.potentialParamInjection = false
             }
         },
 

@@ -32,11 +32,17 @@ export default {
     props:{
         exam: Object,
         paramsManagement: Function,
-        complex: Array
+        complex: Array,
+        potentialParam: Boolean | undefined
     },
     data(){
         return {
             changeAnswerPossibility: undefined,
+        }
+    },
+    mounted(){
+        if(this.potentialParam !== undefined){
+            this.changeAnswerPossibility = this.potentialParam
         }
     },
     watch:{

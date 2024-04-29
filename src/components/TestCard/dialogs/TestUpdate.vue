@@ -120,7 +120,7 @@ export default {
             }
         }
     },
-    computed: mapGetters(['getAuthParams', 'getAdminServerIP']),
+    computed: mapGetters(['getAuthParams', 'getAdminServerIP', 'getRole']),
     methods:{
         ...mapMutations(['replaceTestImages']),
         
@@ -170,7 +170,7 @@ export default {
             this.blockSendBtn = true
             this.loader = true
             // отправка на сервер
-            await makeReq(`${this.getAdminServerIP}/api/tests/update`, 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/tests/${this.getRole == 3 ? 'admin-update' : 'update'}`, 'POST', {
                 auth: {
                     ...this.getAuthParams
                 },

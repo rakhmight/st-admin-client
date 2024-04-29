@@ -50,6 +50,11 @@
                   <td class="text-right">{{ getTestAuthor() }}</td>
               </tr>
               <tr>
+                <!-- Author date -->
+                  <td>File name</td>
+                  <td class="text-right" style="color: #777;">{{ test.fileName }}</td>
+              </tr>
+              <tr>
                 <!-- Subject -->
                   <td>Subject</td>
                   <td class="text-right">{{ getTestSubject() }}</td>
@@ -57,7 +62,9 @@
               <tr>
                 <!-- Themes -->
                   <td>Themes</td>
-                  <td class="text-right">{{ getTestThemes() }}</td>
+                  <td class="text-left">
+                    <p v-for="(theme, i) in getTestThemes()" :key="i" class="lim-txt" style="width: 570px"><span style="color: var(--main-color)">•</span> {{ theme }}</p>
+                  </td>
               </tr>
               <tr>
                 <!-- Languages -->
@@ -188,11 +195,14 @@ export default {
     data(){
         return {
             dialog: false,
-            chartAvaible:false
+            chartAvaible:false,
+
+            snackbar: false
         }
     },
     computed: mapGetters(['getSubjects', 'getUsersList']),
     methods: {
+
         getThemeName(theme){
             return getTheme(this.test.info.params.subject, theme, this.getSubjects)
         },
@@ -212,7 +222,7 @@ export default {
             return getSubject(this.test.info.params.subject, this.getSubjects)
         },
         getTestThemes(){
-            return getThemes(this.test.info.params.subject, this.test.info.params.themes, this.getSubjects)
+            return getThemes(this.test.info.params.subject, this.test.info.params.themes, this.getSubjects, true)
         },
         getTestLanguages(){
             return getLanguages(this.test.info.params.languagesSettings.languages)

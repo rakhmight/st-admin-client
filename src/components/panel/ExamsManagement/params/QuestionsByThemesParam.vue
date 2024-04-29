@@ -30,7 +30,7 @@
 
             <v-divider></v-divider>
 
-            <div class="mt-3 d-flex flex-column" style="gap:15px">
+            <div class="mt-3 d-flex flex-column" style="gap:15px" v-if="!potentialParam">
                 <!--  -->
                 <themes-sub
                 v-for="(theme) in themes"
@@ -42,6 +42,22 @@
                 :switchQuestions="switchQuestions"
                 :switchTests="switchTests"
                 :choisedThemes="choisedThemes"
+                />
+            </div>
+
+            <div class="mt-3 d-flex flex-column" style="gap:15px" v-if="potentialParam">
+                <!--  -->
+                <themes-sub
+                v-for="(theme) in themes"
+                :key="theme"
+                :theme="theme"
+                :exam="exam"
+                :questionsCount="questionsCountTemp"
+                :questionsByThemesMngt="questionsByThemesMngt"
+                :switchQuestions="switchQuestions"
+                :switchTests="switchTests"
+                :choisedThemes="choisedThemes"
+                :potentialValue="potentialParam.find(pm => pm.theme == theme) ? potentialParam.find(pm => pm.theme == theme) : undefined"
                 />
             </div>
         </div>
@@ -60,7 +76,8 @@ export default {
         complex: Array,
         questionsCount: Number,
         switchTests: Boolean,
-        choisedThemes: Array
+        choisedThemes: Array,
+        potentialParam: Array | null | undefined
     },
     components:{
         ThemesSub
@@ -71,7 +88,9 @@ export default {
             themesRanking: [],
             themes: [],
             questionsCountTemp: undefined,
-            switchQuestions: false
+            switchQuestions: false,
+
+            potentialParamInjection: false
         }
     },
     watch:{
@@ -81,13 +100,14 @@ export default {
                 this.switchQuestions = !this.switchQuestions
                 this.questionsCountTemp = this.questionsCount
             } else {
-                this.themesRanking = []
+                if(!this.potentialParamInjection){
+                    this.themesRanking = []
+                } else this.potentialParamInjection = false
             }
         },
 
         themesRanking(){
             if(this.themesDistributionRadio===true && this.questionsCountTemp==0){
-                console.log(this.questionsCountTemp);
                 this.paramsManagement(this.exam.subject, 'themes-ranking', this.themesRanking)
             } else if (this.themesDistributionRadio===true && this.questionsCountTemp!=0) {
                 this.paramsManagement(this.exam.subject, 'themes-ranking', undefined)
@@ -174,6 +194,13 @@ export default {
         this.countThemes()
         this.themesRanking = []
         this.questionsCountTemp = this.questionsCount
+
+        if(this.potentialParam){
+            this.potentialParamInjection = true
+            this.themesDistributionRadio = true
+        }else if(this.potentialParam === null){
+            this.themesDistributionRadio = false
+        }
     }
 }
 </script>

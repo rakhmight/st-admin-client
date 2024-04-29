@@ -26,12 +26,14 @@ export default {
         paramsManagement: Function,
         complex: Array,
         showResults: Array,
-        switchResultShowing: Boolean
+        switchResultShowing: Boolean,
+        potentialParam: Array | undefined
     },
     data(){
         return {
             displayedParams: [
                 { title: 'Spent Time', value: 'spentTime' },
+                { title: 'Not show grade', value: 'grade' },
                 { title: 'Number of correct and incorrect answers', value: 'showAStat' },
                 { title: 'Score (ball)', value: 'ball' },
                 { title: 'Percentage (%)', value: 'percentage' },
@@ -42,6 +44,17 @@ export default {
                 { title: 'Show wrong answered questions & answers', value: 'wrongQA' },
             ],
             choisedParams: []
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            if(Array.isArray(this.potentialParam)){
+                this.choisedParams.push(...this.potentialParam)
+                
+                if(this.choisedParams.length){
+                    this.paramsManagement(this.exam.subject, 'displayed-result-params', this.choisedParams)
+                }
+            }
         }
     },
     watch:{

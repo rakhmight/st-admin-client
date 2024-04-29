@@ -385,7 +385,7 @@ export default {
                     {title: 'Xorazm region', value: 7},
                     {title: 'Namangan region', value: 8},
                     {title: 'Navoiy region', value: 9},
-                    {title: 'Qashqadaryo region	', value: 10},
+                    {title: 'Qashqadaryo region', value: 10},
                     {title: 'Samarqand region', value: 11},
                     {title: 'Sirdaryo region', value: 12},
                     {title: 'Surxondaryo region', value: 13},

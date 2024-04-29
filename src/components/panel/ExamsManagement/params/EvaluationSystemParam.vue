@@ -91,7 +91,8 @@ export default {
     props:{
         paramsManagement: Function,
         complex: Array,
-        exam: Object
+        exam: Object,
+        potentialParam: Object | undefined
     },
     data(){
         return {
@@ -99,6 +100,22 @@ export default {
                 great: { from: undefined, to: undefined },
                 good: { from: undefined, to: undefined },
                 satisfactorily: { from: undefined, to: undefined }
+            }
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            if(this.potentialParam.great.from && this.potentialParam.great.to){
+                this.evaluationSystem.great.from = this.potentialParam.great.from
+                this.evaluationSystem.great.to = this.potentialParam.great.to
+            }
+            if(this.potentialParam.good.from && this.potentialParam.good.to){
+                this.evaluationSystem.good.from = this.potentialParam.good.from
+                this.evaluationSystem.good.to = this.potentialParam.good.to
+            }
+            if(this.potentialParam.satisfactorily.from && this.potentialParam.satisfactorily.to){
+                this.evaluationSystem.satisfactorily.from = this.potentialParam.satisfactorily.from
+                this.evaluationSystem.satisfactorily.to = this.potentialParam.satisfactorily.to
             }
         }
     },

@@ -5,7 +5,7 @@ import { disconnectEvent } from "./events/disconnect"
 import { devicesStatusEvent } from "./events/devicesStatus"
 import { examineeStatusEvent } from "./events/examineeStatus"
 
-const URL = "http://172.16.18.223:4500"
+const URL = "http://192.168.24.120:4500"
 
 const authParams = JSON.parse(localStorage.getItem('auth'))
 

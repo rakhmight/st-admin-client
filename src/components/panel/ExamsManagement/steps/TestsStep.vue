@@ -77,12 +77,14 @@ import TestHistory from '@/components/TestCard/dialogs/TestHistory.vue';
 import DataEmpty from '@/components/DataEmpty.vue';
 import TestFromTable from '@/components/panel/ExamsManagement/TestFromTable.vue';
 import { getSubject } from '@/plugins/getInfo'
+import makeReq from '@/services/makeReq'
 
 export default {
     props:{
         choisingTest: Function,
         changeChoisedSubject: Function,
-        switchChoisedSubject: Boolean
+        switchChoisedSubject: Boolean,
+        setSubjectPotentialParams: Function
     },
     data(){
         return{
@@ -108,13 +110,15 @@ export default {
             })
         }
     },
-    computed: mapGetters(['getSubjects', 'getTestImages']),
+    computed: mapGetters(['getSubjects', 'getTestImages', 'getAuthParams', 'getAdminServerIP']),
     mounted(){
-        this.subjects = this.getSubjects.map(subject=>{
-            return {
+        this.getSubjects.map(subject=>{
+            const testsAvailable = this.getTestImages.find(ti => ti.info.params.subject == subject.id)
+
+            if(testsAvailable) this.subjects.push({
                 title: subject.name.ru,
                 value: subject.id
-            }
+            })
         })
     },
     watch:{
@@ -122,10 +126,43 @@ export default {
             this.countTests()
         },
 
-        choisedSubjects(){
+        async choisedSubjects(){
             this.countTests()
             this.changeChoisedSubject(this.choisedSubjects)
             this.switchTest = !this.switchTest
+
+            const paramsData = await Promise.all(this.choisedSubjects.map(async (sub) => {
+                try {
+                    const subData = await makeReq(`${this.getAdminServerIP}/api/exams/get-last-params`, 'POST', {
+                        auth:{
+                            ...this.getAuthParams
+                        },
+                        data: {
+                            subject: sub
+                        }
+                    })
+
+                    if(subData){
+                        if(subData.statusCode == 200){
+                            if(subData.data.examParams){
+                                return {
+                                    subject: sub,
+                                    params: subData.data.examParams,
+                                    isUsed: false
+                                }
+                            } else return undefined
+                        }
+                    }
+                } catch (error) {
+                    console.error(error)
+                }
+            }))
+
+            const params = paramsData.filter(pd => {
+                if(pd) return pd
+            })
+
+            this.setSubjectPotentialParams(params)
         },
     },
     components:{

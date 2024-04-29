@@ -94,7 +94,8 @@ import { socket } from "@/socket";
 export default {
     props: {
         user: Object,
-        getUserName: Function
+        getUserName: Function,
+        getStatus: Function,
     },
    data(){
        return {
@@ -120,7 +121,7 @@ export default {
        },
    },
    methods:{
-        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus']),
+        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus', 'switchCurrentExamSwitcher']),
        async excludeUser(){
 
            if(!this.adminPassword){
@@ -149,10 +150,12 @@ export default {
                    socket.emit('client-exam-reset', {
                         userID: this.user.id,
                         examID: this.getCurrentExam.id,
+                        subject: this.getStatus().subject
                     })
                     
                     this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'reset' })
                     this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'reset' })
+                    this.switchCurrentExamSwitcher()
 
                    setTimeout(()=>{
                        this.success = false

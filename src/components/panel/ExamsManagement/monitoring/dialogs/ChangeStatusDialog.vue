@@ -7,8 +7,8 @@
        <template v-slot:activator="{ props }">
            <v-list-item v-bind="props">
                <v-list-item-title class="d-flex align-center">
-                   <v-icon size="18" class="mr-1" color="var(--red-color)">mdi-stop</v-icon>
-                   <span class="menu-text">Disqualify</span>
+                   <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-account-edit</v-icon>
+                   <span class="menu-text">Change user status (to 'waiting')</span>
                </v-list-item-title>
            </v-list-item>
        </template>
@@ -18,7 +18,7 @@
              color="var(--bg-special-color)"
            >
                <div class="pl-3 pr-3 d-flex flex-row align-center justify-space-between w-100">
-                   <span class="text-h5" style="color: #fff">Stop exam for {{ getUserName() }}</span>
+                   <span class="text-h5" style="color: #fff">Change user status for {{ getUserName() }}</span>
                    <v-btn
                    density="compact"
                    icon
@@ -43,18 +43,18 @@
                <div class="w-100 d-flex justify-center">
                    <v-btn
                    density="compact"
-                   :color="blockBtn ? '#eee' : 'var(--red-color)'"
+                   :color="blockBtn ? '#eee' : 'var(--main-color)'"
                    width="200"
-                   @click="excludeUser()"
+                   @click="changeStatus()"
                    :disabled="blockBtn"
                    >
-                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Stop exam</span>
+                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Change status</span>
                    <v-progress-circular
                    :width="1"
                    size="15"
                    color="var(--main-color)"
                    indeterminate
-                   v-else
+                   v-if="loader"
                    ></v-progress-circular>
                    </v-btn>
                </div>
@@ -78,7 +78,7 @@
                v-if="success"
                >
                    <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                   <span style="color:#fff">Exam stopped successfully</span>
+                   <span style="color:#fff">User status changed successfully</span>
                </v-alert>
            </div>
          </div>
@@ -89,13 +89,11 @@
 <script>
 import makeReq from '@/services/makeReq'
 import { mapGetters, mapMutations } from 'vuex'
-import { socket } from "@/socket";
 
 export default {
     props: {
         user: Object,
         getUserName: Function,
-        getStatus: Function,
         stopTimer: Function
     },
    data(){
@@ -124,16 +122,18 @@ export default {
    methods:{
         ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus', 'switchCurrentExamSwitcher']),
 
-       async excludeUser(){
+        async changeStatus(){
 
-           if(!this.adminPassword){
-               this.adminPasswordError.status = true
-               this.adminPasswordError.msg = "Enter the current administrator's password"
-               return
-           }
+            if(!this.adminPassword){
+                this.adminPasswordError.status = true
+                this.adminPasswordError.msg = "Enter the current administrator's password"
+                return
+            }
 
-           this.blockBtn = true
-           this.loader = true
+            this.blockBtn = true
+            this.loader = true
+
+            
 
            await makeReq(`${this.getAuthServerIP}/api/user/validate`, 'POST', {
                 auth: {
@@ -143,46 +143,35 @@ export default {
                     requesting: 'client'
                 }
            })
-           .then(async (data) => {
+           .then(async (data)=>{
                this.loader = false
 
-               if(data.statusCode==200){
-                   const stopExam = await makeReq(`${this.getAdminServerIP}/api/exams/stop-exam`, 'POST', {
+               if(data.statusCode==200){                
+                   const updateStatusUser = await makeReq(`${this.getAdminServerIP}/api/exams/examinee-status-update`, 'POST', {
                         auth: {
                             ...this.getAuthParams,
                         },
                         data:{
                             userID: this.user.id,
                             examID: this.getCurrentExam.id,
+                            status: 'waiting'
                         }
                     })
 
-                    if(stopExam){
-                        if(stopExam.statusCode == 200){
-                            this.success = true
+                    if(updateStatusUser.statusCode == 200){
+                        this.success = true   
+                        this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'reset' })
+                        this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'reset' })
+                        this.switchCurrentExamSwitcher()
+                        this.stopTimer()
 
-                            socket.emit('client-exam-stop', {
-                                userID: this.user.id,
-                                examID: this.getCurrentExam.id,
-                                subject: this.getStatus().subject,
-                            })
-                            this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'stop' })
-                            this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'stop' })
-                            this.switchCurrentExamSwitcher()
-                            this.stopTimer()
-
-                            setTimeout(()=>{
-                                this.success = false
-                                this.blockBtn = false
-                                this.adminPassword = undefined
-                                this.dialog = false
-                                this.showPassword = false
-                            },3000)
-                        } else {
+                        setTimeout(()=>{
+                            this.success = false
                             this.blockBtn = false
-                            this.adminPasswordError.status = true
-                            this.adminPasswordError.msg = "Some problems on serve-side"
-                        }
+                            this.adminPassword = undefined
+                            this.dialog = false
+                            this.showPassword = false
+                        },3000)
                     } else {
                         this.blockBtn = false
                         this.adminPasswordError.status = true
@@ -191,19 +180,17 @@ export default {
                } else if(data.statusCode == 403){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Wrong password"
-                    console.log(403);
                     return
                } else if(data.statusCode == 404){
                     this.adminPasswordError.status = true
                     this.adminPasswordError.msg = "Administrator not found"
-                    console.log(404);
                     return
                }
            })
            .catch(err=>{
                console.error(err);
            })
-       }
+        }
    }
 }
 </script>

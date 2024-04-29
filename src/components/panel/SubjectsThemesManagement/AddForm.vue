@@ -176,7 +176,7 @@ export default {
             uzLError: {status:false, msg:''},
             chairError: {status:false, msg:''},
 
-            blockAddBtn: true,
+            blockAddBtn: false,
             loader: false,
             reqSuccess: false
         }
@@ -190,6 +190,9 @@ export default {
                 })
             }
         })
+
+        this.choisedLangs.push('ru')
+        this.accessRu = true
     },
     watch:{
         choisedLangs(){
@@ -394,7 +397,7 @@ export default {
                             uz_l: null,
                             uz_k: null
                         }
-                    },3000)
+                    },1000)
                 }
             })
             .catch(error=>{

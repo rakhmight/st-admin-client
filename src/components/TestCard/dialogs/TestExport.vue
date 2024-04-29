@@ -102,7 +102,7 @@ export default {
             success: false
         }
     },
-    computed: mapGetters(['getAuthParams', 'getAdminServerIP']),
+    computed: mapGetters(['getAuthParams', 'getAdminServerIP', 'getRole']),
     methods: {
         async exportTest(){
             if(!this.password){
@@ -114,7 +114,7 @@ export default {
             this.loader = true
             this.blockBtn = true
 
-            await makeReq(`${this.getAdminServerIP}/api/tests/export`, 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/tests/${this.getRole == 3 ? 'admin-export' : 'export'}`, 'POST', {
                 auth: {
                     ...this.getAuthParams,
                 },
@@ -127,7 +127,7 @@ export default {
                 if(data.statusCode==200){
                     const test = data.data.test
 
-                    downloadObjectAsJson(test, `test-${test.params.subject}-${test.fileDate}`)
+                    downloadObjectAsJson(test, test.fileName)
 
                     this.loader = false
                     this.blockBtn = false

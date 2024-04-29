@@ -6,14 +6,20 @@
                 <th class="text-center" min-width="30px" width="30px">
                 #
                 </th>
+                <th class="text-center" min-width="30px" width="30px">
+                ID
+                </th>
                 <th class="text-left">
                 Subject('s)
                 </th>
                 <th class="text-left">
-                Tickets / Questions count
+                Tickets / Questions
                 </th>
                 <th class="text-left">
-                Planned
+                Examinee's
+                </th>
+                <th class="text-left">
+                Created
                 </th>
                 <th class="text-left">
                 Type
@@ -103,6 +109,7 @@ export default {
             })
 
             this.initPage()
+            this.updatePage(this.page)
         },
 
         checkExamsTimers(){

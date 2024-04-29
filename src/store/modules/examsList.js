@@ -1,15 +1,21 @@
 export default {
     state: {
-        exams: []
+        exams: [],
+        examsGetting: true
     },
     getters: {
         getExams(state){
             return state.exams
+        },
+
+        getExamsGetting(state){
+            return state.examsGetting
         }
     },
     mutations: {
         setExams(state, value){
             state.exams = value
+            state.examsGetting = false
         },
         addExam(state, value){
             state.exams.unshift(value)
@@ -43,6 +49,16 @@ export default {
                 }
             }
         },
+        changeExamineesList(state, value){
+            console.log(value);
+            const examTarget = state.exams.find(exam => exam.id == value.examID)
+
+            if(examTarget) {
+                const examIndex = state.exams.indexOf(examTarget)
+                state.exams[examIndex].users.push(...value.users)
+            }
+        },
+
         updateExamineeStatus(state, value) {
             const examTarget = state.exams.find(exam => exam.id == value.examID)
 

@@ -33,11 +33,17 @@ export default {
         paramsManagement: Function,
         complex: Array,
         exam: Object,
-        switchShowingResults: Function
+        switchShowingResults: Function,
+        potentialParam: Boolean | undefined
     },
     data(){
         return {
             showResultsRadio: undefined
+        }
+    },
+    mounted(){
+        if(this.potentialParam !== undefined){
+            this.showResultsRadio = this.potentialParam
         }
     },
     watch:{

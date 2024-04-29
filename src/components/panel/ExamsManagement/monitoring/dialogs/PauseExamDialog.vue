@@ -131,7 +131,7 @@ export default {
        },
    },
    methods:{
-        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus']),
+        ...mapMutations(['updateExamineeStatus', 'updateCurrentExamineeStatus', 'switchCurrentExamSwitcher']),
        async excludeUser(){
 
            if(!this.adminPassword){
@@ -183,9 +183,11 @@ export default {
                             start: resumeTime
                         }
                     })
-                    this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'resume', time: { value: timerValue, start: resumeTime } })
-                    this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'resume', time: { value: timerValue, start: resumeTime } })
+                    this.updateExamineeStatus({ examID: this.getCurrentExam.id, userID: this.user.id, type: 'resume', time: { value: null, start: resumeTime } })
+                    this.updateCurrentExamineeStatus({ userID: this.user.id, type: 'resume', time: { value: null, start: resumeTime } })
                    }
+
+                   this.switchCurrentExamSwitcher()
 
                    setTimeout(()=>{
                        this.success = false

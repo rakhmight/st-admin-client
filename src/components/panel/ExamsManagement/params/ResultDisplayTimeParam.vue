@@ -29,7 +29,7 @@
                 variant="outlined"
                 type="number"
                 label="Time"
-                v-model="displayTime"
+                v-model.number="displayTime"
                 min="0"
                 ></v-text-field>
             </div>
@@ -48,12 +48,25 @@ export default {
         paramsManagement: Function,
         complex: Array,
         showResults: Array,
-        switchResultShowing: Boolean
+        switchResultShowing: Boolean,
+        potentialParam: Number | null | undefined
     },
     data(){
         return {
             displayTime: 0,
-            displayTimeRadio: undefined
+            displayTimeRadio: undefined,
+
+            potentialParamInjection: false
+        }
+    },
+    mounted(){
+        if(this.potentialParam){
+            this.potentialParamInjection = true
+            this.displayTimeRadio = 'limited'
+
+            this.displayTime = this.potentialParam
+        } else if(this.potentialParam === null){
+            this.displayTimeRadio = 'unlimit'
         }
     },
     watch:{
@@ -61,8 +74,10 @@ export default {
             if(this.displayTimeRadio == 'unlimit'){
                 this.displayTime = null
             } else if(this.displayTimeRadio == 'limited'){
-                this.displayTime = 0
-                this.paramsManagement(this.exam.subject, 'result-display-time', undefined)
+                if(!this.potentialParamInjection){
+                    this.displayTime = 0
+                    this.paramsManagement(this.exam.subject, 'result-display-time', undefined)
+                } else this.potentialParamInjection = true
             }
         },
 

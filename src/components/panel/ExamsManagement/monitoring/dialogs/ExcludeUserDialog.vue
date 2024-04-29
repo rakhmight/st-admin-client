@@ -121,7 +121,7 @@ export default {
        },
    },
    methods:{
-    ...mapMutations(['excludeExaminee', 'excludeExamineeCurrentExam']),
+    ...mapMutations(['excludeExaminee', 'excludeExamineeCurrentExam','switchCurrentExamSwitcher']),
 
     async excludeUser(){
 
@@ -155,6 +155,7 @@ export default {
                     })
                     this.excludeExaminee({ examID: this.getCurrentExam.id, userID: this.user.id })
                     this.excludeExamineeCurrentExam({ userID: this.user.id })
+                    this.switchCurrentExamSwitcher()
                    console.log('OK');
 
                    setTimeout(()=>{

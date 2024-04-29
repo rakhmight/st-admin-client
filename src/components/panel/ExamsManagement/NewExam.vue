@@ -78,7 +78,7 @@
                     </v-window-item>
 
                     <v-window-item :value="2">
-                        <tests-step v-if="!reloadForm" :choisingTest="choisingTest" :changeChoisedSubject="changeChoisedSubject" :switchChoisedSubject="switchChoisedSubject" />
+                        <tests-step v-if="!reloadForm" :choisingTest="choisingTest" :changeChoisedSubject="changeChoisedSubject" :switchChoisedSubject="switchChoisedSubject" :setSubjectPotentialParams="setSubjectPotentialParams" />
                     </v-window-item>
 
                     <v-window-item :value="3">
@@ -86,12 +86,12 @@
                     </v-window-item>
 
                     <v-window-item :value="4">
-                        <params-step v-if="!reloadForm" :complex="complex" :paramsManagement="paramsManagement" :switchTests="switchTests"/>
+                        <params-step v-if="!reloadForm" :complex="complex" :paramsManagement="paramsManagement" :switchTests="switchTests" :usedPotentialParams="usedPotentialParams" :useSubjectParams="useSubjectParams" :switchPotentialParams="switchPotentialParams" :subjectPotentialParams="subjectPotentialParams"/>
                     </v-window-item>
                 </v-window>
             </div>
 
-            <div class="d-flex align-center justify-center">
+            <div class="d-flex flex-column align-center justify-center" style="gap: 10px">
                 <v-btn
                 density="compact"
                 :color="!steps.first || !steps.second || !steps.third || !steps.fourth || blockBtn ? '#eee' : 'var(--main-color)'"
@@ -109,6 +109,25 @@
                     v-else
                     ></v-progress-circular>
                 </v-btn>
+
+                <div style="width: 100%;">
+                    <v-alert
+                    v-if="error.value"
+                    color="var(--red-color)"
+                    density="compact"
+                    class="mb-4"
+                    >
+                    <span style="color: #fff">{{ error.msg }}</span>
+                    </v-alert>
+                    <v-alert
+                    v-if="success"
+                    color="var(--main-color)"
+                    density="compact"
+                    class="mb-4"
+                    >
+                    <span style="color: #fff">New exam is established</span>
+                    </v-alert>
+                </div>
             </div>
         </div>
     </div>
@@ -137,6 +156,10 @@ export default {
             loader: false,
             blockBtn: false,
             success: false,
+            error: {
+                value: false,
+                msg: undefined
+            },
             switchTests: false,
             reloadForm: false,
 
@@ -183,12 +206,28 @@ export default {
                 complex: {}
             },
 
-            switchChoisedSubject: false
+            switchChoisedSubject: false,
+
+            subjectPotentialParams: [],
+            usedPotentialParams: [],
+            switchPotentialParams: false
         }
     },
     computed: mapGetters(['getUsersList', 'getTestImages', 'getAdminServerIP', 'getAuthParams']),
     methods:{
         ...mapMutations(['addExam']),
+
+        useSubjectParams(subject){
+            const potentialParams = this.subjectPotentialParams.find(pp => pp.subject==subject)
+            this.subjectPotentialParams[this.subjectPotentialParams.indexOf(potentialParams)].isUsed = true
+            this.usedPotentialParams.push(potentialParams)
+            
+            //this.complex[examIndex].params = potentialParams.params
+            this.switchPotentialParams = true
+            this.finallyStepChecker()
+            setTimeout(()=> this.switchPotentialParams = false, 1500)
+        },
+
         changeChoisedSubject(subjects){
             this.complex.forEach(exam=>{
                 let counter = 0
@@ -470,6 +509,7 @@ export default {
 
                 if(type == 'exam-time'){
                     this.complex[index].params.examTime = param
+                    this.complex[index].params.questionTime = null
                 } else if(type=='question-time'){
                     this.complex[index].params.questionTime = param
                 } else if(type=='change-answer'){
@@ -603,56 +643,79 @@ export default {
                     this.blockBtn = false
                 }, 3000)
                 
-                this.reloadForm = true
-                // UI в начальные значения
-                this.params = {
-                    complex: {}
-                }
-                this.users = []
-                
-                this.steps = {
-                    first: false,
-                    second: false,
-                    third: false,
-                    fourth: false
-                }
-                this.step = 1
-                this.startFormat = undefined
-                this.examDateParams = {
-                    start:{
-                        date: undefined,
-                        time: undefined,
-                        byCommand: false,
-                    },
-                    end:{
-                        date: undefined,
-                        time: undefined,
-                        byCommand: false,
-                    }
-                }
-                this.usersParams = {
-                    students:{
-                        fullTime: [],
-                        inAbsentia: [],
-                        magistracy: []
-                    },
-                    enrollees:{
-                        fullTime: [],
-                        inAbsentia: [],
-                        magistracy: []
-                    },
-                    teachers: [],
-                    employees: []
-                }
-
-                setTimeout(()=>{
-                    this.reloadForm = false
-                }, 500)
-
+                this.updateUI()
             })
             .catch(err=>{
                 console.error(err)
+
+                this.loader = false
+                this.error.value = true
+                this.error.msg = err
+                setTimeout(()=>{
+                    this.error.value = false
+                    this.blockBtn = false
+                }, 5000)
+                
+                this.updateUI()
             })
+        },
+
+        updateUI(){
+            this.reloadForm = true
+
+            // UI в начальные значения
+            this.params = {
+                complex: {}
+            }
+
+            this.users = []
+            this.complex = []
+            
+            this.steps = {
+                first: false,
+                second: false,
+                third: false,
+                fourth: false
+            }
+
+            this.step = 1
+            this.startFormat = undefined
+
+            this.examDateParams = {
+                start:{
+                    date: undefined,
+                    time: undefined,
+                    byCommand: false,
+                },
+                end:{
+                    date: undefined,
+                    time: undefined,
+                    byCommand: false,
+                }
+            }
+
+            this.usersParams = {
+                students:{
+                    fullTime: [],
+                    inAbsentia: [],
+                    magistracy: []
+                },
+                enrollees:{
+                    fullTime: [],
+                    inAbsentia: [],
+                    magistracy: []
+                },
+                teachers: [],
+                employees: []
+            }
+
+            setTimeout(()=>{
+                this.reloadForm = false
+            }, 500)
+        },
+
+        setSubjectPotentialParams(potentialParams){
+            if(Array.isArray(potentialParams)) this.subjectPotentialParams = potentialParams
         }
     },
     watch:{

@@ -42,8 +42,13 @@
                     </v-btn>
                 </template>
                 <v-list density="compact" min-width="120">
+                    <change-status-dialog
+                    v-if="getStatus().status=='working'"
+                    :user="user"
+                    :getUserName="getUserName"
+                    :stopTimer="stopTimer"
+                    />
                     <stop-exam-dialog
-                    v-if="getStatus().status=='working' || getStatus().status=='paused'"
                     :user="user"
                     :getUserName="getUserName"
                     :getStatus="getStatus"
@@ -57,7 +62,7 @@
                     :getUserName="getUserName"
                     :resumeTimer="resumeTimer"
                     />
-                    <reset-exam-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
+                    <reset-exam-dialog v-if="getStatus().status!='waiting'" :user="user" :getUserName="getUserName" :getStatus="getStatus" />
                     <results-dialog :user="user" :getUserName="getUserName" />
                     <change-questions-dialog v-if="getStatus().status=='working' || getStatus().status=='paused'" :user="user" :getUserName="getUserName" />
                     <exclude-user-dialog
@@ -81,6 +86,7 @@ import PauseExamDialog from './dialogs/PauseExamDialog.vue'
 import ResultsDialog from './dialogs/ResultsDialog.vue'
 import ChangeQuestionsDialog from './dialogs/ChangeQuestionsDialog.vue'
 import { getSubject } from '@/plugins/getInfo';
+import ChangeStatusDialog from './dialogs/ChangeStatusDialog.vue';
 
 export default {
     props: {
@@ -173,7 +179,8 @@ export default {
         ResetExamDialog,
         PauseExamDialog,
         ResultsDialog,
-        ChangeQuestionsDialog
+        ChangeQuestionsDialog,
+        ChangeStatusDialog
     },
     computed: mapGetters(['getUsersList', 'getAuthServerIP', 'getCurrentExam', 'getSubjects']),
     methods: {

@@ -166,6 +166,7 @@ export default {
     width: 270px;
     position:fixed;
     z-index: 9;
+    padding-top: 54px;
 }
 .inspect__map{
     font-size: 0.9em;

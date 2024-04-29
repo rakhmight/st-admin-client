@@ -3,47 +3,68 @@
         <div class="d-flex flex-row justify-space-between align-center mb-2">
             <subtitle-component :subtitle="'Users who can have access to the system'" v-if="mode=='users'" />
             <subtitle-component :subtitle="'Section for managing signatures of system participants'" v-if="mode=='signs'" />
-            <!-- Sort -->
-            
-            <v-menu
-                transition="slide-y-transition"
-                location="bottom center"
+                        
+            <div class="d-flex align-center" style="width: 500px; gap: 15px; padding-top: 10px">
+                <v-text-field
+                label="Searching by fullname"
+                prepend-icon="mdi-magnify"
+                variant="outlined"
+                density="compact"
+                hide-details
+                ></v-text-field>
+
+                <v-btn
+                color="var(--main-color)"
+                height="25"
+                @click="() => showFilters=!showFilters"
                 >
-                <template v-slot:activator="{ props: menu  }">
-                    <v-tooltip location="top">
-                        <template v-slot:activator="{ props: tooltip }">
-                            <v-btn
-                            color="var(--main-color)"
-                            v-bind="mergeProps(menu, tooltip)"
-                            height="25"
-                            >
-                            <v-icon color="#fff">mdi-sort</v-icon>
-                            </v-btn>
-                        </template>
-                        <span>Sort</span>
-                    </v-tooltip>
-                </template>
-                    <v-list density="compact">
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by adding date</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by editing date</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by role</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                    </v-list>
-            </v-menu>
+                    <v-icon color="#fff">mdi-sort</v-icon>
+                </v-btn>
+            </div>
+        </div>
+
+        <div class="d-flex" style="gap: 20px" v-if="showFilters">
+            <div style="width: 200px">
+                <v-select
+                label="Select role"
+                :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+                variant="outlined"
+                color="var(--main-color)"
+                density="compact"
+                ></v-select>
+            </div>
+            
+            <v-select
+            label="Select department"
+            :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+            variant="outlined"
+            color="var(--main-color)"
+            density="compact"
+            ></v-select>
+            
+            <v-select
+            label="Select form of education"
+            :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+            variant="outlined"
+            color="var(--main-color)"
+            density="compact"
+            ></v-select>
+            
+            <v-select
+            label="Select course"
+            :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+            variant="outlined"
+            color="var(--main-color)"
+            density="compact"
+            ></v-select>
+            
+            <v-select
+            label="Select group"
+            :items="['California', 'Colorado', 'Florida', 'Georgia', 'Texas', 'Wyoming']"
+            variant="outlined"
+            color="var(--main-color)"
+            density="compact"
+            ></v-select>
         </div>
 
         <v-table density="compact">
@@ -67,7 +88,6 @@
             </tr>
             </thead>
             <tbody>
-
             <tr
             v-for="member in membersList"
             :key="member.id"
@@ -78,7 +98,7 @@
                         <div style="width: 40px; height: 40px;">
                             <v-img :src="`${this.getAuthServerIP}/public/avatars/${member.id}.png`"></v-img>
                         </div>
-                        <span class="ml-2">{{ member.bio.lastName }} {{ member.bio.firstName }} {{ member.bio.patronymic }}</span>
+                        <span class="ml-2">{{ member.bio.firstName }} {{ member.bio.lastName }} {{ member.bio.patronymic ? member.bio.patronymic : '' }}</span>
                     </div>
                 </td>
                 <td>
@@ -111,12 +131,9 @@
                                 <span class="menu-text">Info</span>
                             </v-list-item-title>
                         </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title class="d-flex align-center">
-                                <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                                <span class="menu-text">Edit</span>
-                            </v-list-item-title>
-                        </v-list-item>
+
+                        <edit-user :user="member" />
+
                         <v-list-item>
                             <v-list-item-title class="d-flex align-center">
                                 <v-icon size="18" class="mr-1" color="var(--red-color)">mdi-delete</v-icon>
@@ -182,6 +199,7 @@ import { mergeProps } from 'vue'
 import { mapGetters } from 'vuex';
 import DataEmpty from '@/components/DataEmpty.vue'
 import UserInfo from './ExamsManagement/UserInfo.vue';
+import EditUser from './UsersManagement/dialogs/EditUser.vue'
 
 export default {
     props:{
@@ -193,12 +211,14 @@ export default {
             membersList: [],
             page: 1,
             pageSize: 30,
-            listCount: 0
+            listCount: 0,
+
+            showFilters: false
         }
     },
     
     computed: {
-        ...mapGetters(['getUsersList', 'getAuthServerIP']),
+        ...mapGetters(['getUsersList', 'getAuthServerIP', 'getUsersDataSwitcher']),
         
 		pages() {
 			if (this.pageSize == null || this.listCount == null) return 0;
@@ -206,6 +226,12 @@ export default {
 		}
     },
     watch: {
+        getUsersDataSwitcher(){
+            this.makeList()
+            this.initPage();
+            this.updatePage(this.page);
+        },
+
         page(){
             this.updatePage(this.page)
         },
@@ -257,7 +283,8 @@ export default {
         SubtitleComponent,
         GetSign,
         DataEmpty,
-        UserInfo
+        UserInfo,
+        EditUser
     }
 }
 </script>

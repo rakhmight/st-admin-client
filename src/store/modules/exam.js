@@ -1,13 +1,22 @@
 export default {
     state: {
         currentExam: undefined,
+        currentExamSwitcher: false
     },
     getters: {
         getCurrentExam(state){
           return state.currentExam
         },
+
+        getCurrentExamSwitcher(state){
+          return state.currentExamSwitcher
+        }
     },
     mutations: {
+        switchCurrentExamSwitcher(state){
+          state.currentExamSwitcher = !state.currentExamSwitcher
+        },
+
         setCurrentExam(state, value){
           state.currentExam = value
         },

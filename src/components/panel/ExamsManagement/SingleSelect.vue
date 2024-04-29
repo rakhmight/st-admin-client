@@ -6,45 +6,66 @@
                 <span class="ml-1">Choose examinees</span>
             </div>
 
-            <v-menu
-                transition="slide-y-transition"
-                location="bottom center"
-                >
-                <template v-slot:activator="{ props: menu  }">
-                    <v-tooltip location="top">
-                        <template v-slot:activator="{ props: tooltip }">
-                            <v-btn
-                            color="var(--main-color)"
-                            v-bind="mergeProps(menu, tooltip)"
-                            height="25"
-                            >
-                            <v-icon color="#fff">mdi-sort</v-icon>
-                            </v-btn>
-                        </template>
-                        <span>Sort</span>
-                    </v-tooltip>
-                </template>
-                    <v-list density="compact">
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by adding date</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by editing date</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item>
-                            <v-list-item-title>
-                                <v-icon size="13" class="mr-1">mdi-play</v-icon>
-                                <span class="menu-text">by role</span>
-                            </v-list-item-title>
-                        </v-list-item>
-                    </v-list>
-            </v-menu>
+           <div class="d-flex flex-row justify-space-between align-center" style="gap: 20px">
+                <v-menu
+                    transition="slide-y-transition"
+                    location="bottom center"
+                    >
+                    <template v-slot:activator="{ props: menu  }">
+                        <v-tooltip location="top">
+                            <template v-slot:activator="{ props: tooltip }">
+                                <v-btn
+                                color="var(--main-color)"
+                                v-bind="mergeProps(menu, tooltip)"
+                                height="25"
+                                >
+                                <v-icon color="#fff">mdi-sort</v-icon>
+                                </v-btn>
+                            </template>
+                            <span>Sort</span>
+                        </v-tooltip>
+                    </template>
+                        <v-list density="compact">
+                            <v-list-item>
+                                <v-list-item-title>
+                                    <v-icon size="13" class="mr-1">mdi-play</v-icon>
+                                    <span class="menu-text">by adding date</span>
+                                </v-list-item-title>
+                            </v-list-item>
+                            <v-list-item>
+                                <v-list-item-title>
+                                    <v-icon size="13" class="mr-1">mdi-play</v-icon>
+                                    <span class="menu-text">by editing date</span>
+                                </v-list-item-title>
+                            </v-list-item>
+                            <v-list-item>
+                                <v-list-item-title>
+                                    <v-icon size="13" class="mr-1">mdi-play</v-icon>
+                                    <span class="menu-text">by role</span>
+                                </v-list-item-title>
+                            </v-list-item>
+                        </v-list>
+                </v-menu>
+
+                <div style="width: 300px; margin-right: 10px">
+                    <v-file-input
+                        hide-details
+                        accept="application/json"
+                        show-size
+                        counter
+                        clearable
+                        label="JSON file of users"
+                        density="compact"
+                        variant="outlined"
+                        v-model="retakeListFile"
+                        @change="handleRetakeList()"
+                        :error="retakeListError.status"
+                        :error-messages="retakeListError.msg"
+                        :loading="loadFile"
+                        color="var(--main-color)"
+                    ></v-file-input>
+                </div>
+           </div>
         </div>
 
         <v-table
@@ -114,7 +135,14 @@ export default {
             usersList: [],
             page: 1,
             pageSize: 30,
-            listCount: 0
+            listCount: 0,
+            
+            retakeListError: {
+                status: false,
+                msg: undefined
+            },
+            retakeListFile: undefined,
+            loadFile: false
         }
     },
     computed: {
@@ -141,6 +169,41 @@ export default {
     },
     methods: {
         mergeProps,
+
+        handleRetakeList(){
+            this.loadFile = true
+            this.retakeListError.status = false
+            this.retakeListError.msg = undefined
+
+			let reader  = new FileReader()
+
+            reader.addEventListener("load", function () {
+                this.loadFile= false
+                const retakeList = JSON.parse(reader.result)
+                console.log(retakeList.retakeList);
+
+                if(retakeList.retakeList && Array.isArray(retakeList.retakeList)){
+                    retakeList.retakeList.map( item => {
+                        console.log(item)
+                        this.choisingUser('add', item)
+                    } )
+                } else{
+                    this.retakeListError.status = true
+                    this.retakeListError.msg = 'Incorrect list format'
+                    return
+                }
+			}.bind(this), false)
+
+            if(this.retakeListFile){
+                if ( /\.(json)$/i.test( this.retakeListFile[0].name ) ) {
+					reader.readAsText(this.retakeListFile[0])
+				} else{
+                    this.retakeListError.status = true
+                    this.retakeListError.msg = 'Incorrect list format'
+                    return
+                }
+            }
+        },
 
         initPage(){
 			this.listCount = this.usersMap.length;

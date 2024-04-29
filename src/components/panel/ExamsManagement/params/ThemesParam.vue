@@ -47,7 +47,8 @@ export default {
         complex: Array,
         switchTests: Boolean,
         switchDifficultyExist: Function,
-        changeChoisedThemes: Function
+        changeChoisedThemes: Function,
+        potentialParam: Array | null | undefined
     },
     data(){
         return {
@@ -63,7 +64,9 @@ export default {
             if(this.examThemesRadio===false){
                 this.choisedThemes = null
             } else {
-                this.choisedThemes = []
+                if(!this.potentialParam){
+                    this.choisedThemes = []
+                }
             }
         },
 
@@ -136,6 +139,16 @@ export default {
     mounted(){
         this.countThemes()
         this.difficultyExistChecker()
+
+        if(this.potentialParam){
+            this.examThemesRadio = true
+
+            if(this.potentialParam && Array.isArray(this.potentialParam)){
+                this.choisedThemes.push(...this.potentialParam)
+            }
+        } else if(this.potentialParam === null){
+            this.examThemesRadio = false
+        }
     }
 }
 </script>

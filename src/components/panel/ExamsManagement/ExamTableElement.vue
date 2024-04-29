@@ -1,6 +1,16 @@
 <template>
     <tr>
             <td class="text-center">{{ i }}</td>
+
+            <td class="text-center">
+                <v-tooltip location="bottom" color="#00000073">
+                    <template v-slot:activator="{ props }">
+                        <v-icon v-bind="props" color="#888" class="hover" @click="copy(exam.id)">mdi-identifier</v-icon>
+                    </template>
+                    <span>click to copy</span>
+                </v-tooltip>
+            </td>
+
             <td>
                 <p
                 v-for="(subject, i) in getExamSubjects(exam)"
@@ -17,10 +27,18 @@
             </td>
 
             <td>
-                <p
+                {{ exam.users.length }}
+            </td>
+
+            <td>
+                <!-- <p
                 v-for="(date, i) in getPlannedTime(exam)"
                 :key="i"
-                >{{ date }}</p>
+                >{{ date }}</p> -->
+                <p>
+                    <span v-if="exam.createdAt">{{ getFullDate(exam.createdAt) }}</span>
+                    <span v-else style="color: #888">unknown</span>
+                </p>
             </td>
 
             <td><span style="color: var(--main-color)">{{ exam.complex.length>1 ? 'complex exam' : 'exam' }}</span></td>
@@ -70,12 +88,9 @@
                             <span style="color:var(--red-color)" class="menu-text">Delete the exam</span>
                         </v-list-item-title>
                     </v-list-item>
-                    <v-list-item>
-                        <v-list-item-title class="d-flex align-center" @click="getResults()">
-                            <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-file-document-outline</v-icon>
-                            <span class="menu-text">Get results</span>
-                        </v-list-item-title>
-                    </v-list-item>
+                    
+                    <exam-results-dialog :exam="exam" />
+
                 </v-list>
                 </v-menu>
 
@@ -98,14 +113,23 @@
                 >
                 </v-btn>
             </td>
+
+            <v-snackbar
+            v-model="snackbar"
+            :timeout="1500"
+            color="var(--main-color)"
+            variant="tonal"
+            >
+            Exam ID is copied!
+            </v-snackbar>
         </tr>
 </template>
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
-import { getSubject, getAuthor } from '@/plugins/getInfo'
-import makeReq from '@/services/makeReq'
-import xlsx from "json-as-xlsx"
+import { getSubject, getDate } from '@/plugins/getInfo'
+import ExamResultsDialog from './monitoring/dialogs/ExamResultsDialog.vue'
+import { copyToClipBoard } from '@/utils/copyToClipBoard'
 
 export default {
     props:{
@@ -119,12 +143,25 @@ export default {
     },
     data(){
         return {
-            status: undefined
+            status: undefined,
+            snackbar: false
         }
     },
-    computed: mapGetters(['getSubjects', 'getAdminServerIP', 'getAuthParams', 'getUsersList']),
+    computed: mapGetters(['getSubjects', 'getExams']),
+    components: {
+        ExamResultsDialog
+    },
     methods: {
         ...mapMutations(['setCurrentExam']),
+
+        copy(id){
+            copyToClipBoard(id)
+            this.snackbar = true
+        },
+
+        getFullDate(date){
+            return getDate(date)
+        },
 
         choiceExam(){
             this.setCurrentExam(this.exam)
@@ -199,59 +236,6 @@ export default {
             if(target){
                 this.status = target.status
             }
-        },
-
-        // Только для одноразогого теста
-        async getResults(){
-            await makeReq(`${this.getAdminServerIP}/api/exams/results`, 'POST', {
-                auth: {
-                    ...this.getAuthParams
-                },
-                data: {
-                    examID: this.exam.id
-                }
-            })
-            .then(data=>{
-                console.log(data.data.results)
-                this.makeXlsx(data.data.results)
-            })
-            .catch(error=>{
-                console.error(error)
-            })
-        },
-
-        makeXlsx(data){
-            const doc = [{
-                sheet: 'Results',
-                columns: [
-                    { label: "Т/р", value: "number" },
-                    { label: "Номзодларнинг Ф.И.О.", value: "user" },
-                    { label: "Тўғри жавоблар сони", value: "currectA" },
-                    { label: "Нотўғри жавоблар сони", value: "wrongA" },
-                    { label: "Номзоднинг тўплаган умумий баллари", value: "ball" },
-                ],
-                content: []
-            }]
-
-            doc[0].content = data.map((res,i)=>{
-                return {
-                    number: i+1,
-                    user: getAuthor(res.userID, this.getUsersList),
-                    currectA: res.results[0].exams[0].result.questions.correct,
-                    wrongA: res.results[0].exams[0].result.questions.wrong,
-                    ball: res.results[0].exams[0].result.ball.score
-                }
-            })
-
-            let settings = {
-                fileName: `Қайднома - ${getSubject(this.exam.complex[0].subject, this.getSubjects)}`,
-                //extraLength: 3,
-                writeMode: "writeFile",
-                writeOptions: {},
-                RTL: false,
-            }
-
-            xlsx(doc, settings)
         }
     },
     watch:{

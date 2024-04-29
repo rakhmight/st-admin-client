@@ -87,7 +87,8 @@ export default {
         questionsByThemesDifficultyMngt: Function,
         switchQuestions: Boolean,
         switchTests: Boolean,
-        choisedThemes: Array
+        choisedThemes: Array,
+        potentialValue: Object | undefined
     },
     data(){
         return {
@@ -159,7 +160,23 @@ export default {
         }
     },
     mounted(){
-        console.log(this.themeQuestions)
+        if(this.potentialValue){
+            if(this.potentialValue.easy > 0){
+                for(let i = 0; i != this.potentialValue.easy; i++){
+                    this.plusTheme('easy')
+                }
+            }
+            if(this.potentialValue.medium > 0){
+                for(let i = 0; i != this.potentialValue.medium; i++){
+                    this.plusTheme('medium')
+                }
+            }
+            if(this.potentialValue.hard > 0){
+                for(let i = 0; i != this.potentialValue.hard; i++){
+                    this.plusTheme('hard')
+                }
+            }
+        }
     }
 }
 </script>

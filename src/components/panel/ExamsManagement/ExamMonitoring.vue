@@ -18,7 +18,7 @@
         </div>
 
         <div class="block d-flex flex-column" style="gap: 10px" v-if="mngtExam">
-            <exam-tools :updateExam="updateExam" :changeTab="changeTab" />
+            <exam-tools :updateExam="updateExam" :changeTab="changeTab" :mngtExam="mngtExam" />
 
             <v-divider />
 
@@ -105,7 +105,7 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
         ExamineeFromTable
     },
     computed: {
-        ...mapGetters(['getCurrentExam']),
+        ...mapGetters(['getCurrentExam', 'getCurrentExamSwitcher']),
         
 		pages() {
 			if (this.pageSize == null || this.listCount == null) return 0;
@@ -166,11 +166,10 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
 		}
     },
     watch: {
-        'getCurrentExam.id'(){
-            if(this.getCurrentExam){
-                this.initPage()
-                this.updatePage(this.page)
-            }
+        getCurrentExamSwitcher(){
+            this.initPage()
+            this.updatePage(this.page)
+            this.examineeStatusCount()
         },
 
         'getCurrentExam.users'(){
@@ -184,7 +183,12 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
             this.mngtExam = this.getCurrentExam.complex.find(ce => ce.subject == this.tab)
         },
         getCurrentExam(){
+            console.log(this.getCurrentExam);
             if(this.getCurrentExam){
+                this.examineeStatusCount()
+                this.initPage()
+                this.updatePage(this.page)
+                
                 this.mngtExam = this.getCurrentExam.complex[0]
             }
         },

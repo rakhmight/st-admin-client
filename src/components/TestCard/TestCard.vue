@@ -89,8 +89,8 @@
 
               <test-info :test="test" />
               <test-history :test="test" />
-              <test-update :test="test" v-if="test.status.value=='rejected' && getRole==1" :reRenderTests="reRenderTests ? reRenderTests : undefined" />
-              <test-export :test="test" v-if="test.status.value=='rejected' && getRole==1"/>
+              <test-update :test="test" v-if="test.status.value=='rejected' && getRole==1 || test.status.value=='rejected' && test.status.step==2 && getRole==3" :reRenderTests="reRenderTests ? reRenderTests : undefined" />
+              <test-export :test="test" v-if="test.status.value=='rejected' && getRole==1 || test.status.value=='rejected' && test.status.step==2 && getRole==3"/>
               <test-delete :test="test" v-if="getRole==3 || test.author==getAuthParams.id && test.status.value!='approved'"/>
 
             </v-list>

@@ -27,7 +27,8 @@ export default {
         exam: Object,
         paramsManagement: Function,
         complex: Array,
-        switchTests: Boolean
+        switchTests: Boolean,
+        potentialParam: Array | undefined,
     },
     data(){
         return {
@@ -136,6 +137,11 @@ export default {
     },
     mounted(){
         this.countLanguages()
+
+        if(this.potentialParam && Array.isArray(this.potentialParam)){
+            this.choisedLanguages.push(...this.potentialParam)            
+            this.paramsManagement(this.exam.subject, 'exam-languages', this.choisedLanguages)
+        }
     }
 }
 </script>

@@ -8,8 +8,8 @@
         
             <v-list-item  v-bind="props">
                 <v-list-item-title class="d-flex align-center">
-                    <v-icon size="18" class="mr-1" color="var(--main-color)">mdi-pencil</v-icon>
-                    <span class="menu-text">Change type</span>
+                    <v-icon size="18" class="mr-1" color="#eb6517">mdi-keyboard-return</v-icon>
+                    <span class="menu-text" style="color: #eb6517">Return</span>
                 </v-list-item-title>
             </v-list-item>
 
@@ -20,7 +20,7 @@
              color="var(--bg-special-color)"
            >
                <div class="pl-3 pr-3 d-flex flex-row align-center justify-space-between w-100">
-                   <span class="text-h5" style="color: #fff">Change test type</span>
+                   <span class="text-h5" style="color: #fff">Return test</span>
                    <v-btn
                    density="compact"
                    icon
@@ -32,24 +32,26 @@
            </v-toolbar>
            <div class="dialog__content">
 
-            <!--  -->
-            <v-select
-            label="Choise test type"
-            :items="types"
-            variant="outlined"
-            density="compact"
-            v-model="testType"
-            ></v-select>
+               <v-text-field
+                   variant="outlined"
+                   density="compact"
+                   v-model="adminPassword"
+                   :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                   :type="showPassword ? 'text' : 'password'"
+                   label="Administrator's password"
+                   @click:append="showPassword = !showPassword"
+                   :error="adminPasswordError.status"
+               ></v-text-field>
 
             <div class="w-100 d-flex justify-center">
                 <v-btn
                     density="compact"
                     :color="blockBtn ? '#eee' : 'var(--main-color)'"
                     width="200"
-                    @click="changeTestType()"
+                    @click="returnTest()"
                     :disabled="blockBtn"
                 >
-                <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Change type</span>
+                <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader">Return test</span>
                 <v-progress-circular
                     :width="1"
                     size="15"
@@ -68,7 +70,7 @@
                     v-if="success"
                 >
                     <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                    <span style="color:#fff">Test type has changed successfully</span>
+                    <span style="color:#fff">Test has returned successfully</span>
                 </v-alert>
 
                 <v-alert
@@ -99,17 +101,15 @@ export default {
     data(){
         return {
             dialog: false,
-            types: [
-                {title: 'Public test', value: 'public'},
-                {title: 'Private test', value: 'private'},
-                {title: 'Examination test', value: 'exam'},
-                {title: 'Blocked test', value: 'blocked'},
-            ],
+            showPassword: false,
+            adminPassword: undefined,
+            adminPasswordError:{
+                msg: undefined,
+                status: false
+            },
             blockBtn: false,
             loader: false,
             success: false,
-
-            testType: this.test.type,
             error: {
                 status: false,
                 msg: undefined,
@@ -118,40 +118,54 @@ export default {
     },
     computed: mapGetters(['getAuthParams', 'getAdminServerIP']),
     methods:{
-        ...mapMutations(['changeTestImage']),
+        ...mapMutations(['changeTestImage', 'switchTestsDataSwitcher']),
 
-        async changeTestType(){
+        async returnTest(){
             this.blockBtn = true
             this.loader = true
 
-            await makeReq(`${this.getAdminServerIP}/api/tests/changetype`, 'POST', {
+            await makeReq(`${this.getAdminServerIP}/api/tests/return`, 'POST', {
                 auth: {  
                     ...this.getAuthParams,
                 },
                 data: {
-                    id: this.test.id,
-                    type: this.testType
+                    admin:{
+                        id: this.getAuthParams.id,
+                        password: this.adminPassword
+                    },
+                    id: this.test.id
                 }
             })
             .then(data=>{
                 if(data.statusCode==200){
                     this.success = true
                     this.loader = false
-
-                    // изменение типа в стейте
-                    this.changeTestImage({ operation: 'type', id:this.test.id, type: this.testType })
+                    
+                    console.log(data);
+                    this.changeTestImage({ operation: 'return', id: this.test.id, status: 'rejected' })
+                    this.switchTestsDataSwitcher()
 
                     setTimeout(()=>{
                         this.blockBtn = false
                         this.success = false
-                        this.testType = undefined
+                        this.adminPassword = undefined
                         this.dialog = false
+                        this.showPassword = false
+                    }, 3000)
+                }else if(data.statusCode==404 || data.statusCode==403 || data.statusCode==400 || data.statusCode==500){
+                    this.loader = false
+                    this.blockBtn = false
+                    this.error.status = true
+                    this.error.msg = data.message
+                    
+                    setTimeout(()=>{
+                        this.error.status = false
                     }, 3000)
                 }
             })
             .catch(error => {
                 console.error(error)
-
+                
                 this.loader = false
                 this.blockBtn = false
                 this.error.status = true

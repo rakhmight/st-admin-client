@@ -146,7 +146,8 @@ export default {
     methods: {
         mergeProps,
       
-        reRenderTests(){            
+        reRenderTests(){     
+            console.log(1);       
             this.tests= []
             this.getTestImages.forEach((test, i) => {
                 const testI = { ...test, number: i+1 }
@@ -156,6 +157,9 @@ export default {
                     if(test.status.value=='under-review' && test.status.step==2 || test.status.value=='approved' || test.status.value=='rejected' && test.status.rejected=='admin') this.tests.push(testI)
                 }
             })
+            
+            this.initPage();
+            this.updatePage(this.page);
         },        
 
         initPage(){
@@ -182,8 +186,6 @@ export default {
     },
     mounted(){
         this.reRenderTests()
-        this.initPage();
-		this.updatePage(this.page);
     },
 }
 </script>

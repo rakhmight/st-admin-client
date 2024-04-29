@@ -127,4 +127,8 @@ html{
   white-space: nowrap;
   text-overflow: ellipsis;
 }
+
+.hover:hover{
+  cursor: pointer;
+}
 </style>

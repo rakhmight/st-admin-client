@@ -95,7 +95,8 @@ export default {
         paramsManagement: Function,
         complex: Array,
         switchTests: Boolean,
-        difficultyExist: Boolean
+        difficultyExist: Boolean,
+        potentialParam: Object | null | undefined
     },
     data(){
         return {
@@ -105,7 +106,9 @@ export default {
                 uncurrect: undefined
             },
             existBallSystem: undefined,
-            ballSystemEqual: false
+            ballSystemEqual: false,
+
+            potentialParamInjection: false
         }
     },
     watch:{
@@ -113,23 +116,26 @@ export default {
             if(this.examBallSystemRadio=='exists'){
                 this.balls = null
             } else if(this.examBallSystemRadio=='custom') {
-                this.balls = {
-                    currect: undefined,
-                    uncurrect: undefined
-                } 
+                if(!this.potentialParamInjection){
+                    this.balls = {
+                        currect: undefined,
+                        uncurrect: undefined
+                    } 
+                } else this.potentialParamInjection = false
             } else if(this.examBallSystemRadio=='by-difficulty'){
-                this.balls ={
-                    easy: undefined,
-                    medium: undefined,
-                    hard: undefined,
-                    uncurrect: undefined
-                }
+                if(!this.potentialParamInjection){
+                    this.balls ={
+                        easy: undefined,
+                        medium: undefined,
+                        hard: undefined,
+                        uncurrect: undefined
+                    }
+                } else this.potentialParamInjection = false
             }
         },
         'balls.currect'(){
             console.log(this.balls);
             if(this.balls!=null){
-                    console.log(1111);
                 if(this.balls.currect>0 && this.balls.uncurrect>=0){
                     this.paramsManagement(this.exam.subject, 'exam-ball-system', this.balls)
                 } else {
@@ -283,6 +289,24 @@ export default {
         this.ballSystemExistAndDifficulty()
         if(this.existBallSystem){
             this.checkBallsEquality()
+        }
+
+        if(this.potentialParam){
+            this.potentialParamInjection = true
+
+            if(this.potentialParam.currect){
+                this.examBallSystemRadio ='custom'
+                this.balls.currect = this.potentialParam.currect
+                this.balls.uncurrect = this.potentialParam.uncurrect
+            }else if(this.potentialParam.easy && this.potentialParam.medium && this.potentialParam.hard){
+                this.examBallSystemRadio ='by-difficulty'
+                this.balls.uncurrect = this.potentialParam.uncurrect
+                this.balls.easy = this.potentialParam.easy
+                this.balls.medium = this.potentialParam.medium
+                this.balls.hard = this.potentialParam.hard
+            }
+        } else if(this.potentialParam === null){
+            this.examBallSystemRadio ='exists'
         }
     }
 }

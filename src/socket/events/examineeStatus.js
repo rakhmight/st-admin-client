@@ -5,12 +5,14 @@ export function examineeStatusEvent(socket) {
         // console.log(examineeData);
         store._mutations.updateCurrentExamineeStatus[0](examineeData)
         store._mutations.updateExamineeStatus[0](examineeData)
+        store._mutations.switchCurrentExamSwitcher[0]()
     });
 
     socket.on('admin-exam-additional', (additionalData) => {
         // console.log(additionalData);
         store._mutations.updateCurrentExamineeStatus[0](additionalData)
         store._mutations.updateExamineeStatus[0](additionalData)
+        store._mutations.switchCurrentExamSwitcher[0]()
     })
 
     socket.on("admin-pauseExam", (examineeData) => {
@@ -22,6 +24,7 @@ export function examineeStatusEvent(socket) {
     socket.on("admin-finishExam", (examineeData) => {
         store._mutations.updateCurrentExamineeStatus[0](examineeData)
         store._mutations.updateExamineeStatus[0](examineeData)
+        store._mutations.switchCurrentExamSwitcher[0]()
     });
       
     // socket.on("admin-connectDevice", (deviceID) => {

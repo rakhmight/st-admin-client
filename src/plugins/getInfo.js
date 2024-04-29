@@ -10,10 +10,17 @@ export function getSubject(id, subjects, lang=undefined){
 export function getAuthor(id, users){
     const user = users.find(user => user.id == id)
     if(user){
-        return `${user.bio.lastName} ${user.bio.firstName} ${user.bio.patronymic}`
+        return `${user.bio.firstName} ${user.bio.lastName} ${user.bio.patronymic ? user.bio.patronymic : ''}`
     } else {
         return id
     }
+}
+
+export function getGroup(id, users, mode){
+    const user = users.find(user => user.id == id)
+
+    if(mode == 'full') return `${user.roleProperties.group<10 ? `${getCourse(user.roleProperties.recieptDate)}0` : getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group}`
+    else if(mode == 'min') return user.roleProperties.group
 }
 
 export function getCourse(year){
@@ -32,11 +39,7 @@ export function getCourse(year){
 
 export function getDate(date){
     date = new Date(date)
-    if((date.getMonth()+1)<9){
-        return `${date.getDate()}.0${date.getMonth()+1}.${date.getFullYear()}`
-    }else {
-        return `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()}`
-    }
+    return `${date.getDate()<10 ? `0${date.getDate()}` : date.getDate()}.${date.getMonth()+1<10 ? `0${date.getMonth()+1}` : date.getMonth()+1}.${date.getFullYear()}`
 }
 
 export function getLanguages(langs){
@@ -61,7 +64,7 @@ export function getLanguages(langs){
     return languages.join(', ')
 }
 
-export function getThemes(sub, thems, subjects){
+export function getThemes(sub, thems, subjects, isArray=false){
     let target = subjects.find(subject=>subject.id==sub)
     if(target){
         let themes = []
@@ -74,9 +77,12 @@ export function getThemes(sub, thems, subjects){
             }
         })
 
-        return themes.join(', ')
+        if(isArray) return themes
+        else return themes.join(', ')
+        
     } else {
-        return thems.join(', ')
+        if(isArray) return thems
+        else return thems.join(', ')
     }
 }
 
