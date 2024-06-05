@@ -149,6 +149,7 @@ export default {
                     }
 
                 } else {
+                console.log(test);
                     this.testFileError.status = true
                     this.testFileError.msg = 'Incorrect test format'
                     return

@@ -18,9 +18,12 @@ export function getAuthor(id, users){
 
 export function getGroup(id, users, mode){
     const user = users.find(user => user.id == id)
-
     if(mode == 'full') return `${user.roleProperties.group<10 ? `${getCourse(user.roleProperties.recieptDate)}0` : getCourse(user.roleProperties.recieptDate)}${user.roleProperties.group}`
     else if(mode == 'min') return user.roleProperties.group
+}
+
+export function getGroupByProps(group, recieptDate){
+    return `${group<10 ? `${getCourse(recieptDate)}0` : getCourse(recieptDate)}${group}`
 }
 
 export function getCourse(year){

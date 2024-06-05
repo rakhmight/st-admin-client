@@ -164,7 +164,7 @@
 
 <script>
 import makeReq from '@/services/makeReq'
-import { getSubject, getAuthor, getGroup, getCourse } from '@/plugins/getInfo'
+import { getSubject, getAuthor, getGroup, getCourse, getGroupByProps } from '@/plugins/getInfo'
 import { mapGetters } from 'vuex'
 import xlsx from "json-as-xlsx"
 import JsExcelTemplate from '@/services/js-excel-templates2/browser'
@@ -197,7 +197,7 @@ export default {
             variant: undefined,
             examForm: undefined,
             prepareReference: true,
-            referenceWithCharts: true,
+            referenceWithCharts: false,
             hasDuplicates: false,
             duplicatesData: [],
 
@@ -298,7 +298,7 @@ export default {
 
           if(currentExam){
               currentExam.users.forEach(user => {
-                  if(user.status == 'waiting'){
+                  if(user.status == 'waiting' || user.status == 'working' || user.status == 'paused'){
                       resultsToDoc.push({
                           user: getAuthor(user.id, this.getUsersList),
                           group: getGroup(user.id, this.getUsersList, 'full'),
@@ -384,9 +384,9 @@ export default {
                                 })
                             }else if(userData.userRole == 'enrollee'){
                                 const datasetRolePropertiesTarget = dataset.find( datasetElm =>
-                                datasetElm.formOfEducation == userData.roleProperties.formOfEducation &&
-                                datasetElm.admissionYear == userData.roleProperties.admissionYear &&
-                                datasetElm.group == userData.roleProperties.group
+                                    datasetElm.formOfEducation == userData.roleProperties.formOfEducation &&
+                                    datasetElm.admissionYear == userData.roleProperties.admissionYear &&
+                                    datasetElm.group == userData.roleProperties.group
                                 )
 
                                 if(datasetRolePropertiesTarget) dataset[dataset.indexOf(datasetRolePropertiesTarget)].users.push(userResult)
@@ -420,6 +420,61 @@ export default {
                         examineesExamPassDate.push(userResult.results[0].exams[0].date)
                     }
                 })
+
+                // добавить недостающие группы/ведомости
+                const currentExam = this.getExams.find(ex => ex.id == this.exam.id)
+                currentExam.users.forEach(user => {
+                    const userData = this.getUsersList.find( u => u.id == user.id )
+                    if(userData){
+                        const datasetRoleTarget = dataset.find( datasetElm => datasetElm.role == userData.userRole)
+
+                        if(datasetRoleTarget){
+                            if(userData.userRole == 'student'){
+                                const datasetRolePropertiesTarget = dataset.find( datasetElm =>
+                                datasetElm.educationForm == userData.roleProperties.educationForm &&
+                                datasetElm.recieptDate == userData.roleProperties.recieptDate &&
+                                datasetElm.group == userData.roleProperties.group
+                                )
+
+                                if(!datasetRolePropertiesTarget) dataset.push({
+                                    role: userData.userRole,
+                                    ...userData.roleProperties,
+                                    users: []
+                                })
+                            }else if(userData.userRole == 'enrollee'){
+                                const datasetRolePropertiesTarget = dataset.find( datasetElm =>
+                                    datasetElm.formOfEducation == userData.roleProperties.formOfEducation &&
+                                    datasetElm.admissionYear == userData.roleProperties.admissionYear &&
+                                    datasetElm.group == userData.roleProperties.group
+                                )
+
+                                if(!datasetRolePropertiesTarget) dataset.push({
+                                    role: userData.userRole,
+                                    ...userData.roleProperties,
+                                    users: []
+                                })
+                            }else if(userData.userRole == 'teacher' || userData.userRole == 'employee'){
+                                const datasetRolePropertiesTarget = dataset.find( datasetElm =>
+                                datasetElm.department == userData.roleProperties.department &&
+                                datasetElm.role == userData.userRole
+                                )
+
+                                if(!datasetRolePropertiesTarget) dataset.push({
+                                    role: userData.userRole,
+                                    ...userData.roleProperties,
+                                    users: []
+                                })
+
+                            }
+                        } else {
+                            dataset.push( {
+                                role: userData.userRole,
+                                ...userData.roleProperties,
+                                users: []
+                            })
+                        }
+                    }
+                })
             }
             dataset.sort( (a,b) => a.group - b.group )
             console.log(dataset);
@@ -428,12 +483,11 @@ export default {
             const resultFileTmp = await fetch(`./results-${this.variant == 'exam' ? 'general' : this.variant == 'retake' ? 'retake' : ''}.xlsx`)
             const resTmpArrBuffer = await resultFileTmp.arrayBuffer()
             const excelTemplate = await JsExcelTemplate.fromArrayBuffer(resTmpArrBuffer)
-            
             if(this.variant == 'exam'){
                 dataset.forEach((datasetElm, i) => {
                     if(i==0){
-                        excelTemplate.renameSheet(0, getGroup(datasetElm.users[0].userID, this.getUsersList, 'full'));
-                    } else excelTemplate.addSheet(getGroup(datasetElm.users[0].userID, this.getUsersList, 'full'))
+                        excelTemplate.renameSheet(0, datasetElm.role == 'student' ? getGroupByProps(datasetElm.group, datasetElm.recieptDate) : `${i}`)
+                    } else excelTemplate.addSheet(datasetElm.role == 'student' ? getGroupByProps(datasetElm.group, datasetElm.recieptDate) : `${i}`)
                 })
             } else if(this.variant == 'retake'){
                 excelTemplate.renameSheet(0, 'Қайта топшириш умумий', 'full')
@@ -441,7 +495,7 @@ export default {
 
             if(this.variant == 'exam'){
                 dataset.forEach((datasetElm, i) => {
-                    const header = datasetElm.role == 'student' ? `${datasetElm.educationForm == 'full-time' ? 'Кундузги таълим' : datasetElm.educationForm == 'in-absentia' ? 'Сиртқи таълим' : 'Магистратура' } ${getCourse(datasetElm.recieptDate)}-ўқув курси ${getGroup(datasetElm.users[0].userID, this.getUsersList, 'full')}-гурух ${datasetElm.educationForm == 'full-time' ? 'курсантлар' : 'тингловчилар'} учун` : datasetElm.role == 'teacher' || datasetElm.role == 'employee' ? `${this.getDepartment(datasetElm.department)} ${datasetElm.role == 'teacher' ? 'кафедра ўқитувчилар учун' : 'бўлим ходимлар учун'}` : `unknown`
+                    const header = datasetElm.role == 'student' ? `${datasetElm.educationForm == 'full-time' ? 'Кундузги таълим' : datasetElm.educationForm == 'in-absentia' ? 'Сиртқи таълим' : 'Магистратура' } ${getCourse(datasetElm.recieptDate)}-ўқув курси ${getGroupByProps(datasetElm.group, datasetElm.recieptDate)}-гуруҳ ${datasetElm.educationForm == 'full-time' ? 'курсантлар' : 'тингловчилар'} учун` : datasetElm.role == 'teacher' || datasetElm.role == 'employee' ? `${this.getDepartment(datasetElm.department)} ${datasetElm.role == 'teacher' ? 'кафедра ўқитувчилар учун' : 'бўлим ходимлар учун'}` : `unknown`
                     const date = new Date()
 
                     excelTemplate.set(i, "currentDate", `${date.getDate()<10 ? `0${date.getDate()}` : date.getDate()}.${date.getMonth()+1<10 ? `0${date.getMonth()+1}` : date.getMonth()+1}.${date.getFullYear()}`);
@@ -455,7 +509,8 @@ export default {
                             percent: userRes.results[0].exams[0].result.percentage,
                             grade: userRes.results[0].exams[0].result.grade,
                             id: userRes.userID,
-                            status: userRes.results[0].exams[0].result.grade > 2 ? 'finished' : 'failed'
+                            status: userRes.results[0].exams[0].result.grade > 2 ? 'finished' : 'failed',
+                            group: getGroup(userRes.userID, this.getUsersList, 'full')
                         }
                     })
 
@@ -481,7 +536,7 @@ export default {
                         }
 
                         currentExam.users.forEach(user => {
-                            if(user.status == 'waiting'){
+                            if(user.status == 'waiting' || user.status == 'paused' || user.status == 'working'){
                                 const examinee = examinees.find(ex => ex.id == user.id)
                                 const userData = this.getUsersList.find(u => u.id == user.id)
 
@@ -491,7 +546,8 @@ export default {
                                         i: examineesCount+1,
                                         fullName: getAuthor(user.id, this.getUsersList),
                                         percent: 'келмаган',
-                                        status: 'waiting'
+                                        status: 'waiting',
+                                        group: getGroup(user.id, this.getUsersList, 'full')
                                     })
 
                                     mergeCells.push(examineesCount)
@@ -512,7 +568,8 @@ export default {
                                         fullName: getAuthor(user.id, this.getUsersList),
                                         percent: 'четлаштирилган',
                                         grade: 2,
-                                        status: 'blocked'
+                                        status: 'blocked',
+                                        group: getGroup(user.id, this.getUsersList, 'full')
                                     })
                                     mergeCells.push(examineesCount)
                                 }
@@ -548,7 +605,7 @@ export default {
                             examineesPassed++
                         }
 
-                        if(examinee.status == 'waiting'){
+                        if(examinee.status == 'waiting' || examinee.status == 'paused' || examinee.status == 'working'){
                             missedCount++
                             realExamineesCount--
                         }
@@ -560,7 +617,7 @@ export default {
                     })
 
                     excelTemplate.set(i, "examinees", examinees)
-                    excelTemplate.set(i, "averageResult", Math.round(totalPercent/realExamineesCount))
+                    excelTemplate.set(i, "averageResult", isNaN(Math.round(totalPercent/realExamineesCount)) ? 0 : Math.round(totalPercent/realExamineesCount))
                     excelTemplate.set(i, "examineesPassed", examineesPassed)
                     excelTemplate.set(i, "examineesFailed", examineesFailed)
                     excelTemplate.set(i, "greatCount", greatCount)
@@ -572,8 +629,24 @@ export default {
                     mergeCells.forEach(mCell => excelTemplate.mergeCellsInSheet(i, mCell, 'general'))
 
                     excelTemplate.set(i, "examineesCount", examinees.length)
+                    
+                    /////                
+                    reference.greatTotalCount += greatCount
+                    reference.goodTotalCount += goodCount
+                    reference.satisfactorilyTotalCount += satisfactorilyCount
+                    reference.failedTotalCount += failedCount
+                    reference.missedTotalCount += missedCount
+                    //////
+                    
+                    reference.header = dataset[0].role == 'student' ? `${dataset[0].educationForm == 'full-time' ? 'Кундузги таълим' : dataset[0].educationForm == 'in-absentia' ? 'Сиртқи таълим' : 'Магистратура' } ${getCourse(dataset[0].recieptDate)}-ўқув курси ${dataset[0].educationForm == 'full-time' ? 'курсантлар' : 'тингловчилар'}и` : dataset[0].role == 'teacher' || dataset[0].role == 'employee' ? `${this.getDepartment(dataset[0].department)} ${dataset[0].role == 'teacher' ? 'кафедра ўқитувчилари' : 'бўлим ходимлари'}` : `unknown`
+                    reference.subject = getSubject(this.exam.complex[0].subject, this.getSubjects).split('(')[0].trim()
+                    reference.year = date.getFullYear()
+                    reference.month = this.getMonthName(date.getMonth())
+                    reference.form = this.examForm == 'intermediate' ? 'оралиқ назорат' : this.examForm == 'final' ? 'якуний назорат' : ''
+                    reference.examForm = this.examForm == 'intermediate' ? 'Оралиқ назорат' : this.examForm == 'final' ? 'Якуний назорат' : ''
                 })
             } else if(this.variant == 'retake'){
+                // examineeGradeSum
                 const examinees = []
                 const header = dataset[0].role == 'student' ? `${dataset[0].educationForm == 'full-time' ? 'Кундузги таълим' : dataset[0].educationForm == 'in-absentia' ? 'Сиртқи таълим' : 'Магистратура' } ${getCourse(dataset[0].recieptDate)}-ўқув курси ${dataset[0].educationForm == 'full-time' ? 'курсантлар' : 'тингловчилар'} учун` :dataset[0].role == 'teacher' || dataset[0].role == 'employee' ? `${this.getDepartment(dataset[0].department)} ${dataset[0].role == 'teacher' ? 'кафедраўқитувчилар учун' : 'бўлим ходимлар учун'}` : `unknown`
                 const date = new Date()
@@ -614,7 +687,7 @@ export default {
 
                 if(currentExam){
                     currentExam.users.forEach(user => {
-                        if(user.status == 'waiting'){
+                        if(user.status == 'waiting' || user.status == 'paused' || user.status == 'working'){
                             const examinee = examinees.find(ex => ex.id == user.id)
 
                             if(!examinee){
@@ -663,7 +736,7 @@ export default {
                 examinees.sort( (a,b) => a.group - b.group )
                 examinees.forEach((examinee, ui) => {
                     examinee.i = ui+1
-                    if(examinee.status == 'waiting' || examinee.status == 'blocked') mergeCells.push(ui)
+                    if(examinee.status == 'waiting' || examinee.status == 'paused' || examinee.status == 'working' || examinee.status == 'blocked') mergeCells.push(ui)
                     
                     if(typeof examinee.percent == 'number') totalPercent+=examinee.percent
                     if(examinee.grade == 2 && examinee.status != 'blocked'){
@@ -680,7 +753,7 @@ export default {
                         examineesPassed++
                     }
 
-                    if(examinee.status == 'waiting'){
+                    if(examinee.status == 'waiting' || examinee.status == 'working' || examinee.status == 'paused'){
                         missedCount++
                         realExamineesCount--
                     }
@@ -694,7 +767,7 @@ export default {
                 examineesData.push(...examinees)
 
                 excelTemplate.set(0, "examinees", examinees)
-                excelTemplate.set(0, "averageResult", Math.round(totalPercent/realExamineesCount))
+                excelTemplate.set(0, "averageResult", isNaN(Math.round(totalPercent/realExamineesCount)) ? 0 : Math.round(totalPercent/realExamineesCount))
                 excelTemplate.set(0, "examineesPassed", examineesPassed)
                 excelTemplate.set(0, "examineesFailed", examineesFailed)
                 excelTemplate.set(0, "greatCount", greatCount)
@@ -709,7 +782,7 @@ export default {
                 reference.greatTotalCount = greatCount
                 reference.goodTotalCount = goodCount
                 reference.satisfactorilyTotalCount = satisfactorilyCount
-                reference.failedTotalCount = failedCount+disqualifiedCount
+                reference.failedTotalCount = failedCount
                 reference.missedTotalCount = missedCount
                 ///////
 
@@ -727,7 +800,7 @@ export default {
 
                 const referenceExamineesData = dataset.map(datasetElm => {
                     return {
-                        group: getGroup(datasetElm.users[0].userID, this.getUsersList, 'full'),
+                        group: getGroupByProps(datasetElm.group, datasetElm.recieptDate),
                         examineesCount: 0,
                         participantsCount: 0,
                         greatCount: 0,
@@ -742,6 +815,7 @@ export default {
                         averageGrade: 0
                     }
                 })
+                console.log(referenceExamineesData);
 
                 referenceExamineesData.forEach((refExamData, i) => {
                     // examineesCount
@@ -753,7 +827,9 @@ export default {
 
                     // participantsCount
                     referenceExamineesData[i].participantsCount = examineesData.reduce((accumulator, currentValue) => {
-                        if(currentValue.status != 'waiting' && currentValue.group == refExamData.group) return accumulator+1
+                        if(currentValue.status != 'waiting' && currentValue.group == refExamData.group ||
+                        currentValue.status == 'paused' && currentValue.group == refExamData.group || 
+                        currentValue.status == 'working' && currentValue.group == refExamData.group) return accumulator+1
                         else return accumulator
                     }, 0)
                     if(referenceExamineesData[i].participantsCount == undefined) referenceExamineesData[i].participantsCount=0
@@ -767,18 +843,19 @@ export default {
                     
                     // greatPercent
                     const greatPercent = referenceExamineesData[i].greatCount/referenceExamineesData[i].participantsCount*100
-                    referenceExamineesData[i].greatPercent = +greatPercent.toFixed(1)
+                    referenceExamineesData[i].greatPercent = isNaN(+greatPercent.toFixed(1)) ? 0 : +greatPercent.toFixed(1)
 
                     // goodCount
                     referenceExamineesData[i].goodCount = examineesData.reduce((accumulator, currentValue) => {
                         if(currentValue.grade == 4 && currentValue.group == refExamData.group) return accumulator+1
                         else return accumulator
                     }, 0)
+
                     if(referenceExamineesData[i].goodCount == undefined) referenceExamineesData[i].goodCount=0
 
                     // goodPercent
                     const goodPercent = referenceExamineesData[i].goodCount/referenceExamineesData[i].participantsCount*100
-                    referenceExamineesData[i].greatPercent = +goodPercent.toFixed(1)
+                    referenceExamineesData[i].goodPercent = isNaN(+goodPercent.toFixed(1)) ? 0 : +goodPercent.toFixed(1)
 
                     // satisfactorilyCount
                     referenceExamineesData[i].satisfactorilyCount = examineesData.reduce((accumulator, currentValue) => {
@@ -789,7 +866,7 @@ export default {
 
                     // satisfactorilyPercent
                     const satisfactorilyPercent = referenceExamineesData[i].satisfactorilyCount/referenceExamineesData[i].participantsCount*100
-                    referenceExamineesData[i].greatPercent = +satisfactorilyPercent.toFixed(1)
+                    referenceExamineesData[i].satisfactorilyPercent = isNaN(+satisfactorilyPercent.toFixed(1)) ? 0 : +satisfactorilyPercent.toFixed(1)
 
                     // failedCount
                     referenceExamineesData[i].failedCount = examineesData.reduce((accumulator, currentValue) => {
@@ -800,23 +877,27 @@ export default {
 
                     // failedPercent
                     const failedPercent = referenceExamineesData[i].failedCount/referenceExamineesData[i].participantsCount*100
-                    referenceExamineesData[i].failedPercent = +failedPercent.toFixed(1)
+                    referenceExamineesData[i].failedPercent = isNaN(+failedPercent.toFixed(1)) ? 0 : +failedPercent.toFixed(1)
 
                     // missedCount
                     referenceExamineesData[i].missedCount = examineesData.reduce((accumulator, currentValue) => {
-                        if(currentValue.status == 'waiting' && currentValue.group == refExamData.group) return accumulator+1
+                        if(currentValue.status == 'waiting' && currentValue.group == refExamData.group ||
+                        currentValue.status == 'paused' && currentValue.group == refExamData.group || 
+                        currentValue.status == 'working' && currentValue.group == refExamData.group) return accumulator+1
                         else return accumulator
                     }, 0)
                     if(referenceExamineesData[i].missedCount == undefined) referenceExamineesData[i].missedCount=0
 
                     // averageGrade
                     let examineeGradeSum = examineesData.reduce((accumulator, currentValue) => {
-                        if(currentValue.grade && currentValue.group == refExamData.group && typeof currentValue.grade == 'number') return accumulator+currentValue.grade
+                        const grade = isNaN(currentValue.grade) ? 0 : currentValue.grade
+                        if(currentValue.grade && currentValue.group == refExamData.group && typeof currentValue.grade == 'number') return accumulator+grade
                         else return accumulator
                     }, 0)
+
                     if(examineeGradeSum == undefined) examineeGradeSum=0
                     const averageGrade = examineeGradeSum/referenceExamineesData[i].participantsCount
-                    referenceExamineesData[i].averageGrade = +averageGrade.toFixed(1)
+                    referenceExamineesData[i].averageGrade = isNaN(+averageGrade.toFixed(1)) ? 0 : +averageGrade.toFixed(1)
                 })
                 
                 reference.examineesTotalCount = examineesData.length
@@ -873,7 +954,7 @@ export default {
 
                             firstFailedIndex++
                         }
-                    }else if(examinee.status == 'waiting'){
+                    }else if(examinee.status == 'waiting' || examinee.status == 'paused' || examinee.status == 'working'){
                         missed.push({
                             i: missedIndex,
                             group: examinee.group,

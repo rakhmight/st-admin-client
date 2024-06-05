@@ -155,7 +155,9 @@ export default {
         getRetakeList(){
             const retakeListData = { retakeList: [] }
             this.getCurrentExam.users.map(user=>{
-                if(user.status == 'blocked' || user.status == 'waiting' || user.status == 'failed') retakeListData.retakeList.push(user.id)
+                if(user.status == 'blocked' || user.status == 'waiting' || user.status == 'failed' || user.status == 'working' || user.status == 'paused') retakeListData.retakeList.push(user.id)
+                // if(user.status == 'waiting') retakeListData.retakeList.push(user.id)
+                //if(user.status == 'blocked' || user.status == 'failed') retakeListData.retakeList.push(user.id)
             })
 
             downloadObjectAsJson(retakeListData, `RETAKE LIST of exam of ${this.mngtExam.subject} subject`)

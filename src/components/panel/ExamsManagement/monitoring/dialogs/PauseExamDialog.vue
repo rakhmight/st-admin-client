@@ -6,7 +6,7 @@
      >
        <template v-slot:activator="{ props }">
            <v-list-item v-bind="props">
-               <v-list-item-title class="d-flex align-center" v-if="user.status == 'working'">
+               <v-list-item-title class="d-flex align-center" v-if="user.status == 'working' || user.status == 'waiting'">
                    <v-icon size="18" class="mr-1" color="#ffa03b">mdi-pause</v-icon>
                    <span class="menu-text">Pause exam</span>
                </v-list-item-title>
@@ -23,7 +23,7 @@
              color="var(--bg-special-color)"
            >
                <div class="pl-3 pr-3 d-flex flex-row align-center justify-space-between w-100">
-                   <span class="text-h5" style="color: #fff" v-if="user.status == 'working'">Pause exam for {{ getUserName() }}</span>
+                   <span class="text-h5" style="color: #fff" v-if="user.status == 'working' || user.status == 'waiting'">Pause exam for {{ getUserName() }}</span>
                    <span class="text-h5" style="color: #fff" v-if="user.status == 'paused'">Resume exam for {{ getUserName() }}</span>
                    <v-btn
                    density="compact"
@@ -54,7 +54,7 @@
                    @click="excludeUser()"
                    :disabled="blockBtn"
                    >
-                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader && user.status == 'working'">Pause exam</span>
+                   <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader && user.status == 'working' || user.status == 'waiting'">Pause exam</span>
                    <span :style="blockBtn ? 'color: #777' : 'color:#fff'" v-if="!loader && user.status == 'paused'">Resume exam</span>
                    <v-progress-circular
                    :width="1"
@@ -85,7 +85,7 @@
                v-if="success"
                >
                    <v-icon color="#fff" class="mr-1">mdi-check</v-icon>
-                   <span style="color:#fff" v-if="user.status == 'working'">Exam paused successfully</span>
+                   <span style="color:#fff" v-if="user.status == 'working' || user.status == 'waiting'">Exam paused successfully</span>
                    <span style="color:#fff" v-if="user.status == 'paused'">Exam resumed successfully</span>
                </v-alert>
            </div>
@@ -158,7 +158,7 @@ export default {
                    this.success = true
 
                    
-                   if(this.user.status == 'working'){
+                   if(this.user.status == 'working' || this.user.status == 'waiting'){
                     const timerValue = this.pauseTimer()
                     socket.emit('client-exam-pause', {
                         userID: this.user.id,

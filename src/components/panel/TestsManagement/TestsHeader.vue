@@ -7,7 +7,22 @@
         <subtitle-component :subtitle="'Blocked tests'" v-if="window=='blocked'" />
         <!-- Sort -->
         
-        <v-menu
+        <div>
+            <v-tooltip location="top">
+                <template v-slot:activator="{ props: tooltip }">
+                    <v-btn
+                    color="var(--main-color)"
+                    v-bind="tooltip"
+                    height="25"
+                    @click="getTestsList()"
+                    >
+                    <v-icon color="#fff">mdi-list</v-icon>
+                    </v-btn>
+                </template>
+                <span>Get test list</span>
+            </v-tooltip>
+
+            <v-menu
             transition="slide-y-transition"
             location="bottom center"
             >
@@ -46,6 +61,7 @@
                     </v-list-item>
                 </v-list>
             </v-menu>
+        </div>
     </div>
 </template>
 
@@ -57,7 +73,8 @@ import SubtitleComponent from '@/components/SubtitleComponent';
 
 export default {
     props:{
-        window: String
+        window: String,
+        getTestsList: Function
     },
     methods: {
       mergeProps,

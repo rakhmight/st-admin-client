@@ -54,8 +54,9 @@
                     :getStatus="getStatus"
                     :stopTimer="stopTimer"
                     />
+                    <!-- 
+                    v-if="getStatus().status=='working' || getStatus().status=='paused' || getStatus().status=='waiting'" -->
                     <pause-exam-dialog
-                    v-if="getStatus().status=='working' || getStatus().status=='paused'"
                     :user="user"
                     :getStatus="getStatus"
                     :pauseTimer="pauseTimer"
