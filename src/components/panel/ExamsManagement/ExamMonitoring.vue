@@ -75,6 +75,7 @@ import { mapGetters } from 'vuex';
 import ExamTools from './monitoring/ExamTools.vue';
 import ExamInfo from './monitoring/ExamInfo.vue';
 import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
+import { getSubject, getDate } from '@/plugins/getInfo';
 
  export default {
     props: {
@@ -105,7 +106,7 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
         ExamineeFromTable
     },
     computed: {
-        ...mapGetters(['getCurrentExam', 'getCurrentExamSwitcher']),
+        ...mapGetters(['getCurrentExam', 'getCurrentExamSwitcher', 'getSubjects']),
         
 		pages() {
 			if (this.pageSize == null || this.listCount == null) return 0;
@@ -163,7 +164,11 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
 			let _end = pageIndex * this.pageSize;
 			this.examineesList = this.getCurrentExam.users.slice(_start, _end);
 			this.page = pageIndex;
-		}
+		},
+        
+        getSubjectName(id){
+            return getSubject(id, this.getSubjects)
+        },
     },
     watch: {
         getCurrentExamSwitcher(){
@@ -197,6 +202,8 @@ import ExamineeFromTable from './monitoring/ExamineeFromTable.vue'
         }
     },
     mounted(){
+        console.log(1);
+        console.log(this.getCurrentExam)
         this.mngtExam = this.getCurrentExam.complex[0]
         this.examineeStatusCount()
 

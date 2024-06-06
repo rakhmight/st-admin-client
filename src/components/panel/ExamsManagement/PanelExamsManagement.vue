@@ -20,7 +20,6 @@
                     <monitoring-exams
                     :changeTab="changeTab"
                     :updateExam="updateExam"
-                    :checkExamsTimers="checkExamsTimers"
                     />
                 </v-window-item>
                 <v-window-item value="new">

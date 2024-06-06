@@ -54,14 +54,13 @@
                     :getStatus="getStatus"
                     :stopTimer="stopTimer"
                     />
-                    <!-- 
-                    v-if="getStatus().status=='working' || getStatus().status=='paused' || getStatus().status=='waiting'" -->
                     <pause-exam-dialog
                     :user="user"
                     :getStatus="getStatus"
                     :pauseTimer="pauseTimer"
                     :getUserName="getUserName"
                     :resumeTimer="resumeTimer"
+                    v-if="getStatus().status=='working' || getStatus().status=='paused' || getStatus().status=='waiting'"
                     />
                     <reset-exam-dialog v-if="getStatus().status!='waiting'" :user="user" :getUserName="getUserName" :getStatus="getStatus" />
                     <results-dialog :user="user" :getUserName="getUserName" />
